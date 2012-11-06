@@ -6,20 +6,17 @@ usage() {
 	cat <<-EOF
 Usage: $0 [install]
 
-	Run with no parameters to configure 3-finger touch as middle-click
-
 	Run with "install" to have this run automatically.
+
+	Run with anything else to configure 3-finger touch as middle-click
+
 	EOF
 }
 case $1 in
-	"")
-		synclient TapButton3=2;;
+	-h) usage;;
 	"install")
 		gsettings set \
 			org.gnome.settings-daemon.peripherals.input-devices \
 			hotplug-command $(readlink -f $0);;
-	*)
- 		usage
-		exit 1
-		;;
+	*) synclient TapButton3=2;;
 esac
