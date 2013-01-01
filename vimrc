@@ -8,10 +8,11 @@ set tags+=~/.vim/systags
 set fo+=r
 set wildmenu
 
-"set t_Co=256
+set t_Co=256
 "colorscheme mustang
 colorscheme default
 set bg=dark
+hi normal guibg=black guifg=white
 
 
 filetype plugin indent on
@@ -41,6 +42,11 @@ endfunction
 
 au FileType ruby,python map # :call Comment_current("#")<CR>j
 au FileType c,cpp map # :call Comment_current("//")<CR>j
+
+au FileType python compiler nose
+
+let mapleader = ","
+map <Leader>t :MakeGreen<CR>
 
 set mouse=a
 

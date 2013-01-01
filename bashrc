@@ -114,3 +114,4 @@ if ! shopt -oq posix; then
 fi
 
 export PATH=$PATH:/home/ohad/bin
+export EDITOR=vim
