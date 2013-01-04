@@ -115,3 +115,7 @@ fi
 
 export PATH=$PATH:/home/ohad/bin
 export EDITOR=vim
+
+export NOSE_REDNOSE=1
+
+alias watchnose="watch -c nosetests --force-color"
