@@ -10,3 +10,5 @@
 	decorate = true
 [github]
 	user = lutzky
+[web]
+	browser = google-chrome
