@@ -8,12 +8,15 @@ set tags+=~/.vim/systags
 set fo+=r
 set wildmenu
 
-set t_Co=256
-"colorscheme mustang
-colorscheme default
-set bg=dark
-hi normal guibg=black guifg=white
+if &term == "xterm"
+	set t_Co=256
+	colorscheme default
+	set bg=dark
+elseif &term == "linux"
+	set bg=light " Counterintuitive, but seems to help
+endif
 
+hi normal guibg=black guifg=white
 
 filetype plugin indent on
 
@@ -21,6 +24,7 @@ au FileType haskell set et
 au FileType ruby set si sw=2 ts=2 sts=2 et
 au FileType eruby set si sw=2 ts=2 sts=2 et
 au FileType cpp set si sw=4 ts=4 sts=4 et cindent
+au FileType cuda set si sw=4 ts=4 sts=4 et cindent
 au FileType c set si sw=4 ts=4 sts=4 noet cindent
 au FileType st set si sw=4 ts=4 sts=4 et
 au FileType tex set si sw=2 ts=2 sts=2 et
