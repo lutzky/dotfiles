@@ -10,16 +10,9 @@ set wildmenu
 
 if &term == "xterm"
 	set t_Co=256
+	colorscheme default
+	set bg=dark
 endif
-"	colorscheme default
-"	set bg=dark
-"elseif &term == "linux"
-"	set bg=light " Counterintuitive, but seems to help
-"endif
-
-colorscheme jellybeans
-
-"hi normal guibg=black guifg=white
 
 set nocompatible
 filetype off
