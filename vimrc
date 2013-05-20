@@ -24,6 +24,7 @@ Bundle 'gmarik/vundle'
 Bundle 'scrooloose/nerdtree'
 Bundle 'klen/python-mode'
 Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-liquid'
 
 filetype plugin indent on
 
