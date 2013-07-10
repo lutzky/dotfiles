@@ -28,7 +28,7 @@ Bundle 'tpope/vim-liquid'
 
 filetype plugin indent on
 
-map <F2> :NERDTreeToggle<CR>
+map <F3> :NERDTreeToggle<CR>
 
 augroup vimrc_autocommands
     au FileType python set si sw=4 ts=4 sts=4 et
