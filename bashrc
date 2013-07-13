@@ -119,3 +119,18 @@ export EDITOR=vim
 export NOSE_REDNOSE=1
 
 alias watchnose="watch -c nosetests --force-color"
+
+if grep -q guake /proc/$PPID/cmdline; then
+	read -n 1 -p "Parent seems to be guake. Run tmux instead? [Y/n/a] " response
+	case $response in
+		n)
+			true
+			;;
+		a)
+			exit
+			;;
+		*)
+			exec tmux attach
+			;;
+	esac
+fi

@@ -8,7 +8,7 @@ set tags+=~/.vim/systags
 set fo+=r
 set wildmenu
 
-if &term == "xterm"
+if &term == "xterm" || &term == "screen"
 	set t_Co=256
 	colorscheme default
 	set bg=dark
