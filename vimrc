@@ -25,8 +25,12 @@ Bundle 'scrooloose/nerdtree'
 Bundle 'klen/python-mode'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-liquid'
+Bundle 'vim-scripts/OmniCppComplete'
+Bundle 'airblade/vim-gitgutter'
 
 filetype plugin indent on
+
+map <C-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
 map <F3> :NERDTreeToggle<CR>
 
