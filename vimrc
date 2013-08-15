@@ -10,7 +10,7 @@ set wildmenu
 
 if &term == "xterm" || &term == "screen"
 	set t_Co=256
-	colorscheme default
+	colorscheme jellybeans
 	set bg=dark
 endif
 
