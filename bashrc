@@ -103,3 +103,6 @@ if grep -q guake /proc/$PPID/cmdline; then
 			;;
 	esac
 fi
+
+DEBEMAIL=ohad@lutzky.net
+DEBFULLNAME="Ohad Lutzky"
