@@ -27,6 +27,7 @@ Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-liquid'
 Bundle 'vim-scripts/OmniCppComplete'
 Bundle 'airblade/vim-gitgutter'
+Bundle 'jwhitley/vim-matchit'
 
 filetype plugin indent on
 
