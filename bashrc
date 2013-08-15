@@ -99,7 +99,7 @@ if grep -q guake /proc/$PPID/cmdline; then
 			exit
 			;;
 		*)
-			exec tmux attach
+			exec tmux -2 attach
 			;;
 	esac
 fi
