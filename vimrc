@@ -20,6 +20,7 @@ filetype off
 set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
 
+Bundle 'bling/vim-airline'
 Bundle 'gmarik/vundle'
 Bundle 'scrooloose/nerdtree'
 Bundle 'klen/python-mode'
@@ -126,3 +127,6 @@ let g:pymode_syntax_all = 1
 
 " Don't autofold code
 let g:pymode_folding = 0
+
+set laststatus=2
+let g:airline#extensions#tabline#enabled = 1
