@@ -55,6 +55,9 @@ au FileType tex set si sw=2 ts=2 sts=2 et
 au FileType ruby set si sw=2 ts=2 sts=2 et
 au BufNewFile,BufRead *.ypp set ft=yacc
 au FileType yacc set si sw=4 ts=4 sts=4 et smartindent
+au FileType html set si sw=2 ts=2 sts=2 et
+au FileType json set si sw=2 ts=2 sts=2 et
+au FileType javascript set si sw=2 ts=2 sts=2 et
 
 function Comment_current(comment_symb)
 	let curline = getline(".")
