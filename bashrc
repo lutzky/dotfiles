@@ -101,7 +101,11 @@ if grep -q guake /proc/$PPID/cmdline; then
 			exit
 			;;
 		*)
-			exec tmux -2 attach
+			if tmux has-session 2>/dev/null; then
+				exec tmux -2 attach
+			else
+				exec tmux -2
+			fi
 			;;
 	esac
 fi
