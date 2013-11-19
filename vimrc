@@ -133,6 +133,8 @@ let g:pymode_folding = 0
 set laststatus=2
 let g:airline#extensions#tabline#enabled = 1
 
+set splitright
+
 map tn :tabnext<CR>
 map tp :tabprev<CR>
 map <C-t> :tabnew<CR>
