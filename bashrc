@@ -91,6 +91,9 @@ fi
 export PATH=$PATH:$HOME/bin
 export EDITOR=vim
 
+# Environments tend to mess $LESS up more than do something useful with it.
+unset LESS
+
 export NOSE_REDNOSE=1
 
 alias watchnose="watch -c nosetests --force-color"
