@@ -88,7 +88,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export PATH=$PATH:/home/ohad/bin
+export PATH=$PATH:$HOME/bin
 export EDITOR=vim
 
 export NOSE_REDNOSE=1
