@@ -4,8 +4,7 @@
 	name = Ohad Lutzky
 	email = ohad@lutzky.net
 [alias]
-	graph2 = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-	graph = log --all --color --graph --pretty=oneline --abbrev-commit
+	graph = log --all --color --graph --pretty=oneline --abbrev-commit --decorate
 [log]
 	decorate = true
 [github]
