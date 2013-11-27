@@ -102,7 +102,7 @@ if grep -q guake /proc/$PPID/cmdline; then
 	read -n 1 -p "Parent seems to be guake. Run tmux instead? [Y/n/a] " response
 	case $response in
 		n)
-			true
+			echo # Newline
 			;;
 		a)
 			exit
