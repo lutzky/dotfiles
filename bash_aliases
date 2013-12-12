@@ -11,6 +11,6 @@ _ssht() {
   _ssh "$@"
 }
 function ssht() {
-  ssh "$@" -t 'tmux a || tmux || /bin/bash'
+  ssh "$@" -t 'tmux -2 a || tmux -2 || /bin/bash'
 }
 complete -F _ssht ssht
