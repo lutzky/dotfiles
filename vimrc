@@ -10,7 +10,9 @@ set wildmenu
 
 if &term == "xterm" || &term == "screen" || &term == "screen-256color"
 	set t_Co=256
-	set bg=dark
+	let g:jellybeans_background_color_256="NONE"
+	let g:lightline = { 'colorscheme' : 'jellybeans' }
+	colorscheme jellybeans
 endif
 
 set nocompatible
@@ -19,15 +21,16 @@ filetype off
 set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
 
-Bundle 'bling/vim-airline'
+Bundle 'itchyny/lightline.vim'
 Bundle 'gmarik/vundle'
 Bundle 'scrooloose/nerdtree'
 Bundle 'klen/python-mode'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-liquid'
-Bundle 'vim-scripts/OmniCppComplete'
 Bundle 'airblade/vim-gitgutter'
 Bundle 'jwhitley/vim-matchit'
+Bundle 'Valloric/YouCompleteMe'
+Bundle 'nanotech/jellybeans.vim'
 
 filetype plugin indent on
 
@@ -57,6 +60,10 @@ au FileType yacc set si sw=4 ts=4 sts=4 et smartindent
 au FileType html set si sw=2 ts=2 sts=2 et
 au FileType json set si sw=2 ts=2 sts=2 et
 au FileType javascript set si sw=2 ts=2 sts=2 et
+
+" Github's new diff tool does soft-wrapping, and github staff recommend not
+" hard-wrapping prose documents anymore.
+au FileType liquid,markdown set tw=0 linebreak
 
 function Comment_current(comment_symb)
 	let curline = getline(".")
@@ -131,7 +138,8 @@ let g:pymode_syntax_all = 1
 let g:pymode_folding = 0
 
 set laststatus=2
-let g:airline#extensions#tabline#enabled = 1
+
+let g:ycm_confirm_extra_conf = 0
 
 set splitright
 
