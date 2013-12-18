@@ -31,6 +31,7 @@ Bundle 'airblade/vim-gitgutter'
 Bundle 'jwhitley/vim-matchit'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'nanotech/jellybeans.vim'
+Bundle 'reinh/vim-makegreen'
 
 filetype plugin indent on
 
