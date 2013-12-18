@@ -49,8 +49,7 @@ augroup END
 au FileType haskell set et
 au FileType ruby set si sw=2 ts=2 sts=2 et
 au FileType eruby set si sw=2 ts=2 sts=2 et
-au FileType cpp set si sw=4 ts=4 sts=4 et cindent
-au FileType cuda set si sw=4 ts=4 sts=4 et cindent
+au FileType cpp,cuda set si sw=2 ts=2 sts=2 et cindent
 au FileType c set si sw=4 ts=4 sts=4 noet cindent
 au FileType st set si sw=4 ts=4 sts=4 et
 au FileType tex set si sw=2 ts=2 sts=2 et
