@@ -32,6 +32,7 @@ Bundle 'jwhitley/vim-matchit'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'nanotech/jellybeans.vim'
 Bundle 'reinh/vim-makegreen'
+Bundle 'benmills/vimux'
 
 filetype plugin indent on
 
@@ -83,6 +84,8 @@ au FileType python compiler nose
 
 let mapleader = ","
 map <Leader>t :MakeGreen<CR>
+command -nargs=* Tmake :call VimuxRunCommand("make <args>")
+map <Leader>r :Tmake run<CR>
 
 set mouse=a
 
