@@ -146,6 +146,13 @@ let g:ycm_confirm_extra_conf = 0
 
 set splitright
 
+" Highlight lines over 80 characters
+match Error /\%79v.*/
+
+" Highlight unwanted characters
+set listchars=tab:>~,nbsp:_,trail:.
+set list
+
 map tn :tabnext<CR>
 map tp :tabprev<CR>
 map <C-t> :tabnew<CR>
