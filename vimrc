@@ -156,3 +156,6 @@ set list
 map tn :tabnext<CR>
 map tp :tabprev<CR>
 map <C-t> :tabnew<CR>
+
+" Extra laziness for ex-:
+map ; :
