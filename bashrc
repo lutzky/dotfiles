@@ -98,6 +98,10 @@ export NOSE_REDNOSE=1
 
 alias watchnose="watch -c nosetests --force-color"
 
+if [[ $TERM == "xterm" ]]; then
+	export TERM=xterm-256color
+fi
+
 if grep -q guake /proc/$PPID/cmdline; then
 	read -n 1 -p "Parent seems to be guake. Run tmux instead? [Y/n/a] " response
 	case $response in
@@ -109,9 +113,9 @@ if grep -q guake /proc/$PPID/cmdline; then
 			;;
 		*)
 			if tmux has-session 2>/dev/null; then
-				exec tmux -2 attach
+				exec tmux attach
 			else
-				exec tmux -2
+				exec tmux
 			fi
 			;;
 	esac
