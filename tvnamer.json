@@ -1,0 +1,6 @@
+{
+  "always_move": true,
+  "batch": true,
+  "recursive": true,
+  "move_files_destination": "/media/ohad/LutzkyStore/shows/%(seriesname)s/Season %(seasonnumber)d"
+}
