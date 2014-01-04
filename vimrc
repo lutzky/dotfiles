@@ -64,7 +64,7 @@ au FileType javascript set si sw=2 ts=2 sts=2 et
 
 " Github's new diff tool does soft-wrapping, and github staff recommend not
 " hard-wrapping prose documents anymore.
-au FileType liquid,markdown set tw=0 linebreak
+au FileType liquid,markdown set tw=0 linebreak nolist
 
 function Comment_current(comment_symb)
 	let curline = getline(".")
