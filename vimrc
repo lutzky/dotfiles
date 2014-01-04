@@ -146,8 +146,21 @@ let g:ycm_confirm_extra_conf = 0
 
 set splitright
 
-" Highlight lines over 80 characters
-match Error /\%79v.*/
+hi link LongLine Error
+
+fun ToggleLongLinesHighlight()
+	if exists("b:LongLinesHighlighted")
+		unlet b:LongLinesHighlighted
+		match LongLine //
+	else
+		match LongLine /\%79v.*/
+		let b:LongLinesHighlighted = 1
+	endif
+endfun
+
+call ToggleLongLinesHighlight()
+
+map <Leader>r :call ToggleLongLinesHighlight()<CR>
 
 " Highlight unwanted characters
 set listchars=tab:>~,nbsp:_,trail:.
