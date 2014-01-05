@@ -1,4 +1,5 @@
 {
+  "move_files_enable": true,
   "always_move": true,
   "batch": true,
   "recursive": true,
