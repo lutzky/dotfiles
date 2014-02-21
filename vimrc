@@ -61,8 +61,14 @@ au FileType html set si sw=2 ts=2 sts=2 et
 au FileType json set si sw=2 ts=2 sts=2 et
 au FileType javascript set si sw=2 ts=2 sts=2 et
 
+" colorcolumn will be set relative to textwidth, so filetypes with different
+" textwidth won't get needlessly interrupted.
+set textwidth=80
+set colorcolumn=+1
+
 " Github's new diff tool does soft-wrapping, and github staff recommend not
 " hard-wrapping prose documents anymore.
+au BufNewFile,BufRead *.md set ft=markdown
 au FileType liquid,markdown set tw=0 linebreak nolist
 
 function Comment_current(comment_symb)
@@ -144,22 +150,6 @@ set laststatus=2
 let g:ycm_confirm_extra_conf = 0
 
 set splitright
-
-hi link LongLine Error
-
-fun ToggleLongLinesHighlight()
-	if exists("b:LongLinesHighlighted")
-		unlet b:LongLinesHighlighted
-		match LongLine //
-	else
-		match LongLine /\%79v.*/
-		let b:LongLinesHighlighted = 1
-	endif
-endfun
-
-call ToggleLongLinesHighlight()
-
-map <Leader>r :call ToggleLongLinesHighlight()<CR>
 
 " Highlight unwanted characters
 set listchars=tab:>~,nbsp:_,trail:.
