@@ -85,8 +85,6 @@ endfunction
 au FileType ruby,python map # :call Comment_current("#")<CR>j
 au FileType c,cpp map # :call Comment_current("//")<CR>j
 
-au FileType python compiler nose
-
 let mapleader = ","
 
 map <Leader>t :Make<CR>
