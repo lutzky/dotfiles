@@ -99,6 +99,7 @@ let g:Tex_Folding = 1
 let g:Tex_CompileRule_dvi = 'latex -interaction=nonstopmode -src-specials $*'
 let g:Tex_ViewRule_pdf = 'evince'
 let g:Tex_ViewRule_ps = 'evince'
+let g:Tex_DefaultTargetFormat = 'pdf'
 let g:Imap_FreezeImap = 0 " So it shows up in tab-completion
 
 set wildmode=longest,list
