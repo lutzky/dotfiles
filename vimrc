@@ -31,7 +31,7 @@ Bundle 'airblade/vim-gitgutter'
 Bundle 'jwhitley/vim-matchit'
 Bundle 'nanotech/jellybeans.vim'
 Bundle 'reinh/vim-makegreen'
-Bundle 'benmills/vimux'
+Bundle 'tpope/vim-dispatch'
 
 filetype plugin indent on
 
@@ -88,9 +88,9 @@ au FileType c,cpp map # :call Comment_current("//")<CR>j
 au FileType python compiler nose
 
 let mapleader = ","
-map <Leader>t :MakeGreen<CR>
-command -nargs=* Tmake :call VimuxRunCommand("make <args>")
-map <Leader>r :Tmake run<CR>
+
+map <Leader>t :Make<CR>
+map <Leader>r :Make run<CR>
 
 set mouse=a
 
