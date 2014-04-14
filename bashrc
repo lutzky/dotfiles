@@ -88,7 +88,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export PATH=$HOME/bin:$PATH
+export PATH=$HOME/.bin:$PATH
 export EDITOR=vim
 
 # Environments tend to mess $LESS up more than do something useful with it.
