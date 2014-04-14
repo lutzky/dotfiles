@@ -141,9 +141,6 @@ let g:pymode_breakpoint_key = '<leader>b'
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 
-" Don't autofold code
-let g:pymode_folding = 0
-
 set laststatus=2
 
 let g:ycm_confirm_extra_conf = 0
