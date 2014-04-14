@@ -102,8 +102,8 @@ if [[ $TERM == "xterm" ]]; then
 	export TERM=xterm-256color
 fi
 
-if grep -q guake /proc/$PPID/cmdline; then
-	read -n 1 -p "Parent seems to be guake. Run tmux instead? [Y/n/a] " response
+if grep -qE '(guake|gnome-terminal)' /proc/$PPID/cmdline; then
+	read -n 1 -p "Run tmux? [Y/n/a] " response
 	case $response in
 		n)
 			echo # Newline

@@ -8,7 +8,7 @@ set tags+=~/.vim/systags
 set fo+=r
 set wildmenu
 
-if &term == "xterm" || &term == "screen" || &term == "screen-256color"
+if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
 	set t_Co=256
 	let g:jellybeans_background_color_256="NONE"
 	let g:lightline = { 'colorscheme' : 'jellybeans' }
