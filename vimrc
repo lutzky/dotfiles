@@ -31,6 +31,8 @@ Bundle 'jwhitley/vim-matchit'
 Bundle 'nanotech/jellybeans.vim'
 Bundle 'reinh/vim-makegreen'
 Bundle 'tpope/vim-dispatch'
+Bundle 'tpope/vim-sensible'
+Bundle 'tpope/vim-sleuth'
 
 filetype plugin indent on
 
@@ -40,6 +42,7 @@ map <F3> :NERDTreeToggle<CR>
 
 augroup vimrc_autocommands
     au FileType python set si sw=4 ts=4 sts=4 et
+    au FileType python compiler pyunit
     au FileType python highlight Excess ctermbg=DarkGrey guibg=DarkGrey
     au FileType python match Excess /\%80v.*/
     au FileType python set nowrap
@@ -147,7 +150,6 @@ let g:ycm_confirm_extra_conf = 0
 set splitright
 
 " Highlight unwanted characters
-set listchars=tab:>~,nbsp:_,trail:.
 set list
 
 map tn :tabnext<CR>
