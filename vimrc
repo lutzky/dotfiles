@@ -9,9 +9,9 @@ set fo+=r
 set wildmenu
 
 if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
-	set t_Co=256
-	let g:jellybeans_background_color_256="NONE"
-	colorscheme jellybeans
+    set t_Co=256
+    let g:jellybeans_background_color_256="NONE"
+    colorscheme jellybeans
 endif
 
 set nocompatible
@@ -74,14 +74,14 @@ au BufNewFile,BufRead *.md set ft=markdown
 au FileType liquid,markdown set tw=0 linebreak nolist
 
 function Comment_current(comment_symb)
-	let curline = getline(".")
-	if match(curline, "^\\s*" . a:comment_symb) != -1
-		let comment_regex = "^\\(\\s*\\)" . a:comment_symb . " \\?"
-		let new_curline = substitute(curline, comment_regex, "\\1", "")
-	else
-		let new_curline = substitute(curline, "^\\s*", "\\0" . a:comment_symb . " " , "")
-	endif
-	call setline(".", new_curline)
+    let curline = getline(".")
+    if match(curline, "^\\s*" . a:comment_symb) != -1
+        let comment_regex = "^\\(\\s*\\)" . a:comment_symb . " \\?"
+        let new_curline = substitute(curline, comment_regex, "\\1", "")
+    else
+        let new_curline = substitute(curline, "^\\s*", "\\0" . a:comment_symb . " " , "")
+    endif
+    call setline(".", new_curline)
 endfunction
 
 au FileType ruby,python map # :call Comment_current("#")<CR>j
@@ -168,5 +168,5 @@ let g:lightline = {
       \ }
 
 if &t_Co == 256
-	let g:lightline.colorscheme = 'jellybeans'
+    let g:lightline.colorscheme = 'jellybeans'
 endif
