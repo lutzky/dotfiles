@@ -20,19 +20,19 @@ filetype off
 set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
 
-Bundle 'itchyny/lightline.vim'
-Bundle 'gmarik/vundle'
-Bundle 'scrooloose/nerdtree'
-Bundle 'klen/python-mode'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-liquid'
-Bundle 'airblade/vim-gitgutter'
-Bundle 'jwhitley/vim-matchit'
-Bundle 'nanotech/jellybeans.vim'
-Bundle 'reinh/vim-makegreen'
-Bundle 'tpope/vim-dispatch'
-Bundle 'tpope/vim-sensible'
-Bundle 'tpope/vim-sleuth'
+Plugin 'itchyny/lightline.vim'
+Plugin 'gmarik/vundle'
+Plugin 'scrooloose/nerdtree'
+Plugin 'klen/python-mode'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-liquid'
+Plugin 'airblade/vim-gitgutter'
+Plugin 'jwhitley/vim-matchit'
+Plugin 'nanotech/jellybeans.vim'
+Plugin 'reinh/vim-makegreen'
+Plugin 'tpope/vim-dispatch'
+Plugin 'tpope/vim-sensible'
+Plugin 'tpope/vim-sleuth'
 
 filetype plugin indent on
 
