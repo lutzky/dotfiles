@@ -23,6 +23,7 @@ call vundle#rc()
 Plugin 'itchyny/lightline.vim'
 Plugin 'gmarik/vundle'
 Plugin 'scrooloose/nerdtree'
+Plugin 'kien/ctrlp.vim'
 Plugin 'klen/python-mode'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-liquid'
