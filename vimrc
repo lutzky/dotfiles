@@ -178,3 +178,9 @@ let g:lightline = {
 if &t_Co == 256
     let g:lightline.colorscheme = 'jellybeans'
 endif
+
+" You usually only want to paste once. Better get used to C-[ rather than C-c.
+autocmd InsertLeave *
+    \ if &paste == 1 |
+    \      set nopaste |
+    \ endif
