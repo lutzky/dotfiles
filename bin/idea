@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export XMODIFIERS=
+exec /usr/local/bin/idea

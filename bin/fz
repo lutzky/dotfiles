@@ -1,0 +1,1755 @@
+#!/usr/bin/env python
+
+###############################################################################
+##
+##  Copyright 2014 Jeet Sukumaran.
+##
+##  Licensed under the Apache License, Version 2.0 (the "License");
+##  you may not use this file except in compliance with the License.
+##  You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##  See the License for the specific language governing permissions and
+##  limitations under the License.
+##
+##
+## Modified by Jeet Sukumaran from "quickfind"::
+##
+##      quickfind
+##      https://github.com/Refefer/quickfind
+##      By Andrew Stanton.
+##
+################################################################################
+
+"""
+A utility to find, list, filter, and act on files or directories from your
+shell, using dynamic fuzzy-matching of patterns as you type them in.
+"""
+
+import os
+import sys
+import termios
+import heapq
+import argparse
+import curses
+import fcntl
+import struct
+import fnmatch
+import re
+import itertools
+import collections
+try:
+    from StringIO import StringIO # Python 2 legacy support: StringIO in this module is the one needed (not io)
+except ImportError:
+    from io import StringIO # Python 3
+try:
+    import fsnix.util as util
+    walk = util.walk
+except ImportError:
+    walk = os.walk
+if sys.version_info.major >= 3:
+    unicode_str = lambda x: str(x)
+else:
+    unicode_str = lambda x: unicode(x, errors="ignore")
+import shlex
+import itertools
+
+__prog__ = os.path.basename(__file__)
+__version__ = "3.0.0"
+__description__ = __doc__
+__author__ = 'Jeet Sukumaran'
+__copyright__ = 'Copyright (C) 2014 Jeet Sukumaran.'
+
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+
+    # len(s1) >= len(s2)
+    if len(s2) == 0:
+        return len(s1)
+
+    previous_row = xrange(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1 # j+1 instead of j since previous_row and current_row are one character longer
+            deletions = current_row[j] + 1       # than s2
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+
+    return previous_row[-1]
+
+def dump_stack(out=None):
+    import inspect
+    if out is None:
+        out = sys.stderr
+    for frame, filename, line_num, func, source_code, source_index in inspect.stack()[2:]:
+        if source_code is None:
+            out.write("{}: {}\n".format(filename, line_num))
+        else:
+            out.write("{}: {}: {}\n".format(filename, line_num, source_code[source_index].strip()))
+
+def truncate_front(line, length=70):
+    reduce_amt = len(line) - length
+    # If it already fits
+    if reduce_amt <= 0 or length <= 0:
+        return line
+    reduce_amt += 3 # for the ellipsis
+    return '...'+line[reduce_amt:]
+
+def truncate_middle(line, length=70):
+    reduce_amt = len(line) - length
+    # If it already fits
+    if reduce_amt <= 0 or length <= 0:
+        return line
+    reduce_amt += 3 # for the ellipsis
+    start = (len(line) / 2) - (reduce_amt / 2)
+    end = start + reduce_amt
+    return "%s...%s" % (line[:start], line[end:])
+
+def execute_command(cmd,
+        args=None,
+        substitute_token="{}",
+        verbose=True):
+    # Note: cannot use subprocess here due to parent process (this program)
+    # needing to exit before the subprocess is possibly done. `os.exec` and its
+    # kin work: independent process is spawn and the current process is
+    # replaced by it
+    cmd = shlex.split(cmd)
+    if args is not None:
+        substitution_made = False
+        prev_idx = 0
+        expanded_cmd = []
+        for idx, token in enumerate(cmd):
+            if token == substitute_token:
+                expanded_cmd.extend(cmd[prev_idx:idx])
+                expanded_cmd.extend(args)
+                prev_idx = idx + 1
+                substitution_made = True
+        if not substitution_made:
+            cmd.extend(args)
+        else:
+            cmd = expanded_cmd + cmd[prev_idx:]
+    if verbose:
+        sys.stderr.write("{}\n".format(" ".join(cmd)))
+    try:
+        os.execvp(cmd[0], cmd)
+    except OSError:
+        sys.stderr.write("Failed to execute command with tokens: {}\n".format(cmd))
+        sys.exit(1)
+
+def get_screen_dimensions():
+    env = os.environ
+    def ioctl_GWINSZ(fd):
+        try:
+            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
+        except:
+            return
+        return cr
+    return ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2) or (25, 80)
+
+class Entry(object):
+
+    def __init__(self,
+            dirname,
+            filename,
+            score,
+            match_start,
+            match_end,
+            whole_path_matching,
+            is_selected=False):
+        self._dirname = os.path.normpath(dirname)
+        self._filename = os.path.normpath(filename)
+        # self.dirname = dirname
+        # self.filename = filename
+        self.score = score
+        self.whole_path_matching = whole_path_matching
+        self._match_start_offset = match_start
+        self._match_end_offset = match_end
+        self.is_selected = is_selected
+
+    def _get_match_target(self):
+        if self.whole_path_matching:
+            return self.filepath
+        else:
+            return self.filename
+    match_target = property(_get_match_target)
+
+    def _get_display_name(self):
+        return self.filepath
+    display_name = property(_get_display_name)
+
+    def _get_dirname(self):
+        return self._dirname
+    def _set_dirname(self, name):
+        if name:
+            self._dirname = os.path.normpath(name)
+        else:
+            self._dirname = ""
+    dirname = property(_get_dirname, _set_dirname)
+
+    def _get_filename(self):
+        return self._filename
+    def _set_filename(self, name):
+        if name:
+            self._filename = os.path.normpath(name)
+        else:
+            self._filename = ""
+    filename = property(_get_filename, _set_filename)
+
+    def _get_filepath(self):
+        return os.path.normpath(os.path.join(self._dirname, self._filename))
+    filepath = property(_get_filepath)
+
+    def _start_of_basename_in_filepath(self):
+        return len(os.path.normpath(os.path.join(self._dirname, "x"))) - 1
+
+    def _get_match_start(self):
+        if self.whole_path_matching:
+            return self._match_start_offset
+        else:
+            return self._start_of_basename_in_filepath() + self._match_start_offset
+    def _set_match_start(self, v):
+        self._match_start_offset = v
+    match_start = property(_get_match_start, _set_match_start)
+
+    def _get_match_end(self):
+        if self.whole_path_matching:
+            return self._match_end_offset
+        else:
+            return self._start_of_basename_in_filepath() + self._match_end_offset
+    def _set_match_end(self, v):
+        self._match_end_offset = v
+    match_end = property(_get_match_end, _set_match_end)
+
+    def __lt__(self, other):
+        return self.score < other.score
+
+class SandboxedStdOut(object):
+
+    def __init__(self, suppress_window=False):
+        self.suppress_window = suppress_window
+
+    def __enter__(self):
+        # clone stdout: this allows us to open
+        # the curses window in a subshell and
+        # print the result to the "real" stdout
+        # on exit
+        if self.suppress_window:
+            return
+        self.prev_stdout_fd = os.dup(sys.stdout.fileno())
+        self.new_stdout_clone = os.open("/dev/tty", os.O_WRONLY)
+        os.dup2(self.new_stdout_clone, sys.stdout.fileno()) # 1
+        self.prev_stdout = sys.stdout
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.suppress_window:
+            return
+        os.dup2(self.prev_stdout_fd, self.prev_stdout.fileno())
+        self.stdout = self.prev_stdout
+        # os.dup2(self.old_stdout, 1)
+
+class CursesProgressTicker(object):
+
+    def __init__(self, suppress_window=False):
+        self.suppress_window = suppress_window
+        self.window = None
+        self.current_step = 0
+        self.spinner_cycle = itertools.cycle(["|", "/", "-", "\\", "-",])
+
+    def __enter__(self):
+        if self.suppress_window:
+            return self
+        self.window = curses.initscr()
+        curses.start_color()
+        curses.use_default_colors()
+        curses.noecho()
+        self.window.nodelay(1)
+        # try:
+        #     curses.curs_set(0)
+        # except curses.error:
+        #     pass
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.suppress_window:
+            return
+        self.cleanup()
+
+    def cleanup(self):
+        if self.suppress_window:
+            return
+        self.window.nodelay(0)
+        curses.echo()
+        curses.endwin()
+
+    def check_for_cancel(self):
+        if self.suppress_window:
+            return
+        self.window.nodelay(1)
+        ch = self.window.getch()
+        if ch == 27:
+            next_char = self.window.getch()
+            if next_char == -1:
+                raise KeyboardInterrupt()
+        self.window.nodelay(0)
+
+    def update(self, message):
+        if self.suppress_window:
+            return
+        self.current_step += 1
+        height, width = get_screen_dimensions()
+        self.window.move(height-1, 0)
+        # self.window.addstr("[" + next(self.spinner_cycle) + "] " + message)
+        self.window.addstr(next(self.spinner_cycle) + " " + message)
+        self.window.refresh()
+
+class CursesPrinter(object):
+
+    class OutOfWindowBoundsException(Exception):
+        pass
+
+    def __init__(self):
+        self.querylen = 0
+
+    def init(self):
+
+        # setup window
+        self.window = curses.initscr()
+        curses.start_color()
+        curses.use_default_colors()
+        curses.noecho()
+
+        # color for default text
+        curses.init_pair(1, -1, -1)
+        self.default_color = curses.color_pair(1)
+
+        ## TODO: allow configuration from environmental variable or rc file!
+        curses.init_pair(2, curses.COLOR_GREEN, -1)
+        self.match_color = curses.color_pair(2) | curses.A_UNDERLINE
+        curses.init_pair(3, curses.COLOR_MAGENTA, -1)
+        self.is_selected_color = curses.color_pair(3) | curses.A_BOLD
+        curses.init_pair(4, -1, -1)
+        self.current_row_color = curses.color_pair(4) # note: will be reversed below
+        curses.init_pair(5, curses.COLOR_MAGENTA, -1)
+        self.prompt_color = curses.color_pair(5) | curses.A_BOLD
+        curses.init_pair(6, -1, -1)
+        self.status_bar_color = curses.color_pair(6) | curses.A_BOLD | curses.A_REVERSE
+
+        # positions
+        self.query_row_offset = 2
+        self.first_item_row_offset = self.query_row_offset + 1
+
+    def cleanup(self):
+        curses.echo()
+        curses.endwin()
+
+    def print_query(self,
+            query,
+            match_type,
+            whole_path_matching):
+        height, width = self.window_size()
+        config = []
+        if match_type == "fuzzy":
+            prompt = "? "
+            config.append("[^R] expression: fuzzy  ")
+        elif match_type == "literal":
+            prompt = "= "
+            config.append("[^R] expression: literal")
+        elif match_type == "regexp":
+            prompt = "% "
+            config.append("[^R] expression: regular")
+        if whole_path_matching:
+            config.append("[^D] directory match: yes")
+        else:
+            config.append("[^D] directory match: no ")
+        q = prompt + query
+        self.querylen = len(q)
+        config = " ".join(config)
+        config = config.ljust(width-1)[:width-1]
+        self.window.move(height - 1, 0)
+        self.window.addstr(config, self.status_bar_color)
+        self.window.move(height - self.query_row_offset, 0)
+        self.window.addstr(q, self.prompt_color)
+
+    def print_item(self,
+            idx,
+            item,
+            is_current_row,
+            query):
+        height, width = self.window_size()
+        row = height - idx  - self.first_item_row_offset
+        if row < 0:
+            raise CursesPrinter.OutOfWindowBoundsException
+        self.window.move(row, 0)
+        display_name = truncate_middle(item.display_name, width-3) # account for leader
+        weight = curses.A_NORMAL
+        color = self.default_color
+        if item.is_selected:
+            self.window.addstr("#", self.is_selected_color | curses.A_BOLD)
+            color = self.is_selected_color
+        else:
+            self.window.addstr(" ", self.default_color)
+        if is_current_row:
+            self.window.addstr("> ", self.default_color)
+            color = self.current_row_color
+            # to reverse all parts of the line (included matched)
+            weight = curses.A_REVERSE
+        else:
+            self.window.addstr("  ", self.default_color)
+        if item.score > 0:
+            left = display_name[:item.match_start]
+            main = display_name[item.match_start:item.match_end]
+            right = display_name[item.match_end:]
+            self.window.addstr(left, color | weight)
+            self.window.addstr(main, self.match_color | weight)
+            self.window.addstr(right, color | weight)
+        else:
+            self.window.addstr(display_name, color | weight)
+
+    def clear(self):
+        self.window.clear()
+
+    def flush(self):
+        height, width = self.window_size()
+        self.window.move(height - self.query_row_offset, self.querylen)
+        self.window.refresh()
+
+    def move(self, y, x):
+        self.window.move(y, x)
+        self.window.refresh()
+
+    def window_size(self):
+        # return self.window.getmaxyx() # not as responsive to resizing
+        # return curses.LINES, curses.COLS # not as responsive to resizing
+        return get_screen_dimensions()
+
+    def max_rows(self):
+        return get_screen_dimensions()[0]-3
+
+class Searcher(object):
+
+    def __init__(self,
+            ranker,
+            output,
+            term_separator=';',
+            whole_path_matching=False,
+            match_type="fuzzy",
+            multiselection_mode=True):
+        self.ranker = ranker
+        self.output = output
+        self.term_separator = term_separator
+        self.whole_path_matching = whole_path_matching
+        self.match_type = match_type
+        self.multiselection_mode = multiselection_mode
+
+    def _getch(self, blocking=True):
+        if blocking:
+            # self.output.window.timeout(-1)
+            self.output.window.nodelay(0)
+        else:
+            # self.output.window.timeout(100)
+            self.output.window.nodelay(1)
+        ch = self.output.window.getch()
+        ### FOLLOWING HACK NOT NEEDED ANY MORE, DUE TO FOLLOWING APPROACH::
+        ###
+        ###    with os.fdopen(0, 'r') as src:
+        ###       for item in src.read().split("\n"):
+        ###            # do stuff!
+        ###    sys.stdin = open("/dev/tty", "r")
+        ###
+        # if blocking and ch == -1:
+        #     # We are here because files were read from standard input
+        #     # and now input is unavailable. This hack works on POSIX
+        #     # systems ... but ARROW keys lead to exit in the loop
+        #     # because we checking for escape (by itself) in a non-blocking
+        #     # way.
+        #     import tty
+        #     fd = sys.stdin.fileno()
+        #     tty_mode = tty.tcgetattr(fd)
+        #     tty.setcbreak(fd)
+        #     try:
+        #         ch = ord(os.read(fd, 1))
+        #     finally:
+        #         tty.tcsetattr(fd, tty.TCSAFLUSH, tty_mode)
+        #     assert isinstance(ch, int)
+        if blocking: # restore
+            # self.output.window.timeout(-1)
+            self.output.window.nodelay(0)
+        return ch
+
+    def _new_heap(self, query, cur_heap):
+        newHeap = []
+        ranker = self.ranker(query=query,
+                term_separator=self.term_separator,
+                whole_path_matching=self.whole_path_matching,
+                match_type=self.match_type)
+        for w, item in cur_heap:
+            item.whole_path_matching = self.whole_path_matching # needs to be updated here
+            try:
+                score, match_start, match_end = ranker.rank(item)
+            except FuzzyRanker.IncompleteRegularExpressionPatternException:
+                return cur_heap
+            if score:
+                item.score = score
+                item.match_start = match_start
+                item.match_end = match_end
+                heapq.heappush(newHeap, (score, item))
+            else:
+                item.score = 0
+                item.match_start = 0
+                item.match_end = 0
+                item.is_selected = False
+        return newHeap
+
+    def _reset_search(self, current_query, current_heaps):
+        current_heaps = current_heaps[:1]
+        old_query = current_query
+        current_query = ""
+        for ch in old_query:
+            current_query += ch
+            current_heaps.append(self._new_heap(current_query, current_heaps[-1]))
+        return current_heaps
+
+    def _select_next(self, current_selected):
+        # Since we display from the bottom up, moving 'down' or 'next' means
+        # moving to a *higher*-scoring result, which requires *decrement* the
+        # index to move *up* the list, which is sorted incrementally by score.
+        return max(0, current_selected - 1)
+
+    def _select_previous(self, current_selected, max_results):
+        # Since we display from the bottom up, moving 'up' or 'previous' means
+        # moving to a *lower*-scoring result, which requires *incrementing* the
+        # index to move *down* the list, which is sorted incrementally by score.
+        return min(min(self.output.max_rows(), max_results-1), current_selected + 1)
+
+    def _loop(self, current_heaps):
+        heapq.heapify(current_heaps[0])
+        current_query = ""
+        selected = 0
+        while True:
+            self.output.window.timeout(-1)
+            next_char = self._getch(blocking=True)
+
+            # Escape: could be just Escape, could be Ansi escape for
+            # arrows
+            if next_char == 27:
+                # just escape? try non-blocking read to see if
+                # any other characters
+                next_char = self._getch(blocking=False)
+                if next_char == -1:
+                    raise KeyboardInterrupt()
+                # other characters available
+                # assuming arrow-key, we discard
+                # the current and read the next
+                next_char = self._getch(blocking=True)
+                # Up/down
+                if next_char == 65:
+                    # <UP>
+                    selected = self._select_previous(selected, len(current_heaps[-1]))
+                elif next_char == 66:
+                    # <DOWN>
+                    selected = self._select_next(selected)
+            elif next_char == 14:
+                # <CTRL-N>: Next
+                selected = self._select_next(selected)
+            elif next_char == 16:
+                # <CTRL-P>: Previous
+                selected = self._select_previous(selected, len(current_heaps[-1]))
+            elif next_char == 4:
+                # <CTRL-D>: Cycle full-path vs. basename matching
+                self.whole_path_matching = not self.whole_path_matching
+                current_heaps = self._reset_search(current_query, current_heaps)
+            elif next_char == 18:
+                # <CTRL-R>: Cycle matching-modes
+                if self.match_type == "literal":
+                    self.match_type = "regexp"
+                elif self.match_type == "fuzzy":
+                    self.match_type = "literal"
+                else:
+                    self.match_type = "fuzzy"
+                current_heaps = self._reset_search(current_query, current_heaps)
+            elif next_char == 6:
+                # <CTRL-F>: Fuzzy-matching mode
+                self.match_type = "fuzzy"
+                current_heaps = self._reset_search(current_query, current_heaps)
+            elif next_char == 5:
+                # <CTRL-E>: Regular-expression matching mode
+                self.match_type = "regexp"
+                current_heaps = self._reset_search(current_query, current_heaps)
+            elif next_char == 12:
+                # <CTRL-L>: Literal or raw matching mode
+                self.match_type = "literal"
+                current_heaps = self._reset_search(current_query, current_heaps)
+            # # elif next_char == 23:
+            # #     # <CTRL-W>: Toggle whitespace-separated multi-search
+            # elif next_char == 20:
+            #     # <CTRL-T>: Toggle whitespace-separated multi-term query
+            #     self.whitespace_separated_multiquery = not self.whitespace_separated_multiquery
+            #     current_heaps = self._reset_search(current_query, current_heaps)
+            elif next_char == 9:
+                # <TAB>: toggle in multiselection mode; simply consume character otherwise
+                if self.multiselection_mode:
+                    current_heaps[-1][selected][1].is_selected = not current_heaps[-1][selected][1].is_selected
+            elif next_char == 21:
+                # <CTRL-U>: Unmark all in multiselection mode; simply consume character otherwise
+                if self.multiselection_mode:
+                    for w, item in current_heaps[-1]:
+                        item.is_selected = False
+            elif next_char == 1:
+                # <CTRL-A>: Mark all in multiselection mode; simply consume character otherwise
+                if self.multiselection_mode:
+                    for w, item in current_heaps[-1]:
+                        item.is_selected = True
+            else:
+                # Selected
+                if next_char == 10 or next_char == 13: # enter
+                    if self.multiselection_mode:
+                        try:
+                            current_heaps[-1][selected][1].is_selected = True
+                        except IndexError:
+                            pass
+                        h = current_heaps[-1]
+                        return [item[1] for item in current_heaps[-1] if item[1].is_selected]
+                    else:
+                        h = current_heaps[-1]
+                        for _ in range(selected):
+                            if not h: break
+                            heapq.heappop(h)
+                        return [heapq.heappop(h)[1]] if h else []
+                selected = 0
+                if next_char in (3, 7, 26, 28):
+                    # <CTRL-C>, <CTRL-G>, <CTRL-Z>, etc.
+                    raise KeyboardInterrupt()
+                elif next_char in (8, 127):
+                    # Delete/backspace
+                    if current_query != "":
+                        current_query = current_query[:-1]
+                        current_heaps.pop()
+                else:
+                    try:
+                        current_query += chr(next_char)
+                        current_heaps.append(self._new_heap(current_query, current_heaps[-1]))
+                    except ValueError:
+                        pass
+            self._echo(current_query, current_heaps[-1], selected)
+
+    def _echo(self, current_query, heap, selected):
+        self.output.clear()
+        self.output.print_query(
+                query=current_query,
+                match_type=self.match_type,
+                whole_path_matching=self.whole_path_matching)
+        for i, (score, item) in enumerate(heap):
+            try:
+                self.output.print_item(i, item, i==selected, current_query)
+            except CursesPrinter.OutOfWindowBoundsException:
+                break
+        self.output.flush()
+
+    def run(self, items):
+        self.output.init()
+        try:
+            heap = [(i.score, i) for i in items]
+            heap.sort()
+            self._echo("", heap, 0)
+            return self._loop([heap])
+        finally:
+            self.output.cleanup()
+
+class DirectorySource(object):
+
+    dot_dirs_ignore_pattern = None
+
+    def __init__(self,
+            target_filename_patterns=None,
+            ignore_directories=True,
+            ignore_files=True,
+            respect_gitignores=True,
+            include_hidden=False,
+            dirs_to_exclude=None,
+            files_to_exclude=None,
+            filter_for_glob_names=None,
+            max_recursion_depth=None):
+        self.ignore_directories = ignore_directories
+        self.ignore_files = ignore_files
+        self.respect_gitignores = respect_gitignores
+        if target_filename_patterns is None:
+            self.target_filename_pattern = None
+        else:
+            self.target_filename_pattern = re.compile("(" + "|".join(target_filename_patterns) + ")")
+        self.include_hidden = include_hidden
+        if not self.include_hidden:
+            hidden_dir_pattern = r".*{s}\.[^{s}]".format(s=os.path.sep)
+            try:
+                dirs_to_exclude.append(hidden_dir_pattern)
+            except AttributeError:
+                dirs_to_exclude = [hidden_dir_pattern]
+            hidden_file_pattern = r"^\."
+            try:
+                files_to_exclude.append(hidden_file_pattern)
+            except AttributeError:
+                files_to_exclude = [hidden_file_pattern]
+        if dirs_to_exclude is None:
+            self.dirs_to_exclude = None
+        else:
+            self.dirs_to_exclude = re.compile("(" + "|".join(dirs_to_exclude) + ")")
+        if files_to_exclude is None:
+            self.files_to_exclude = None
+        else:
+            self.files_to_exclude = re.compile("(" + "|".join(files_to_exclude) + ")")
+        if filter_for_glob_names is None:
+            self.filter_for_glob_names = None
+        else:
+            self.filter_for_glob_names = filter_for_glob_names
+        if DirectorySource.dot_dirs_ignore_pattern is None:
+            dot_dirs_to_ignore = ["git", "svn", "hg"]
+            dot_dirs_to_ignore = ["(.*/|)\.{}".format(d) for d in dot_dirs_to_ignore]
+            dot_dirs_ignore_pattern = "(" + "|".join(dot_dirs_to_ignore) + ")"
+            DirectorySource.dot_dirs_ignore_pattern = re.compile(dot_dirs_ignore_pattern)
+        self.max_recursion_depth = max_recursion_depth
+        self.filters = []
+        self.git_exclude_filters = []
+
+    def recurse_directory_up(self, dirname):
+        if os.path.isdir(dirname):
+            while True:
+                yield dirname
+                newdir = os.path.dirname(dirname)
+                if not newdir or newdir == dirname:
+                    break
+                dirname = newdir
+
+    def find_parent_gis(self, start_dir):
+        dirs = self.recurse_directory_up(start_dir)
+        for dirname in dirs:
+            if dirname == start_dir:
+                continue
+            pgi = os.path.join(dirname, '.gitignore')
+            if os.path.isfile(pgi):
+                self.filters.append((dirname, GitIgnoreFilter(dirname, '.gitignore')))
+        self.filters.reverse()
+        return self.filters
+
+    def fetch(self,
+            start_dir=".",
+            results=None,
+            suppress_progress_feedback=False):
+        self.filters = []
+        self.git_exclude_filters = []
+        if self.respect_gitignores:
+            self.find_parent_gis(start_dir)
+        if results is None:
+            results = []
+        with SandboxedStdOut(suppress_window=suppress_progress_feedback) as sb:
+            with CursesProgressTicker(suppress_window=suppress_progress_feedback) as progress:
+                total_items_scanned = 0
+                for search_idx, (dirname, dirs, filenames) in enumerate(walk(start_dir)):
+                    progress.check_for_cancel()
+                    # dirname = os.path.normpath(dirname)
+                    total_items_scanned += (1 + len(dirs) + len(filenames))
+                    if search_idx % 100 == 0:
+                        progress.update("Scanning: found {} out of {} names".format(len(results), total_items_scanned))
+                    if self.max_recursion_depth is not None:
+                        recursion_level = dirname.count(os.path.sep)
+                        if recursion_level == self.max_recursion_depth:
+                            del dirs[:]
+                        elif recursion_level > self.max_recursion_depth:
+                            continue
+                    if self.respect_gitignores and ".git" in dirs:
+                        giexclude = os.path.join('.git', 'info', 'exclude')
+                        if os.path.isfile(os.path.join(dirname, giexclude)):
+                            gief = GitIgnoreFilter(dirname, giexclude)
+                            self.git_exclude_filters.append(gief)
+                    if DirectorySource.dot_dirs_ignore_pattern.match(dirname):
+                        continue
+                    if self.dirs_to_exclude is not None and self.dirs_to_exclude.match(dirname):
+                        continue
+                    names = []
+                    if not self.ignore_files:
+                        for f in filenames:
+                            if ((self.files_to_exclude is None or not self.files_to_exclude.match(f))
+                                    and (self.target_filename_pattern is None or self.target_filename_pattern.match(f))
+                                    and (self.filter_for_glob_names is None or any(fnmatch.fnmatch(f, gf) for gf in self.filter_for_glob_names))
+                                    ):
+                                # if self.paths_to_exclude is not None:
+                                #     # only do this if actual paths to exclude
+                                #     ff = os.path.join(dirname, f)
+                                #     if not self.paths_to_exclude.match(f):
+                                #         names.append(f)
+                                # else:
+                                #     names.append(f)
+                                names.append(f)
+                    if not self.ignore_directories:
+                        for candidate_dir in dirs:
+                            if ((not DirectorySource.dot_dirs_ignore_pattern.match(candidate_dir))
+                                    and (self.dirs_to_exclude is None or not self.dirs_to_exclude.match(candidate_dir))
+                                    and (self.filter_for_glob_names is None or all(fnmatch.fnmatch(candidate_dir, gf) for gf in self.filter_for_glob_names))
+                                    ):
+                                names.append(candidate_dir)
+                    if self.respect_gitignores and '.gitignore' in filenames:
+                        gif = GitIgnoreFilter(dirname, '.gitignore', self.git_exclude_filters)
+                        self.filters.append((dirname, gif))
+                    while self.filters: # find filter that applies to current path
+                        path, filter_obj = self.filters[-1]
+                        if dirname.startswith(path):
+                            break
+                        self.filters.pop()
+                    fltr = None
+                    if self.filters:
+                        fltr = self.filters[-1][1] # grab filter object of last filter entry
+                    for name in names:
+                        if fltr is None or fltr(name, dirname):
+                            entry = Entry(dirname=dirname,
+                                    filename=name,
+                                    score=len(results),
+                                    match_start=0,
+                                    match_end=0,
+                                    whole_path_matching=False)
+                            results.append(entry)
+                    # have to delete the names manually
+                    if fltr is not None:
+                        for i in range(len(dirs) - 1, -1, -1):
+                            if not fltr(dirs[i], dirname):
+                                del dirs[i]
+        return results
+
+class GitIgnoreFilter(object):
+    # Optimization
+    lastdir = None
+    last_path_filter = None
+
+    globchars = re.compile('[*\[\]?]')
+    def __init__(self,
+            dirname,
+            filename,
+            inherited_filters=None):
+        self.dirname = dirname
+        self.fn = os.path.join(dirname, filename)
+        path_filters = []
+        glob_filters = []
+        exact_filters = set(['.git'])
+        with open(self.fn) as f:
+            gc = self.globchars
+            for fn in f:
+                if fn.startswith('#'):
+                    continue
+                fn = fn.strip()
+                if fn.startswith('/') or fn.endswith('/'):
+                    path_filters.append(fn)
+                elif gc.search(fn) is not None:
+                    glob_filters.append(fn)
+                else:
+                    exact_filters.add(fn)
+        if glob_filters:
+            self.glob_filters = glob_filters
+        else:
+            self.glob_filters = []
+        self.exact_filters = exact_filters
+        self.path_filters = self.setup_path_filters(path_filters)
+        if inherited_filters is not None:
+            for f in inherited_filters:
+                self.glob_filters.extend(f.glob_filters)
+                self.exact_filters.update(f.exact_filters)
+                for k in f.path_filters:
+                    try:
+                        self.path_filters[k].extend(f.path_filters[k])
+                    except KeyError:
+                        self.path_filters[k] = list(f.path_filters[k])
+
+    def setup_path_filters(self, path_filters):
+        dirmaps = {}
+        for pf in path_filters:
+            pf = pf.rstrip("/")
+            dirname, basename = os.path.split(pf)
+            dm = os.path.join(self.dirname, dirname.lstrip("/")).rstrip("/")
+            glob = basename.strip()
+            if dm in dirmaps:
+                dirmaps[dm].append(glob)
+            else:
+                dirmaps[dm] = [glob]
+        return dirmaps
+
+    def __call__(self, fn, dirname):
+        # check exact
+        if fn in self.exact_filters:
+            return False
+        # Check global globs
+        for f in self.glob_filters:
+            # yes, this block is ugly and horribly inefficient
+            # better approach needed, probably by using reg-ex
+            full_path = os.path.join(dirname, fn)
+            if fnmatch.fnmatch(full_path, f):
+                return False
+            if fnmatch.fnmatch(fn, f):
+                return False
+            if fnmatch.fnmatch(os.path.normpath(full_path), f):
+                return False
+            if fnmatch.fnmatch(os.path.normpath(fn), f):
+                return False
+        lpf = self.path_filters.get(dirname)
+        # check path dependent globs
+        if lpf is not None:
+            for f in lpf:
+                if fnmatch.fnmatch(fn, f):
+                    return False
+        return True
+
+class FuzzyRanker(object):
+
+    class IncompleteRegularExpressionPatternException(Exception):
+        pass
+
+    def match_and_score(query, s, match_type):
+        if match_type == "fuzzy":
+            pattern = '.*?'.join(map(re.escape, list(query)))
+        elif match_type == "literal":
+            pattern = ''.join(map(re.escape, list(query)))
+        elif match_type == "regexp":
+            pattern = query
+        else:
+            raise TypeError("Unrecognized pattern type: '{}'".format(match_type))
+        try:
+            match = re.search(pattern, s, re.I)
+        except re.error:
+            if match_type == "regexp":
+                raise FuzzyRanker.IncompleteRegularExpressionPatternException()
+        if match is None:
+            result = 0
+        else:
+            # result = 100.0 / ((1+match.start()) * (match.end()-match.start()+1))
+            result = ((1 + match.start()) * (match.end() - match.start() + 1)) / 1000.0
+            # if match_type == "fuzzy":
+            #     result = (1+levenshtein(s, query))
+            # else:
+            #     result = ((1 + match.start()) * (match.end() - match.start() + 1)) / 1000.0
+        return match, result
+    match_and_score = staticmethod(match_and_score)
+
+    def __init__(self,
+            query,
+            term_separator=';',
+            whole_path_matching=False,
+            match_type="fuzzy"):
+        self.term_separator = term_separator
+        self.whole_path_matching = whole_path_matching
+        self.weight_f = lambda f: f.dirname.count(os.sep) ** 0.5
+        self.qs = query.lower()
+        if self.term_separator:
+            self.qs = self.qs.split(self.term_separator)
+        else:
+            self.qs = [self.qs]
+        self.match_type = match_type
+
+    def rank(self, item):
+        # if self.whole_path_matching:
+        #     part = item.filepath
+        # else:
+        #     part = item.filename
+        part = item.match_target
+        agg_score = 0.0
+        match_start = len(part)
+        match_end = -1
+        for q in self.qs:
+            match, score = self.match_and_score(q, part, self.match_type)
+            if score is None or score == 0:
+                # return None, None, None
+                return None, None, None
+            if score is not None:
+                match_start = min(match_start, match.start())
+                match_end = max(match_end, match.end())
+                agg_score += score
+        # return agg_score + self.weight_f(item), match_start, match_end
+        return agg_score, match_start, match_end
+
+class Runner(object):
+    def __init__(self, args):
+        self.args = args
+        self.editor_path = os.environ.get("FUZZYSNAKE_EDITOR", os.environ.get("EDITOR", "vi"))
+
+    def find(self):
+        raise NotImplementedError()
+
+    def run(self):
+        found = self.find()
+        if not found:
+            sys.exit(1) # raise error to let parent shell know nothing was selected
+        filepaths = [entry.filepath for entry in found]
+        if args.action_type == "edit":
+            execute_command(self.editor_path, filepaths, verbose=not self.args.quiet)
+        elif args.action_type == "open":
+            execute_command("open", filepaths, verbose=not self.args.quiet)
+        elif args.action_type == "command":
+            execute_command(args.action_target, filepaths, verbose=not self.args.quiet)
+        elif args.action_type == "print":
+            if not hasattr(args, "action_target") or args.action_target == "-":
+                for filepath in filepaths:
+                    sys.stdout.write(filepath)
+                    sys.stdout.write("\n")
+                    if not self.args.quiet:
+                        sys.stderr.write(filepath)
+                        sys.stderr.write("\n")
+                sys.exit(0)
+            else:
+                out = open(os.path.expandvars(os.path.expanduser(args.action_target)), "w")
+                with out:
+                    for filepath in filepaths:
+                        out.write(filepath)
+                        out.write("\n")
+                sys.exit(0)
+        else:
+            sys.exit("Unrecognized action: '{}'".format(args.action_type))
+
+class DirRun(Runner):
+
+    def fetch(self, items=None):
+        if items is None:
+            items = []
+        respect_gitignores = not self.args.include_gitignores
+        if self.args.directory_search_mode:
+            ignore_directories = False
+            ignore_files = True
+        else:
+            ignore_directories = True
+            ignore_files = False
+        search_paths = self.args.paths
+        if not search_paths:
+            search_paths = ["."]
+        for path in search_paths:
+            if path == "-":
+                if sys.platform.startswith('win'):
+                    raise NotImplementedError("Reading from standard input is not supported on this system at this time")
+                # NOTE: To allow us to continue to get input from the tty
+                # standard input in the curses window in the interactive loop,
+                # We do *not* read from `sys.stdin` directly here. Instead we open
+                # a new file object bound to the system file descriptor '0'
+                # (standard input), and read from that. After this is done and
+                # closed (using the context manager), we must set sys.stdin's
+                # file descriptor to the tty opened for reading.
+                with os.fdopen(0, 'r') as src:
+                    for item in src.read().split("\n"):
+                        item = unicode_str(item)
+                        item = os.path.expandvars(os.path.expanduser(item))
+                        dirname = os.path.dirname(item)
+                        basename = os.path.basename(item)
+                        entry = Entry(dirname=dirname,
+                                filename=basename,
+                                score=len(items),
+                                match_start=0,
+                                match_end=0,
+                                whole_path_matching=False)
+                        items.append(entry)
+                sys.stdin = open("/dev/tty", "r")
+            else:
+                # Create a new sourcer on each pass.
+                # A little inefficient, but avoids cross-application
+                # of .gitignore etc. filters
+                ds = DirectorySource(
+                        target_filename_patterns=args.target_filename_pattern,
+                        ignore_directories=ignore_directories,
+                        ignore_files=ignore_files,
+                        respect_gitignores=respect_gitignores,
+                        include_hidden=args.include_hidden,
+                        dirs_to_exclude=args.dirs_to_exclude,
+                        files_to_exclude=args.files_to_exclude,
+                        filter_for_glob_names=args.filter_for_glob_names,
+                        max_recursion_depth=args.max_recursion_depth)
+                path = os.path.expandvars(os.path.expanduser(path))
+                ds.fetch(start_dir=path,
+                        results=items,
+                        suppress_progress_feedback=args.no_progress_window)
+        return items
+
+    def find(self):
+        try:
+            items = self.fetch()
+        except KeyboardInterrupt:
+            sys.exit(1) # error so no process will execute anything on blank output
+        if not items:
+            sys.stderr.write("No valid files or directories found.\n")
+            sys.exit(0)
+        ranker = FuzzyRanker
+        s = Searcher(ranker=ranker,
+                output=CursesPrinter(),
+                term_separator=self.args.term_separator,
+                whole_path_matching=self.args.whole_path_match,
+                match_type=self.args.match_type,
+                multiselection_mode=self.args.multiselection_mode,
+                )
+        try:
+            with SandboxedStdOut() as ssout:
+                found = s.run(items)
+        except KeyboardInterrupt:
+            sys.exit(1) # error so no process will execute anything on blank output
+        return found
+
+    def print_list(self,
+            out=None,
+            mirror_to_stderr=False):
+        if out is None:
+            out = sys.stdout
+        try:
+            items = self.fetch()
+        except KeyboardInterrupt:
+            sys.exit(1) # error so no process will execute anything on blank output
+        for item in items:
+            item_str = "{}\n".format(item.filepath)
+            out.write(item_str)
+            if mirror_to_stderr:
+                sys.stderr.write(item_str)
+
+def build_arg_parser():
+    parser = argparse.ArgumentParser(description=__description__)
+    parser.add_argument("--version", action="version", version="FuzzySnake " + __version__)
+
+    search_options_section = parser.add_argument_group("Search Options")
+    search_options_section.add_argument(
+            "paths",
+            metavar="DIR",
+            nargs="*",
+            help="Top-level directory path(s) to search. Defaults to "
+            "current directory ('{}').".format(os.curdir))
+    search_options_section.add_argument(
+            "-d", "--directory-paths",
+            action="store_true",
+            dest="directory_search_mode",
+            default=False,
+            help="Search for directory paths instead of filenames.")
+    search_options_section.add_argument(
+            "-r", "--recursion-limit", "--max-depth",
+            dest="max_recursion_depth",
+            type=int,
+            help="Maximum depth of sub-directories to recursively search. "
+            "If not specified, recursion depth is unlimited. If 0, then "
+            "only the top-level directory is searched.")
+    search_options_section.add_argument(
+            "-s", "--single-selection",
+            action="store_false",
+            dest="multiselection_mode",
+            default=True,
+            help="Do not allow multiple entries to be marked/unmarked for selection using <TAB>.")
+    search_options_section.add_argument(
+            "-q", "--quiet",
+            action="store_true",
+            default=False,
+            help="Run as silently as possible, e.g. do not echo commands being executed.")
+    search_options_section.add_argument(
+            "--no-progress-window",
+            action="store_true",
+            default=False,
+            help="Do not show progress of filesystem scanning.")
+
+    query_options_section = parser.add_argument_group("Query Options")
+    query_options_section.add_argument(
+            "-w", "--whole-path-match",
+            action="store_true",
+            default=False,
+            help="Match against the *full* path of the file or directory, "
+            "including the parent directory name. If not specified, by "
+            "default, matching is agains the *basename* only. "
+            "Use `<CTRL-D>` to toggle between full path and basename matching "
+            "during the search.")
+    query_options_section.add_argument(
+            "-t", "--term-separator",
+            dest="term_separator",
+            default=";",
+            help=
+            "Specify the token to be used to separate multiple search "
+            "terms in the query expression. Defaults to '%(default)s'. "
+            "If multiple search terms are specified, a name has to "
+            "independently match every search term. Thus, if '%(default)s' "
+            "is given as the separator token, and 'foo%(default)sbar' is "
+            "typed as a query pattern, then names have match both 'foo'"
+            "AND 'bar'.")
+    match_type_section = parser.add_argument_group("Match Mode Options",
+            "The following flags set the initial matching mode to be used. "
+            "You can cycle through match modes during a live search "
+            "by typing `<CTRL-R>`.")
+    match_type_group = match_type_section.add_mutually_exclusive_group()
+    match_type_group.add_argument(
+            "-f", "--fuzzy",
+            action="store_const",
+            dest="match_type",
+            const="fuzzy",
+            help="[DEFAULT] Fuzzy-matching mode: pattern is matched on a "
+            "character-by-character basis, with characters required to "
+            "occur in the same order as the pattern, but not necessarily "
+            "consecutively (an arbitrary number of extra characters are "
+            "allowed between matched characters).")
+    match_type_group.add_argument(
+            "-e", "--regexp",
+            action="store_const",
+            dest="match_type",
+            const="regexp",
+            help="Regular-expression mode: patterns are matched as full "
+            "(Python) regular expression patterns.")
+    match_type_group.add_argument(
+            "-l", "--literal",
+            action="store_const",
+            dest="match_type",
+            const="literal",
+            help="Literal-matching mode: patterns are matched exactly as "
+            "given.")
+    parser.set_defaults(match_type="fuzzy")
+
+    target_type_options = parser.add_argument_group("File Type Options",
+            "Constrain the search to specific types of files. If one or "
+            "more of the following are specified, then files of other "
+            "types will be excluded."
+            )
+    target_type_options.add_argument(
+            "--actionscript",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.as$|.*\.mxml$",
+            help="ActionScript")
+    target_type_options.add_argument(
+            "--ada",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.ada$|.*\.adb$|.*\.ads$",
+            help="Ada")
+    target_type_options.add_argument(
+            "--asm",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.asm$|.*\.s$",
+            help="ASM")
+    target_type_options.add_argument(
+            "--asp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.asp$",
+            help="ASP")
+    target_type_options.add_argument(
+            "--aspx",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.master$|.*\.ascx$|.*\.asmx$|.*\.aspx$|.*\.svc$",
+            help="ASPX")
+    target_type_options.add_argument(
+            "--autotools",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r"Makefile.am|configure.ac",
+            help="Autotools")
+    target_type_options.add_argument(
+            "--batch",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.bat$|.*\.cmd$",
+            help="MS-DOS/Windows batch")
+    target_type_options.add_argument(
+            "--cfmx",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.cfc$|.*\.cfm$|.*\.cfml$",
+            help="ColdFusion")
+    target_type_options.add_argument(
+            "--clojure",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.clj$",
+            help="Clojure")
+    target_type_options.add_argument(
+            "--cmake",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r"CMakeLists\.txt|.*\.cmake$",
+            help="CMake")
+    target_type_options.add_argument(
+            "--coffeescript",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.coffee$",
+            help="CoffeeScript")
+    target_type_options.add_argument(
+            "--cpp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.cpp$|.*\.cc$|.*\.cxx$|.*\.c\+\+$|.*\.c$|.*\.m$|.*\.hpp$|.*\.hh$|.*\.h$|.*\.hxx|.*\.h\+\+$|.*\.inc$",
+            help="C++ and C)")
+    target_type_options.add_argument(
+            "--csharp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.cs$",
+            help="C#")
+    target_type_options.add_argument(
+            "--css",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.css$",
+            help="CSS")
+    target_type_options.add_argument(
+            "--dart",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.dart$",
+            help="Dart")
+    target_type_options.add_argument(
+            "--delphi",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.pas$|.*\.int$|.*\.dfm$|.*\.nfm$|.*\.dof$|.*\.dpk$|.*\.dproj$|.*\.groupproj$|.*\.bdsgroup$|.*\.bdsproj$",
+            help="Delphi")
+    target_type_options.add_argument(
+            "--elisp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.el$",
+            help="Emacs Lisp")
+    target_type_options.add_argument(
+            "--elixir",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.ex$|.*\.exs$",
+            help="Elixir")
+    target_type_options.add_argument(
+            "--erlang",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.erl$|.*\.hrl$",
+            help="Erlang")
+    target_type_options.add_argument(
+            "--fasta",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.fas$|.*\.fasta$",
+            help="FASTA")
+    target_type_options.add_argument(
+            "--fortran",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.f$|.*\.f77$|.*\.f90$|.*\.f95$|.*\.f03$|.*\.for$|.*\.ftn$|.*\.fpp$",
+            help="Fortran")
+    target_type_options.add_argument(
+            "--go",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.go$",
+            help="Go")
+    target_type_options.add_argument(
+            "--groovy",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.groovy$|.*\.gtmpl$|.*\.gpp$|.*\.grunit$|.*\.gradle$",
+            help="Groovy")
+    target_type_options.add_argument(
+            "--haskell",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.hs$|.*\.lhs$",
+            help="Haskell")
+    target_type_options.add_argument(
+            "--html",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.htm$|.*\.html$",
+            help="HTML")
+    target_type_options.add_argument(
+            "--java",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.java$|.*\.properties$",
+            help="Java")
+    target_type_options.add_argument(
+            "--js",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.js$",
+            help="JavaScript")
+    target_type_options.add_argument(
+            "--json",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.json$",
+            help="JSON")
+    target_type_options.add_argument(
+            "--jsp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.jsp$|.*\.jspx$|.*\.jhtm$|.*\.jhtml$",
+            help="JavaServerPages")
+    target_type_options.add_argument(
+            "--julia",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.jl$",
+            help="Julia")
+    target_type_options.add_argument(
+            "--less",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.less$",
+            help="Less")
+    target_type_options.add_argument(
+            "--lisp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.lisp$|.*\.lsp$",
+            help="Lisp")
+    target_type_options.add_argument(
+            "--lua",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.lua$",
+            help="Lua")
+    target_type_options.add_argument(
+            "--make",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.mk$|.*\.mak$|makefile|Makefile|GNUmakefile",
+            help="Make")
+    target_type_options.add_argument(
+            "--markdown",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.mdown|.*\.markdown|.*\.md$",
+            help="Markdown")
+    target_type_options.add_argument(
+            "--matlab",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.m$",
+            help="MATLAB")
+    target_type_options.add_argument(
+            "--newick",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.dat$|.*\.tre$|.*\.newick$",
+            help="Newick")
+    target_type_options.add_argument(
+            "--nexus",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.nex$|.*\.nexus$|.*\.nxs$|.*\.mb$|.*\trees$",
+            help="NEXUS")
+    target_type_options.add_argument(
+            "--objc",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.m$|.*\.h$",
+            help="Objective-C")
+    target_type_options.add_argument(
+            "--objcpp",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.mm$|.*\.h$",
+            help="Objective-C++")
+    target_type_options.add_argument(
+            "--ocaml",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.ml$|.*\.mli$",
+            help="OCaml")
+    target_type_options.add_argument(
+            "--parrot",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.pir$|.*\.pasm$|.*\.pmc$|.*\.ops$|.*\.pod$|.*\.pg$|.*\.tg$",
+            help="Parrot")
+    target_type_options.add_argument(
+            "--pdf",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.pdf$",
+            help="Adobe PDF (Portable Document Format) files")
+    target_type_options.add_argument(
+            "--perl",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.pl$|.*\.pm$|.*\.pod$|.*\.t$|.*\.psgi$",
+            help="Perl")
+    target_type_options.add_argument(
+            "--perl-test",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.t$",
+            help="Perl test")
+    target_type_options.add_argument(
+            "--php",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.php$|.*\.phpt$|.*\.php3$|.*\.php4$|.*\.php5$|.*\.phtml$",
+            help="PHP")
+    target_type_options.add_argument(
+            "--phylogenetics",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.nex$|.*\.nexus$|.*\.nxs$|.*\.mb$|.*\.fas$|.*\.fasta$|.*\.tre$|.*\.trees$|.*\.xml$|.*\.dat$|.*\.nexml$|.*\.newick$|.*\.phylip$|.*\.aln$",
+            help="Phylogenetics")
+    target_type_options.add_argument(
+            "--plone",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.pt$|.*\.cpt$|.*\.metadata$|.*\.cpy$|.*\.py$",
+            help="Plone")
+    target_type_options.add_argument(
+            "--python",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.py$",
+            help="Python")
+    target_type_options.add_argument(
+            "--rake",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r"Rakefile",
+            help="Rake")
+    target_type_options.add_argument(
+            "--r",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.R$|.*\.r$",
+            help="R")
+    target_type_options.add_argument(
+            "--rst",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.rst$|.*\.txt$|.*\.inc$",
+            help="ReStructuredText")
+    target_type_options.add_argument(
+            "--ruby",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.rb$|.*\.rhtml$|.*\.rjs$|.*\.rxml$|.*\.erb$|.*\.rake$|.*\.spec$|Rakefile",
+            help="Ruby")
+    target_type_options.add_argument(
+            "--rust",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.rs$",
+            help="Rust")
+    target_type_options.add_argument(
+            "--sass",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.sass$|.*\.scss$",
+            help="Sass")
+    target_type_options.add_argument(
+            "--scala",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.scala$",
+            help="Scala")
+    target_type_options.add_argument(
+            "--scheme",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.scm$|.*\.ss$",
+            help="Scheme")
+    target_type_options.add_argument(
+            "--shell",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.sh$|.*\.bash$|.*\.csh$|.*\.tcsh$|.*\.ksh$|.*\.zsh$|.*\.fish$",
+            help="shell")
+    target_type_options.add_argument(
+            "--smalltalk",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.st$",
+            help="Smalltalk")
+    target_type_options.add_argument(
+            "--sphinx",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.rst$|.*\.inc$|conf\.py",
+            help="Sphinx")
+    target_type_options.add_argument(
+            "--sql",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.sql$|.*\.ctl$",
+            help="SQL")
+    target_type_options.add_argument(
+            "--tcl",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.tcl$|.*\.itcl$|.*\.itk$",
+            help="TCl")
+    target_type_options.add_argument(
+            "--tex",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.tex$|.*\.bib$",
+            help="TeX")
+    target_type_options.add_argument(
+            "--text",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.txt$",
+            help="Plain text")
+    target_type_options.add_argument(
+            "--tt",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.tt$|.*\.tt2$|.*\.ttml$",
+            help="TT")
+    target_type_options.add_argument(
+            "--vb",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.bas$|.*\.cls$|.*\.frm$|.*\.ctl$|.*\.vb$|.*\.resx$",
+            help="VisualBasic")
+    target_type_options.add_argument(
+            "--verilog",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.v$|.*\.vh$|.*\.sv$",
+            help="Verilog")
+    target_type_options.add_argument(
+            "--vhdl",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.vhd$|.*\.vhdl$",
+            help="VHDL")
+    target_type_options.add_argument(
+            "--vim",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.vim$",
+            help="Vim")
+    target_type_options.add_argument(
+            "--xml",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.xml$|.*\.dtd$|.*\.xsl$|.*\.xslt$|.*\.ent$",
+            help="XML")
+    target_type_options.add_argument(
+            "--yaml",
+            action="append_const",
+            dest="target_filename_pattern",
+            const=r".*\.yaml$|.*\.yml$",
+            help="YAML")
+
+    custom_filtering_options_group = parser.add_argument_group("Custom Filtering Options")
+    custom_filtering_options_group.add_argument(
+            "-n", "--name-glob",
+            dest="filter_for_glob_names",
+            action="append",
+            metavar="GLOB-PATTERN",
+            help= "General glob pattern to match against basenames of "
+            " files and directories to be included (e.g., '*.log', 'res??[0-9].*')."
+            " Multiple patterns can be be specified by repeating the option,"
+            " e.g.: \"-n '*.log -n *.run.log -n *.screen.log'\","
+            " in which case the files or directories with basenames that"
+            " match *any* of the specified glob patterns will be included."
+            " Files and directories with names that do not match any of the"
+            " glob patterns will excluded, unless specifically included"
+            " through other target criteria.")
+    custom_filtering_options_group.add_argument(
+            "-D", "--exclude-dir-patterns",
+            action="append",
+            metavar="PATTERN",
+            dest="dirs_to_exclude",
+            help="Regular expression patterns to be matched to directory "
+            "names(s) to exclude. Multiple path patterns may be specified "
+            "by repeating the option, e.g.: '-D path1 -D path2 -D path3'.")
+    custom_filtering_options_group.add_argument(
+            "-F", "--exclude-file-patterns",
+            action="append",
+            metavar="PATTERN",
+            dest="files_to_exclude",
+            help="Regular expression patterns to be matched to filename(s) "
+            "to exclude. Multiple path patterns may be specified by "
+            "repeating the option, e.g.: '-F path1 -F path2 -F path3'.")
+    custom_filtering_options_group.add_argument(
+            "-a", "--include-hidden",
+            action="store_true",
+            default=False,
+            help="Do not filter out hidden files and directories "
+            "(by default, these are filtered out).")
+    custom_filtering_options_group.add_argument(
+            "--include-gitignores",
+            action="store_true",
+            default=False,
+            help="Do not filter out paths specified in '.gitignore' "
+            "(by default, these are filtered out).")
+
+    action_group_section = parser.add_argument_group("Action Options")
+    action_group = action_group_section.add_mutually_exclusive_group()
+    action_group.add_argument(
+            "-E", "--edit",
+            action="store_const",
+            dest="action_type",
+            const="edit",
+            help="[DEFAULT] Opens selected file or directory for editing "
+            "(with editor program specified by, in order of resolution, "
+            "'$FUZZYSNAKE_EDITOR' or '$EDITOR').")
+    action_group.add_argument(
+            "-p", "--print",
+            action=SetPrintAction,
+            dest="action_type",
+            metavar="FILEPATH",
+            help="Prints the selected file or directory name to FILEPATH.")
+    action_group.add_argument(
+            "--stdout",
+            action=SetPrintAction,
+            dest="action_type",
+            nargs=0,
+            metavar="FILEPATH",
+            help="Prints the selected file or directory name to standard output.")
+    action_group.add_argument(
+            "-o", "--open",
+            action="store_const",
+            dest="action_type",
+            const="open",
+            help="Passes the selected file or directory path as an argument to the 'open' command.")
+    action_group.add_argument(
+            "-c", "--execute-command",
+            action=SetCustomCommandAction,
+            dest="action_type",
+            metavar="COMMAND",
+            help="Execute `COMMAND` with the selected file or directory path name as an argument. "
+            "If the token '{}' occurs in the COMMAND string, it will be replaced with the "
+            "selected file or directory path name. If this token is not found in the COMMAND "
+            "string, then the execution string will be COMMAND as-is followed by the selected "
+            "file or directory path name.")
+    action_group.add_argument(
+            "-L", "--list-and-exit",
+            action="store_const",
+            dest="action_type",
+            const="list-and-exit",
+            help="[SPECIAL] Instead of listing the names of files and directories found for "
+            "you to select a particular one, print the names to standard output. This option "
+            "allows you to do, e.g., 'vim $(fz -L --python src/)' to quickly open all the "
+            "Python files in the 'src/' subdirectory)")
+    parser.set_defaults(action_type="edit")
+
+    return parser.parse_args()
+
+class SetPrintAction(argparse.Action):
+    def __call__(self,
+            parser,
+            namespace,
+            values,
+            option_string=None):
+        namespace.action_type = "print"
+        if option_string == "--stdout":
+            namespace.action_target = "-"
+        else:
+            namespace.action_target = values
+
+class SetCustomCommandAction(argparse.Action):
+    def __call__(self,
+            parser,
+            namespace,
+            values,
+            option_string=None):
+        namespace.action_type = "command"
+        namespace.action_target = values
+
+if __name__ == '__main__':
+    args = build_arg_parser()
+    runner = DirRun(args)
+    if args.action_type == "list-and-exit":
+        runner.print_list()
+    else:
+        runner.run()
