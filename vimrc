@@ -76,6 +76,7 @@ set colorcolumn=+1
 " hard-wrapping prose documents anymore.
 au BufNewFile,BufRead *.md set ft=markdown
 au FileType liquid,markdown set tw=0 linebreak nolist
+au FileType liquid,markdown setlocal spell spelllang=en_us
 
 function Comment_current(comment_symb)
     let curline = getline(".")
