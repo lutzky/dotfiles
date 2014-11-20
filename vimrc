@@ -11,14 +11,14 @@ set wildmenu
 if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
     set t_Co=256
     let g:jellybeans_background_color_256="NONE"
-    colorscheme jellybeans
+    silent! colorscheme jellybeans
 endif
 
 set nocompatible
 filetype off
 
 set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#rc()
+call vundle#begin()
 
 Plugin 'itchyny/lightline.vim'
 Plugin 'gmarik/Vundle.vim'
