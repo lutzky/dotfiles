@@ -35,6 +35,8 @@ Plugin 'tpope/vim-dispatch'
 Plugin 'tpope/vim-sensible'
 Plugin 'tpope/vim-sleuth'
 
+call vundle#end()
+
 filetype plugin indent on
 
 map <C-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
