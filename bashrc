@@ -85,6 +85,8 @@ if ! shopt -oq posix; then
     . /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
+  else
+    __git_ps1() { :; }
   fi
 fi
 
@@ -102,7 +104,7 @@ if [[ $TERM == "xterm" ]]; then
 	export TERM=xterm-256color
 fi
 
-if grep -qE '(guake|gnome-terminal)' /proc/$PPID/cmdline; then
+if [[ -d /proc ]] && grep -qE '(guake|gnome-terminal)' /proc/$PPID/cmdline; then
 	read -n 1 -p "Run tmux? [Y/n/a] " response
 	case $response in
 		n)
@@ -123,3 +125,5 @@ fi
 
 DEBEMAIL=ohad@lutzky.net
 DEBFULLNAME="Ohad Lutzky"
+
+export CLICOLOR=1  # Color ls output for mac
