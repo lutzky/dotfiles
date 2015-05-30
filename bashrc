@@ -104,7 +104,7 @@ if [[ $TERM == "xterm" ]]; then
 	export TERM=xterm-256color
 fi
 
-if [[ -d /proc ]] && grep -qE '(guake|gnome-terminal)' /proc/$PPID/cmdline; then
+if [[ -d /proc ]] && grep -qE '(guake|gnome-terminal|ssh)' /proc/$PPID/cmdline; then
 	read -n 1 -p "Run tmux? [Y/n/a] " response
 	case $response in
 		n)
