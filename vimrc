@@ -79,6 +79,10 @@ set colorcolumn=+1
 au BufNewFile,BufRead *.md set ft=markdown
 au FileType liquid,markdown set tw=0 linebreak nolist
 au FileType liquid,markdown setlocal spell spelllang=en_us
+au FileType liquid,markdown noremap j gj
+au FileType liquid,markdown noremap gj j
+au FileType liquid,markdown noremap k gk
+au FileType liquid,markdown noremap gk k
 
 function Comment_current(comment_symb)
     let curline = getline(".")
