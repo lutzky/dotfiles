@@ -44,7 +44,7 @@ map <C-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 let mapleader = ","
 
 map <Leader><F3> :NERDTreeClose<CR>
-map <F3> :NERDTree<CR>
+map <F3> :NERDTreeFocus<CR>
 
 augroup vimrc_autocommands
     au FileType python set si sw=4 ts=4 sts=4 et
