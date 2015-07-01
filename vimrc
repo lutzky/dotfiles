@@ -23,7 +23,6 @@ call vundle#begin()
 Plugin 'itchyny/lightline.vim'
 Plugin 'gmarik/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
-Plugin 'kien/ctrlp.vim'
 Plugin 'klen/python-mode'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-liquid'
@@ -38,6 +37,8 @@ Plugin 'tpope/vim-sleuth'
 call vundle#end()
 
 filetype plugin indent on
+
+set rtp+=~/.fzf
 
 map <C-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
