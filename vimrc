@@ -20,6 +20,7 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
+Plugin 'fatih/vim-go'
 Plugin 'itchyny/lightline.vim'
 Plugin 'gmarik/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
