@@ -70,6 +70,7 @@ au FileType yacc set si sw=4 ts=4 sts=4 et smartindent
 au FileType html set si sw=2 ts=2 sts=2 et
 au FileType json set si sw=2 ts=2 sts=2 et
 au FileType javascript set si sw=2 ts=2 sts=2 et
+au FileType go set ts=2 sw=2 noet
 
 " colorcolumn will be set relative to textwidth, so filetypes with different
 " textwidth won't get needlessly interrupted.
