@@ -26,9 +26,6 @@ floating_modifier $mod
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
 
-# lock
-bindsym $mod+Shift+l exec i3lock -c 111122
-
 # kill focused window
 bindsym $mod+Shift+q kill
 
@@ -122,6 +119,7 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 
 exec --no-startup-id nm-applet
 exec --no-startup-id setxkbmap -layout 'us,il,ru(phonetic)'
+exec --no-startup-id ~/.i3/lock_on_lid "i3lock -c 111122"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
