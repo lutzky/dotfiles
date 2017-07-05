@@ -14,28 +14,22 @@ if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term 
     silent! colorscheme jellybeans
 endif
 
-set nocompatible
-filetype off
-
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-Plugin 'fatih/vim-go'
-Plugin 'itchyny/lightline.vim'
-Plugin 'gmarik/Vundle.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'klen/python-mode'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-liquid'
-Plugin 'airblade/vim-gitgutter'
-Plugin 'jwhitley/vim-matchit'
-Plugin 'nanotech/jellybeans.vim'
-Plugin 'reinh/vim-makegreen'
-Plugin 'tpope/vim-dispatch'
-Plugin 'tpope/vim-sensible'
-Plugin 'tpope/vim-sleuth'
-
-call vundle#end()
+call plug#begin('~/.vim/plugged')
+Plug 'fatih/vim-go'
+Plug 'itchyny/lightline.vim'
+Plug 'gmarik/Vundle.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'klen/python-mode'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-liquid'
+Plug 'airblade/vim-gitgutter'
+Plug 'jwhitley/vim-matchit'
+Plug 'nanotech/jellybeans.vim'
+Plug 'reinh/vim-makegreen'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-sleuth'
+call plug#end()
 
 filetype plugin indent on
 

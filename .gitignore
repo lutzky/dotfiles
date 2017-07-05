@@ -1,4 +1,5 @@
 vim/.*
 vim/bundle
+vim/plugged
 npm-debug.log
 .*.swp
