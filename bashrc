@@ -138,3 +138,4 @@ export CLICOLOR=1  # Color ls output for mac
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 export LSCOLORS=ExGxcxdxCxegedabagacad
+export LC_ALL=en_US.UTF-8
