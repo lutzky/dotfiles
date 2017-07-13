@@ -8,12 +8,6 @@ set tags+=~/.vim/systags
 set fo+=r
 set wildmenu
 
-if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
-    set t_Co=256
-    let g:jellybeans_background_color_256="NONE"
-    silent! colorscheme jellybeans
-endif
-
 call plug#begin('~/.vim/plugged')
 Plug 'fatih/vim-go'
 Plug 'itchyny/lightline.vim'
@@ -30,6 +24,12 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
 call plug#end()
+
+if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
+    set t_Co=256
+    let g:jellybeans_background_color_256="NONE"
+    silent! colorscheme jellybeans
+endif
 
 filetype plugin indent on
 
