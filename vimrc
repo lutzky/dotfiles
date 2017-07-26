@@ -9,21 +9,24 @@ set fo+=r
 set wildmenu
 
 call plug#begin('~/.vim/plugged')
-Plug 'fatih/vim-go'
-Plug 'itchyny/lightline.vim'
-Plug 'gmarik/Vundle.vim'
-Plug 'scrooloose/nerdtree'
-Plug 'klen/python-mode'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-liquid'
 Plug 'airblade/vim-gitgutter'
+Plug 'fatih/vim-go'
+Plug 'gmarik/Vundle.vim'
+Plug 'itchyny/lightline.vim'
 Plug 'jwhitley/vim-matchit'
+Plug 'klen/python-mode'
+Plug 'leafgarland/typescript-vim'
 Plug 'nanotech/jellybeans.vim'
 Plug 'reinh/vim-makegreen'
+Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-liquid'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
 call plug#end()
+
+let g:go_fmt_command = "goimports"
 
 if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
     set t_Co=256
