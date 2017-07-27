@@ -10,6 +10,7 @@ set wildmenu
 
 call plug#begin('~/.vim/plugged')
 Plug 'airblade/vim-gitgutter'
+Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go'
 Plug 'gmarik/Vundle.vim'
 Plug 'itchyny/lightline.vim'
