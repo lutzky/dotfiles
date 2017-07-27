@@ -193,3 +193,6 @@ autocmd InsertLeave *
     \ if &paste == 1 |
     \      set nopaste |
     \ endif
+
+" For those situations where C-w is unavailable
+noremap <Leader>w <C-w>
