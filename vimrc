@@ -18,6 +18,7 @@ Plug 'jwhitley/vim-matchit'
 Plug 'klen/python-mode'
 Plug 'leafgarland/typescript-vim'
 Plug 'nanotech/jellybeans.vim'
+Plug 'pangloss/vim-javascript'
 Plug 'reinh/vim-makegreen'
 Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-dispatch'
@@ -25,9 +26,17 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-liquid'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
+Plug 'w0rp/ale'
 call plug#end()
 
 let g:go_fmt_command = "goimports"
+
+let g:javascript_plugin_jsdoc = 1
+
+let g:ale_fixers = {
+  \ 'javascript': ['eslint']
+  \ }
 
 if &term == "xterm" || &term == "screen" || &term == "screen-256color" || &term == "xterm-256color"
     set t_Co=256
