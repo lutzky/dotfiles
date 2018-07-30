@@ -139,3 +139,5 @@ export CLICOLOR=1  # Color ls output for mac
 
 export LSCOLORS=ExGxcxdxCxegedabagacad
 export LC_ALL=en_US.UTF-8
+
+[ -f /google/devshell/bashrc.google ] && source /google/devshell/bashrc.google
