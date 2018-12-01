@@ -26,9 +26,12 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-liquid'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
+Plug 'rhysd/vim-clang-format'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 Plug 'w0rp/ale'
 call plug#end()
+
+autocmd FileType typescript ClangFormatAutoEnable
 
 let g:go_fmt_command = "goimports"
 
