@@ -33,6 +33,9 @@ call plug#end()
 
 autocmd FileType typescript ClangFormatAutoEnable
 
+" g:clang_format#command doesn't support just running "npx clang-format" :/
+let g:clang_format#command = "npx-clang-format"
+
 let g:go_fmt_command = "goimports"
 
 let g:javascript_plugin_jsdoc = 1
