@@ -13,3 +13,7 @@
 	default = simple
 [include]
 	path = ~/.gitconfig.local
+[pager]
+	diff = diff-highlight | less
+	log = diff-highlight | less
+	show = diff-highlight | less
