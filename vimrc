@@ -68,6 +68,8 @@ augroup vimrc_autocommands
     au FileType python match Excess /\%80v.*/
     au FileType python set nowrap
     au FileType python set nonu
+
+    au FileType go nmap <leader>t <Plug>(go-test)
 augroup END
 
 au FileType haskell set et
