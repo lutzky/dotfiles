@@ -133,6 +133,7 @@ DEBEMAIL=ohad@lutzky.net
 DEBFULLNAME="Ohad Lutzky"
 
 export GOPATH=$HOME/src/go
+export PATH=$PATH:${GOPATH}/bin
 
 export CLICOLOR=1  # Color ls output for mac
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash

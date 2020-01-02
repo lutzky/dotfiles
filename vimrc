@@ -37,6 +37,7 @@ autocmd FileType typescript ClangFormatAutoEnable
 let g:clang_format#command = "npx-clang-format"
 
 let g:go_fmt_command = "goimports"
+let g:go_rename_command = "gopls"
 
 let g:javascript_plugin_jsdoc = 1
 
