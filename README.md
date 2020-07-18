@@ -1,10 +1,9 @@
 lutzky's dotfiles
 =================
 
-These are my dotfiles, intended to use with the `dotfiles` PIP package:
+These are my dotfiles, intended to use with GNU stow:
 
-    pip install dotfiles
+    sudo apt install stow
+    stow -v --dotfiles stow-*
 
 As such, you should clone it into `~/Dotfiles` (capital `D`).
-
-See also http://pypi.python.org/pypi/dotfiles
