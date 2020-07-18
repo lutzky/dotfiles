@@ -1,3 +1,0 @@
-[dotfiles]
-repository = ~/Dotfiles
-ignore = [ '.git', '.gitignore', '*.swp', 'README.md' ]
