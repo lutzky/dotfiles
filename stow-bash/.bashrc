@@ -109,7 +109,7 @@ fi
 if : \
   && [[ "$TERM" != screen* ]] \
   && [[ -d /proc ]] \
-  && grep -qE '(guake|gnome-terminal|ssh|/init)' /proc/$PPID/cmdline \
+  && grep -qE '(guake|gnome-terminal|ssh|/init|vshd.elf)' /proc/$PPID/cmdline \
   ; then
 	read -n 1 -p "Run tmux? [Y/n/a] " response
 	case $response in
