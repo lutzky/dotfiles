@@ -142,3 +142,7 @@ export LSCOLORS=ExGxcxdxCxegedabagacad
 export LC_ALL=en_US.UTF-8
 
 [ -f /google/devshell/bashrc.google ] && source /google/devshell/bashrc.google
+
+if [[ -z $SSH_CONNECTION ]] && hash keychain > /dev/null 2>&1; then
+  eval `keychain --eval --agents ssh id_rsa`
+fi
