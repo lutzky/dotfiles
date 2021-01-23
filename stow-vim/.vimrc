@@ -15,7 +15,7 @@ Plug 'fatih/vim-go'
 Plug 'gmarik/Vundle.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'jwhitley/vim-matchit'
-Plug 'klen/python-mode'
+" Plug 'klen/python-mode'
 Plug 'leafgarland/typescript-vim'
 Plug 'nanotech/jellybeans.vim'
 Plug 'pangloss/vim-javascript'
@@ -28,7 +28,7 @@ Plug 'tpope/vim-liquid'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
 Plug 'rhysd/vim-clang-format'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
+" Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 Plug 'w0rp/ale'
 call plug#end()
 
