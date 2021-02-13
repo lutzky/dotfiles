@@ -36,7 +36,30 @@ __if_error() {
 	fi
 }
 
-PS1='\[\e[1;32m\]\u@\h\[\e[0;0m\]:\[\e[1;34m\]\w\[\e[0;0m$(__if_error "\e[1;31m")\]\$\[\e[1;35m\]$(__git_ps1)\[\e[0;0m\] '
+__ps1_time_last_seconds=
+__ps1_time_duration=
+
+prompt_command() {
+  if [[ -n $__ps1_time_last_seconds ]]; then
+    __ps1_time_duration=" (+$(displaytime $(($SECONDS - $__ps1_time_last_seconds))))"
+  fi
+  __ps1_time_last_seconds=$SECONDS
+}
+
+displaytime() {
+  local T=$1
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  (( $D > 0 )) && printf '%dd ' $D
+  (( $H > 0 )) && printf '%dh ' $H
+  (( $M > 0 )) && printf '%dm ' $M
+  printf '%ds\n' $S
+}
+
+PROMPT_COMMAND='prompt_command'
+PS1='\[\e[1;32m\]\u@\h\[\e[0;0m\]:\[\e[1;34m\]\w \[\e[0;33m\t$__ps1_time_duration\e[1;35m\]$(__git_ps1)\[\e[0;0m\]\n$(__if_error "\e[1;31m")\]\$\[\e[0;0m\] '
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
