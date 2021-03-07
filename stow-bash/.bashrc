@@ -31,9 +31,10 @@ shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 __if_error() {
-	if [[ $? != 0 ]]; then
-		echo "$1"
-	fi
+  local e=$?
+  if [[ $e != 0 ]]; then
+    printf "$1" $e
+  fi
 }
 
 __ps1_time_last_seconds=
@@ -59,7 +60,22 @@ displaytime() {
 }
 
 PROMPT_COMMAND='prompt_command'
-PS1='\[\e[1;32m\]\u@\h\[\e[0;0m\]:\[\e[1;34m\]\w \[\e[0;33m\]\t$__ps1_time_duration\[\e[1;35m\]$(__git_ps1)\[\e[0;0m\]\n$(__if_error "\[\e[1;31m\]")\$\[\e[0;0m\] '
+
+ps1_gen() {
+  local YELLOW='\[\e[0;33m\]'
+  local LRED='\[\e[1;31m\]'
+  local LGREEN='\[\e[1;32m\]'
+  local LBLUE='\[\e[1;34m\]'
+  local LPURPLE='\[\e[1;35m\]'
+  local RESET='\[\e[0;0m\]'
+  echo -n "$LGREEN\u@\h$RESET:$LBLUE\w "
+  echo -n "\$(__if_error '$LRED[ERR:%d]$RESET ')"
+  echo -n "$YELLOW\t\$__ps1_time_duration"
+  echo -n "$LPURPLE\$(__git_ps1)$RESET"
+  echo -n '\n'
+  echo -n '\$ '
+}
+PS1=$(ps1_gen)
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
