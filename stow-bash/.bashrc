@@ -59,7 +59,7 @@ displaytime() {
 }
 
 PROMPT_COMMAND='prompt_command'
-PS1='\[\e[1;32m\]\u@\h\[\e[0;0m\]:\[\e[1;34m\]\w \[\e[0;33m\t$__ps1_time_duration\e[1;35m\]$(__git_ps1)\[\e[0;0m\]\n$(__if_error "\e[1;31m")\]\$\[\e[0;0m\] '
+PS1='\[\e[1;32m\]\u@\h\[\e[0;0m\]:\[\e[1;34m\]\w \[\e[0;33m\]\t$__ps1_time_duration\[\e[1;35m\]$(__git_ps1)\[\e[0;0m\]\n$(__if_error "\[\e[1;31m\]")\$\[\e[0;0m\] '
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
