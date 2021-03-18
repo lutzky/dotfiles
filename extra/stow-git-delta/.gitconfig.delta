@@ -1,0 +1,7 @@
+# Delta: https://github.com/dandavision/delta
+[core]
+	pager = delta
+[diff]
+	colorMoved = default
+[interactive]
+	diffFilter = delta --color-only
