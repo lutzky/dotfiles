@@ -3,6 +3,9 @@
 
 alias ack=ack-grep
 
+# sudo apt install bat
+alias bat=batcat
+
 # Stolen shamelessly from powgbg
 _ssht() {
   if ! type -t _ssh > /dev/null; then
