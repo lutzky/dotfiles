@@ -146,7 +146,6 @@ if [[ $TERM == "xterm" ]]; then
 fi
 
 if : \
-  && [[ "$TERM" != screen* ]] \
   && [[ -d /proc ]] \
   && grep -qE '(guake|gnome-terminal|ssh|/init|vshd.elf)' /proc/$PPID/cmdline \
   ; then
