@@ -18,6 +18,7 @@ Plug 'jwhitley/vim-matchit'
 " Plug 'klen/python-mode'
 Plug 'leafgarland/typescript-vim'
 Plug 'nanotech/jellybeans.vim'
+Plug 'ojroques/vim-oscyank'  " Note: In tmux, requires set -g set-clipboard on
 Plug 'pangloss/vim-javascript'
 Plug 'pedrohdz/vim-yaml-folds'
 Plug 'posva/vim-vue'
@@ -63,6 +64,8 @@ let mapleader = ","
 
 map <Leader><F3> :NERDTreeClose<CR>
 map <F3> :NERDTreeFocus<CR>
+
+vnoremap <leader>y :OSCYank<CR>
 
 augroup vimrc_autocommands
     au FileType python set si sw=4 ts=4 sts=4 et
