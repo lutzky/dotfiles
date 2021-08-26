@@ -183,3 +183,5 @@ export LC_ALL=en_US.UTF-8
 if [[ -z $SSH_CONNECTION ]] && hash keychain > /dev/null 2>&1; then
   eval `keychain --noask --eval --agents ssh id_rsa`
 fi
+
+[ -f ~/.fortunes/fortunes.dat ] && fortune ~/.fortunes/fortunes
