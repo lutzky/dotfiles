@@ -21,6 +21,9 @@ complete -F _ssht ssht
 # From https://perfectmediaserver.com/day-two/quality-of-life-tweaks/
 alias docker-ips=$'docker inspect -f \'{{.Name}}-{{range  $k, $v := .NetworkSettings.Networks}}{{$k}}-{{.IPAddress}} {{end}}-{{range $k, $v := .NetworkSettings.Ports}}{{ if not $v }}{{$k}} {{end}}{{end}} -{{range $k, $v := .NetworkSettings.Ports}}{{ if $v }}{{$k}} => {{range . }}{{ .HostIp}}:{{.HostPort}}{{end}}{{end}} {{end}}\' $(docker ps -aq) | column -t -s-'
 
+# And for just one container
+alias dockerip="docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
+
 brightness() {
   ddcutil setvcp 10 "${1?:Usage: brightness [0-100]}"
 }
