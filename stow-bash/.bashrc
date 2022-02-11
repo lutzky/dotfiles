@@ -37,14 +37,13 @@ __if_error() {
   fi
 }
 
-__ps1_time_last_seconds=
+__ps0_time_last_seconds=
 __ps1_time_duration=
 
 prompt_command() {
-  if [[ -n $__ps1_time_last_seconds ]]; then
-    __ps1_time_duration=" (+$(displaytime $(($SECONDS - $__ps1_time_last_seconds))))"
+  if [[ -n $__ps0_time_last_seconds ]]; then
+    __ps1_time_duration="($(displaytime $(($SECONDS - $__ps0_time_last_seconds))))"
   fi
-  __ps1_time_last_seconds=$SECONDS
 }
 
 displaytime() {
@@ -70,12 +69,16 @@ ps1_gen() {
   local RESET='\[\e[0;0m\]'
   echo -n "$LGREEN\u@\h$RESET:$LBLUE\w "
   echo -n "\$(__if_error '$LRED[ERR:%d]$RESET ')"
-  echo -n "$YELLOW\t\$__ps1_time_duration"
+  echo -n "$YELLOW\$__ps1_time_duration"
   echo -n "$LPURPLE\$(__git_ps1)$RESET"
   echo -n '\n'
   echo -n '\$ '
 }
 PS1=$(ps1_gen)
+
+# Hack from https://stackoverflow.com/questions/43201274
+PS0='\[${PS1:$((__ps0_time_last_seconds=$SECONDS)):0}\]'
+
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
