@@ -30,55 +30,9 @@ shopt -s checkwinsize
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-__if_error() {
-  local e=$?
-  if [[ $e != 0 ]]; then
-    printf "$1" $e
-  fi
-}
-
-__ps0_time_last_seconds=
-__ps1_time_duration=
-
-prompt_command() {
-  if [[ -n $__ps0_time_last_seconds ]]; then
-    __ps1_time_duration="($(displaytime $(($SECONDS - $__ps0_time_last_seconds)))) "
-  fi
-}
-
-displaytime() {
-  local T=$1
-  local D=$((T/60/60/24))
-  local H=$((T/60/60%24))
-  local M=$((T/60%60))
-  local S=$((T%60))
-  (( $D > 0 )) && printf '%dd ' $D
-  (( $H > 0 )) && printf '%dh ' $H
-  (( $M > 0 )) && printf '%dm ' $M
-  printf '%ds\n' $S
-}
-
-PROMPT_COMMAND='prompt_command'
-
-ps1_gen() {
-  local YELLOW='\[\e[0;33m\]'
-  local LRED='\[\e[1;31m\]'
-  local LGREEN='\[\e[1;32m\]'
-  local LBLUE='\[\e[1;34m\]'
-  local LPURPLE='\[\e[1;35m\]'
-  local RESET='\[\e[0;0m\]'
-  echo -n "$LGREEN\u@\h$RESET:$LBLUE\w "
-  echo -n "\$(__if_error '$LRED %d$RESET ')"
-  echo -n "$YELLOW\$__ps1_time_duration"
-  echo -n "$LPURPLE\$(__git_ps1 '%s')$RESET"
-  echo -n '\n'
-  echo -n '\$ '
-}
-PS1=$(ps1_gen)
-
-# Hack from https://stackoverflow.com/questions/43201274
-PS0='\[${PS1:$((__ps0_time_last_seconds=$SECONDS)):0}\]'
-
+if [ -f ~/.bash_prompt ]; then
+    . ~/.bash_prompt
+fi
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
