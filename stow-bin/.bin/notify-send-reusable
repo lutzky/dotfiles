@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+import argparse, gi
+gi.require_version('Notify', '0.7')
+from gi.repository import Notify
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--message', default="body")
+    parser.add_argument('-i', '--id', type=int)
+    return parser.parse_args()
+
+def run(myid,message):
+    Notify.init("mynote")
+    obj = Notify.Notification.new("my summary", message)
+    obj.set_timeout(60*1000)
+    if myid:
+        obj.set_property('id', myid)
+        obj.show()
+        newid = obj.get_property('id')
+        print(newid)
+    else:
+        obj.show()
+        myid = obj.get_property('id')
+        print(myid)
+
+def main():
+    options = parse_args()
+    run(options.id, options.message)
+
+main()

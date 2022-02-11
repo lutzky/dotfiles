@@ -1,0 +1,32 @@
+#!/bin/bash
+
+call_ddcutil() {
+    flock -n /tmp/brightness_script.lock ddcutil \
+        --sleep-multiplier .1 \
+        --async \
+        --bus 6 \
+        "$@"
+}
+
+if [[ -n "$1" ]]; then
+    call_ddcutil setvcp 10 -- "$1"
+else
+    call_ddcutil getvcp 10
+fi
+
+current_brightness="$(call_ddcutil -t getvcp 10 | cut -d' ' -f4)"
+[[ -z $current_brightness ]] && exit
+
+notification_id=
+if [[ -e /tmp/brightness_script.notification-id ]]; then
+    notification_id=$(cat /tmp/brightness_script.notification-id)
+fi
+if [[ -z $notification_id ]]; then
+    notification_id=0
+fi
+
+new_id=$(/home/ohad/.bin/notify-send-reusable -m "Brightness: $current_brightness" -i $notification_id)
+
+if [[ $new_id -ne $notification_id ]]; then
+    flock /tmp/brightness_script.lock -c "echo $new_id > /tmp/brightness_script.notification-id"
+fi
