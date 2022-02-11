@@ -42,7 +42,7 @@ __ps1_time_duration=
 
 prompt_command() {
   if [[ -n $__ps0_time_last_seconds ]]; then
-    __ps1_time_duration="($(displaytime $(($SECONDS - $__ps0_time_last_seconds))))"
+    __ps1_time_duration="($(displaytime $(($SECONDS - $__ps0_time_last_seconds)))) "
   fi
 }
 
@@ -68,9 +68,9 @@ ps1_gen() {
   local LPURPLE='\[\e[1;35m\]'
   local RESET='\[\e[0;0m\]'
   echo -n "$LGREEN\u@\h$RESET:$LBLUE\w "
-  echo -n "\$(__if_error '$LRED[ERR:%d]$RESET ')"
+  echo -n "\$(__if_error '$LRED %d$RESET ')"
   echo -n "$YELLOW\$__ps1_time_duration"
-  echo -n "$LPURPLE\$(__git_ps1)$RESET"
+  echo -n "$LPURPLE\$(__git_ps1 '%s')$RESET"
   echo -n '\n'
   echo -n '\$ '
 }
