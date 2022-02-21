@@ -11,7 +11,7 @@ def parse_args():
 
 def run(myid,message):
     Notify.init("mynote")
-    obj = Notify.Notification.new("my summary", message)
+    obj = Notify.Notification.new(message)
     obj.set_timeout(60*1000)
     if myid:
         obj.set_property('id', myid)
