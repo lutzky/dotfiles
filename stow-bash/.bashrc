@@ -141,4 +141,6 @@ if [[ -z $SSH_CONNECTION ]] && hash keychain > /dev/null 2>&1; then
   eval `keychain --noask --eval --agents ssh id_rsa`
 fi
 
-[ -f ~/.fortunes/fortunes.dat ] && fortune ~/.fortunes/fortunes
+if [[ -f ~/.fortunes/fortunes.dat ]]; then
+  fortune ~/.fortunes/fortunes
+fi
