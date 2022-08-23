@@ -33,3 +33,18 @@ pink() {
   ping "$@"
   echo -en "\e[0m"
 }
+
+# From https://christitus.com/stop-using-apt/
+if hash nala > /dev/null 2>&1; then
+  apt() {
+    command nala "$@"
+  }
+  sudo() {
+    if [[ "$1" == "apt" ]]; then
+      shift
+      command sudo nala "$@"
+    else
+      command sudo "$@"
+    fi
+  }
+fi
