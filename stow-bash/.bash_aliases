@@ -24,10 +24,6 @@ alias docker-ips=$'docker inspect -f \'{{.Name}}-{{range  $k, $v := .NetworkSett
 # And for just one container
 alias dockerip="docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
 
-brightness() {
-  ddcutil setvcp 10 "${1?:Usage: brightness [0-100]}"
-}
-
 pink() {
   echo -en "\e[95m"
   ping "$@"
