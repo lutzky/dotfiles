@@ -1,4 +1,4 @@
-# Delta: https://github.com/dandavision/delta
+# Delta: https://github.com/dandavison/delta
 [core]
 	pager = delta
 [diff]
