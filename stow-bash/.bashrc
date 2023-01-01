@@ -144,4 +144,4 @@ fi
 if [[ -f ~/.fortunes/fortunes.dat ]]; then
   fortune ~/.fortunes/fortunes
 fi
-. "$HOME/.cargo/env"
+[[ -e "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
