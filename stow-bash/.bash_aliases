@@ -25,9 +25,9 @@ alias_or_warn exa ls --icons
 alias_or_warn fdfind fd
 exists_or_warn delta git-delta
 exists_or_warn dust dust
-exists_or_warn kalker kalker
 exists_or_warn rg ripgrep
 exists_or_warn starship starship
+exists_or_warn fzf fzf
 
 
 
