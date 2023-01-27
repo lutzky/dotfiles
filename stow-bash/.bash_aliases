@@ -1,10 +1,34 @@
 #!/bin/bash
 # Above comment for syntax highlighting
 
-alias ack=ack-grep
+not_installed=
 
-# sudo apt install bat
-alias bat=batcat
+alias_or_warn() {
+  actual_binary=$1
+  shift
+  alias_base=$1
+  shift
+  if hash $actual_binary > /dev/null 2>&1; then
+    alias $alias_base="$actual_binary $@"
+  else
+    not_installed="$not_installed $alias_base($actual_binary)"
+  fi
+}
+
+exists_or_warn() {
+  hash $1 > /dev/null 2>&1 || not_installed="$not_installed $2($1)"
+}
+
+alias_or_warn batcat bat
+alias_or_warn batcat cat
+alias_or_warn exa ls --icons
+alias_or_warn fdfind fd
+exists_or_warn delta git-delta
+exists_or_warn dust dust
+exists_or_warn kalker kalker
+exists_or_warn rg ripgrep
+
+
 
 # Stolen shamelessly from powgbg
 _ssht() {
@@ -43,4 +67,10 @@ if hash nala > /dev/null 2>&1; then
       command sudo "$@"
     fi
   }
+else
+  not_installed="$not_installed nala"
+fi
+
+if [[ -n $not_installed ]]; then
+  echo "$BASH_SOURCE: The following things you like aren't installed:$not_installed"
 fi

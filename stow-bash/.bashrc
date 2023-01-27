@@ -69,6 +69,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
+[[ -e "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
@@ -144,4 +145,3 @@ fi
 if [[ -f ~/.fortunes/fortunes.dat ]]; then
   fortune ~/.fortunes/fortunes
 fi
-[[ -e "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
