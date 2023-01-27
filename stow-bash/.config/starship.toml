@@ -18,7 +18,8 @@ $time\
 
 [hostname]
 ssh_only = false
-format = '@[$ssh_symbol$hostname]($style)'
+format = '[@$hostname$ssh_symbol]($style)'
+ssh_symbol = ''
 style = "bg:#a3aed2 fg:#090c0c"
 
 [directory]
