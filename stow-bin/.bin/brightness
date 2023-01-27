@@ -6,7 +6,7 @@ call_ddcutil() {
     flock -n /tmp/brightness_script.lock ddcutil \
         --sleep-multiplier .1 \
         --async \
-        --bus 6 \
+        --bus 1 \
         "$@"
 }
 
