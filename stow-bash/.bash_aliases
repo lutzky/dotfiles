@@ -21,6 +21,7 @@ exists_or_warn() {
 
 alias_or_warn batcat bat
 alias_or_warn batcat cat
+alias_or_warn btm top
 alias_or_warn exa ls --icons
 alias_or_warn fdfind fd
 exists_or_warn delta git-delta
