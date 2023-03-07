@@ -73,6 +73,6 @@ else
   not_installed="$not_installed nala"
 fi
 
-if [[ -n $not_installed ]]; then
+if [[ -n $not_installed && -z $TMUX ]]; then
   echo "$BASH_SOURCE: The following things you like aren't installed:$not_installed"
 fi
