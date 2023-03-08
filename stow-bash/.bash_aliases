@@ -69,7 +69,8 @@ if hash nala > /dev/null 2>&1; then
       command sudo "$@"
     fi
   }
-else
+elif [[ -e /etc/lsb-release ]]; then
+  # Distros too old to have an lsb-release don't support nala anyway
   not_installed="$not_installed nala"
 fi
 
