@@ -29,6 +29,7 @@ exists_or_warn dust dust
 exists_or_warn rg ripgrep
 exists_or_warn starship starship
 exists_or_warn fzf fzf
+exists_or_warn keychain keychain
 
 
 
