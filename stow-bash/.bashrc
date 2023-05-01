@@ -101,7 +101,7 @@ if [[ $TERM == "xterm" ]]; then
 	export TERM=xterm-256color
 fi
 
-if [[ -z $TMUX ]]; then
+if [[ -z $TMUX ]] && test -t 0; then
 	read -n 1 -p "Run tmux? [Y/n/a] " response
 	case $response in
 		n)
