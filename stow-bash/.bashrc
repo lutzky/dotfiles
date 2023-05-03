@@ -134,7 +134,7 @@ export LC_ALL=en_US.UTF-8
 [ -f /google/devshell/bashrc.google ] && source /google/devshell/bashrc.google
 
 if [[ -z $SSH_CONNECTION ]] && hash keychain > /dev/null 2>&1; then
-  eval `keychain --noask --eval --agents ssh id_rsa`
+  eval `keychain --noask --eval --quiet --quick --agents ssh id_rsa`
 fi
 
 if [[ -f ~/.fortunes/fortunes.dat ]]; then
