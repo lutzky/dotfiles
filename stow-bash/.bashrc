@@ -101,23 +101,37 @@ if [[ $TERM == "xterm" ]]; then
 	export TERM=xterm-256color
 fi
 
-if [[ -z $TMUX ]] && test -t 0; then
-	read -n 1 -p "Run tmux? [Y/n/a] " response
-	case $response in
-		n)
-			echo # Newline
-			;;
-		a)
-			exit
-			;;
-		*)
-			if tmux has-session 2>/dev/null; then
-				exec tmux attach
-			else
-				exec tmux
-			fi
-			;;
-	esac
+t() {
+	sess=${1:?}
+
+	if ! tmux has-session -t $sess > /dev/null 2>&1; then
+		tmux new-session -d -s $sess
+	fi
+
+	if [[ -n $TMUX ]]; then
+		tmux switch-client -t $sess
+	else
+		tmux attach-session -t $sess
+	fi
+}
+
+_t_complete() {
+	if [[ ${#COMP_WORDS[@]} -ne 2 ]]; then
+		return
+	fi
+
+	if ! tmux has-session > /dev/null 2>&1; then
+		return
+	fi
+
+	COMPREPLY=($(compgen -W "$(tmux ls -F "#{session_name}")"))
+}
+
+complete -F _t_complete t
+
+if [[ -z $TMUX ]] && tmux has-session > /dev/null 2>&1; then
+	echo "Active tmux sessions: (remember t, C-a w)"
+	tmux ls
 fi
 
 DEBEMAIL=ohad@lutzky.net
