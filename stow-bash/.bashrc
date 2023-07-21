@@ -102,6 +102,11 @@ if [[ $TERM == "xterm" ]]; then
 fi
 
 t() {
+	if [[ -z $1 ]]; then
+		tmux ls
+		return
+	fi
+
 	sess=${1:?}
 
 	if ! tmux has-session -t $sess > /dev/null 2>&1; then
