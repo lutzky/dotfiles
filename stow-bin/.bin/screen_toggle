@@ -1,0 +1,26 @@
+#!/bin/bash
+
+PORT=10042
+
+set -eu
+
+if [[ ${1-} == -l ]]; then
+	response="HTTP/1.1 200 Sure why not\nServer: $(hostname)\nContent-Type: text/html\n\n"
+	while true; do
+		if echo -e $response | nc -l -s 0.0.0.0 -p $PORT -N | grep -q '^GET /switch HTTP'; then
+			echo Toggling
+			${0-why_do_i_have_no_argv0}
+		fi
+	done
+	exit
+fi
+
+current=$(ddcutil getvcp 0x60 -t | awk '{print $4}')
+
+if [[ $current == x11 ]]; then
+	target=0x1b
+else
+	target=0x11
+fi
+
+exec ddcutil setvcp 0x60 $target
