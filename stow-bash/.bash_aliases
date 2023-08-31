@@ -19,6 +19,7 @@ exists_or_warn() {
   hash $1 > /dev/null 2>&1 || not_installed="$not_installed $2($1)"
 }
 
+alias_or_warn ~/.local/bin/lazydocker lazydocker
 alias_or_warn batcat bat
 alias_or_warn batcat cat
 alias_or_warn btm top
