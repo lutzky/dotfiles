@@ -20,8 +20,8 @@ exists_or_warn() {
 }
 
 alias_or_warn ~/.local/bin/lazydocker lazydocker
-alias_or_warn batcat bat
-alias_or_warn batcat cat
+alias_or_warn /usr/bin/bat bat
+alias_or_warn /usr/bin/bat cat
 alias_or_warn btm top
 alias_or_warn exa ls
 alias_or_warn fdfind fd
