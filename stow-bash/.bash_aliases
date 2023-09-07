@@ -8,29 +8,35 @@ alias_or_warn() {
   shift
   alias_base=$1
   shift
-  if hash $actual_binary > /dev/null 2>&1; then
+  where_to_get=$1
+  shift
+  if type -P $actual_binary > /dev/null 2>&1; then
     alias $alias_base="$actual_binary $@"
   else
-    not_installed="$not_installed $alias_base($actual_binary)"
+    not_installed="$not_installed $alias_base ($where_to_get)"
   fi
 }
 
 exists_or_warn() {
-  hash $1 > /dev/null 2>&1 || not_installed="$not_installed $2($1)"
+  executable=$1
+  shift
+  where_to_get=$1
+  shift
+  type -P $executable > /dev/null 2>&1 || not_installed="$not_installed $executable($where_to_get)"
 }
 
-alias_or_warn ~/.local/bin/lazydocker lazydocker
-alias_or_warn /usr/bin/bat bat
-alias_or_warn /usr/bin/bat cat
-alias_or_warn btm top
-alias_or_warn exa ls
-alias_or_warn fdfind fd
-exists_or_warn delta git-delta
-exists_or_warn dust dust
-exists_or_warn rg ripgrep
-exists_or_warn starship starship
-exists_or_warn fzf fzf
-exists_or_warn keychain keychain
+alias_or_warn ~/.local/bin/lazydocker lazydocker https://github.com/jesseduffield/lazydocker
+alias_or_warn /usr/bin/bat bat "https://github.com/sharkdp/bat (use deb package)"
+alias_or_warn /usr/bin/bat cat "https://github.com/sharkdp/bat (use deb package)"
+alias_or_warn btm top "cargo install bottom"
+alias_or_warn exa ls "apt install exa"
+alias_or_warn fdfind fd "apt install fdfind"
+exists_or_warn delta "cargo install git-delta"
+exists_or_warn dust "cargo install du-dust"
+exists_or_warn rg "apt install ripgrep"
+exists_or_warn starship "https://starship.rs/guide"
+exists_or_warn fzf "apt install fzf"
+exists_or_warn keychain "apt install keychain"
 
 
 
@@ -59,7 +65,7 @@ pink() {
 }
 
 # From https://christitus.com/stop-using-apt/
-if hash nala > /dev/null 2>&1; then
+if type -P nala > /dev/null 2>&1; then
   apt() {
     command nala "$@"
   }
