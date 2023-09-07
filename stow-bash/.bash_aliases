@@ -13,7 +13,7 @@ alias_or_warn() {
   if type -P $actual_binary > /dev/null 2>&1; then
     alias $alias_base="$actual_binary $@"
   else
-    not_installed="$not_installed $alias_base ($where_to_get)"
+    not_installed="$not_installed"$'\n'"$alias_base ($where_to_get)"
   fi
 }
 
@@ -22,7 +22,7 @@ exists_or_warn() {
   shift
   where_to_get=$1
   shift
-  type -P $executable > /dev/null 2>&1 || not_installed="$not_installed $executable($where_to_get)"
+  type -P $executable > /dev/null 2>&1 || not_installed="$not_installed"$'\n'"$executable ($where_to_get)"
 }
 
 alias_or_warn ~/.local/bin/lazydocker lazydocker https://github.com/jesseduffield/lazydocker
