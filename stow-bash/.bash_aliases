@@ -28,6 +28,7 @@ exists_or_warn() {
 alias_or_warn ~/.local/bin/lazydocker lazydocker https://github.com/jesseduffield/lazydocker
 alias_or_warn /usr/bin/bat bat "https://github.com/sharkdp/bat (use deb package)"
 alias_or_warn /usr/bin/bat cat "https://github.com/sharkdp/bat (use deb package)"
+alias_or_warn /usr/bin/bat less "https://github.com/sharkdp/bat (use deb package)"
 alias_or_warn btm top "cargo install bottom"
 alias_or_warn exa ls "apt install exa"
 alias_or_warn fdfind fd "apt install fdfind"
