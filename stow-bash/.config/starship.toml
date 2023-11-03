@@ -1,3 +1,5 @@
+follow_symlinks = false
+
 [hostname]
 ssh_only = false
 format = '[@$hostname$ssh_symbol]($style)'
