@@ -65,23 +65,7 @@ pink() {
   echo -en "\e[0m"
 }
 
-# From https://christitus.com/stop-using-apt/
-if type -P nala > /dev/null 2>&1; then
-  apt() {
-    command nala "$@"
-  }
-  sudo() {
-    if [[ "$1" == "apt" ]]; then
-      shift
-      command sudo nala "$@"
-    else
-      command sudo "$@"
-    fi
-  }
-elif [[ -e /etc/lsb-release ]]; then
-  # Distros too old to have an lsb-release don't support nala anyway
-  not_installed="$not_installed nala"
-fi
+# nala is no longer used, because it sometimes locks up when dialogs should be shown.
 
 if [[ -n $not_installed && -z $TMUX ]]; then
   echo "$BASH_SOURCE: The following things you like aren't installed:$not_installed"
