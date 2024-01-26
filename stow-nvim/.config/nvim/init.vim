@@ -5,7 +5,7 @@ nnoremap <Leader>w <C-w>
 set clipboard+=unnamedplus
 set mouse=nv
 
-if $TMUX
+if !empty($TMUX)
     let g:clipboard = {
           \   'name': 'myClipboard',
           \   'copy': {
