@@ -26,14 +26,13 @@ exists_or_warn() {
 }
 
 alias_or_warn ~/.local/bin/lazydocker lazydocker https://github.com/jesseduffield/lazydocker
-alias_or_warn /usr/bin/bat bat "https://github.com/sharkdp/bat (use deb package)"
-alias_or_warn /usr/bin/bat cat "https://github.com/sharkdp/bat (use deb package)"
-alias_or_warn /usr/bin/bat less "https://github.com/sharkdp/bat (use deb package)"
-alias_or_warn btm top "cargo install bottom"
+alias_or_warn /usr/bin/bat bat "https://github.com/sharkdp/bat/releases"
+alias_or_warn /usr/bin/bat cat "https://github.com/sharkdp/bat/releases"
+alias_or_warn /usr/bin/bat less "https://github.com/sharkdp/bat/releases"
+alias_or_warn btm top "https://github.com/ClementTsang/bottom/releases/latest"
 alias_or_warn exa ls "apt install exa"
 alias_or_warn fdfind fd "apt install fdfind"
-exists_or_warn delta "cargo install git-delta"
-exists_or_warn dust "cargo install du-dust"
+exists_or_warn delta "https://dandavison.github.io/delta/installation.html"
 exists_or_warn rg "apt install ripgrep"
 exists_or_warn starship "https://starship.rs/guide"
 exists_or_warn fzf "apt install fzf"
