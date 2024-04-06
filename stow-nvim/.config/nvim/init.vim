@@ -27,6 +27,7 @@ call plug#begin()
 
 Plug 'airblade/vim-gitgutter'
 Plug 'itchyny/lightline.vim'
+Plug 'khaveesh/vim-fish-syntax'
 Plug 'nanotech/jellybeans.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-sleuth'
