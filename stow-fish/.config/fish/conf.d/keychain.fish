@@ -1,3 +1,5 @@
 if status --is-interactive
-  SHELL=fish keychain --eval --quiet -Q id_rsa | source
+  if [ -z "$SSH_CONNECTION" ] && type -q keychain
+    SHELL=fish keychain --eval --quiet -Q | source
+  end
 end
