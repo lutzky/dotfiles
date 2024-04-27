@@ -1,3 +1,3 @@
 if status is-interactive && [ -z "$TMUX" ]
-    ~/Dotfiles/other_software.sh
+    ~/.other_software.sh
 end
