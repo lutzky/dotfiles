@@ -8,4 +8,6 @@ function fish_greeting
             echo "(none)"
         end
     end
+
+    type -q _fish_greeting_work && _fish_greeting_work
 end

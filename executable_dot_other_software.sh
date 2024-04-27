@@ -41,6 +41,7 @@ check_custom bottom btm "https://github.com/ClementTsang/bottom/releases/latest"
 check_custom delta delta "https://dandavison.github.io/delta/installation.html"
 check_custom starship starship "https://starship.rs/guide"
 
+check_apt bidiv
 check_apt exa
 check_apt fd-find
 check_apt fzf
@@ -51,3 +52,5 @@ if [[ -n "$apt_packages_to_install" ]]; then
   echo "Missing apt packages:"
   echo "sudo apt install ${apt_packages_to_install# }"
 fi
+
+[[ -f ~/.other_software.work.sh ]] && ~/.other_software.work.sh

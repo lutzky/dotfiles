@@ -1,11 +1,15 @@
+" Extra laziness for ex-:
 map ; :
 let mapleader = ','
+
+" Workaround for Ctrl-W not working in browser tabs
 nnoremap <Leader>w <C-w>
 
 set clipboard+=unnamedplus
 set mouse=nv
 
 if !empty($TMUX)
+    " Use load-buffer -w to copy to OSC52 as well; https://github.com/neovim/neovim/issues/14545
     let g:clipboard = {
           \   'name': 'myClipboard',
           \   'copy': {
@@ -26,6 +30,8 @@ set inccommand=split
 call plug#begin()
 
 Plug 'airblade/vim-gitgutter'
+Plug 'dag/vim-fish'
+Plug 'google/vim-jsonnet'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/fzf'
 Plug 'khaveesh/vim-fish-syntax'

@@ -1,5 +1,8 @@
 [color]
 	ui = auto
+[core]
+	# This is overridden by .gitconfig.delta if available
+	pager = ~/.bin/diff-highlight | less
 [user]
 	name = Ohad Lutzky
 	email = ohad@lutzky.net
@@ -12,12 +15,14 @@
 	decorate = true
 [rebase]
 	autosquash = true
+[github]
+	user = lutzky
 [web]
 	browser = google-chrome
 [push]
 	default = simple
 [include]
-	path = ~/.gitconfig.local
+	path = ~/.gitconfig.work
 	path = ~/.gitconfig.delta
 [init]
 	defaultBranch = main

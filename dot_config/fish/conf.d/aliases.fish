@@ -1,5 +1,10 @@
-alias cat=/usr/bin/bat
-alias less=/usr/bin/bat
-alias top=btm
-alias fd=fdfind
-alias ls=exa
+if type -q /usr/bin/bat
+	alias cat=/usr/bin/bat
+	alias less=/usr/bin/bat
+else if type -q /usr/bin/batcat
+	alias cat=/usr/bin/batcat
+	alias less=/usr/bin/batcat
+end
+type -q btm && alias top=btm
+type -q fdfind && alias fd=fdfind
+type -q exa && alias ls=exa

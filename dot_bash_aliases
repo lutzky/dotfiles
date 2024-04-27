@@ -69,3 +69,5 @@ pink() {
 if [[ -n $not_installed && -z $TMUX ]]; then
   echo "$BASH_SOURCE: The following things you like aren't installed:$not_installed"
 fi
+
+[[ -f ~/.bash_aliases.work ]] && . ~/.bash_aliases.work
