@@ -1,3 +1,4 @@
+status is-interactive; or exit 0
 if type -q /usr/bin/bat
 	alias cat=/usr/bin/bat
 	alias less=/usr/bin/bat
