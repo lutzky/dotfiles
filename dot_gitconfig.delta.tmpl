@@ -1,3 +1,4 @@
+{{ if lookPath "delta" -}}
 # Delta: https://github.com/dandavison/delta
 [core]
 	pager = delta
@@ -9,3 +10,6 @@
 	features = "decorations"
 [delta "decorations"]
 	keep-plus-minus-markers = true
+{{- else -}}
+# delta not found in path 🤷
+{{- end }}
