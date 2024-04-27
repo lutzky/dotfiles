@@ -35,18 +35,26 @@ check_custom() {
   [[ -n "$verbose" ]] && echo "$name not found: $installation"
 }
 
-check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
-check_custom bat bat "https://github.com/sharkdp/bat/releases"
-check_custom bottom btm "https://github.com/ClementTsang/bottom/releases/latest"
-check_custom delta delta "https://dandavison.github.io/delta/installation.html"
-check_custom starship starship "https://starship.rs/guide"
-
 check_apt bidiv
 check_apt exa
 check_apt fd-find
 check_apt fzf
-check_apt keychain
 check_apt ripgrep
+
+if [[ -f ~/.other_software.work.sh ]]; then
+  # At work, use apt version of bat
+  check_apt bat
+else
+  check_apt keychain
+
+  # not-at-work, use latest version of bat
+  check_custom bat bat "https://github.com/sharkdp/bat/releases"
+
+  check_custom bottom btm "https://github.com/ClementTsang/bottom/releases/latest"
+  check_custom delta delta "https://dandavison.github.io/delta/installation.html"
+  check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
+  check_custom starship starship "https://starship.rs/guide"
+fi
 
 if [[ -n "$apt_packages_to_install" ]]; then
   echo "Missing apt packages:"
