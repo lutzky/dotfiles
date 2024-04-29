@@ -1,2 +1,2 @@
 status is-interactive; or exit 0
-fzf_key_bindings
+type -q fzf_key_bindings && fzf_key_bindings
