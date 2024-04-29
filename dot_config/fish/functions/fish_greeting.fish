@@ -5,7 +5,12 @@ function fish_greeting
         set rtl_fixer cat
     end
 
-    fortune ~/.fortunes/fortunes | $rtl_fixer
+    if [ -f ~/.fortunes/fortunes ]
+        fortune ~/.fortunes/fortunes | $rtl_fixer
+    else
+        echo "~/.fortunes not configured"
+    end
+
     if [ -z $TMUX ]
         echo "Active tmux sessions: (remember t, C-a w)"
         if tmux has-session > /dev/null 2>&1
