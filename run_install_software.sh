@@ -1,25 +1,13 @@
 #!/bin/bash
 
-if [[ $1 == -v ]]; then
-  verbose=true
-fi
-
 apt_packages_to_install=
 
 dpkg_is_installed() {
   dpkg-query -W -f='${Status}' $1 2>/dev/null | grep -q 'install ok installed'
 }
 
-found_something() {
-  if [[ -z "$verbose" ]]; then
-    echo "Some software missing; for more info, run: $0 -v"
-    exit
-  fi
-}
-
 check_apt() {
   dpkg_is_installed $1 && return
-  found_something
   apt_packages_to_install="$apt_packages_to_install $1"
 }
 
@@ -30,9 +18,7 @@ check_custom() {
 
   hash $binary > /dev/null 2>&1 && return
 
-  found_something
-
-  [[ -n "$verbose" ]] && echo "$name not found: $installation"
+  echo "$name not found: $installation"
 }
 
 check_apt bidiv
@@ -41,7 +27,7 @@ check_apt fd-find
 check_apt fzf
 check_apt ripgrep
 
-if [[ -f ~/.other_software.work.sh ]]; then
+if [[ -d ~/.local/share/chezmoi.work ]]; then
   # At work, use apt version of bat
   check_apt bat
 else
@@ -60,5 +46,3 @@ if [[ -n "$apt_packages_to_install" ]]; then
   echo "Missing apt packages:"
   echo "sudo apt install ${apt_packages_to_install# }"
 fi
-
-[[ -f ~/.other_software.work.sh ]] && ~/.other_software.work.sh
