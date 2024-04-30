@@ -22,6 +22,7 @@ check_custom() {
 }
 
 check_apt bidiv
+check_apt entr
 check_apt exa
 check_apt fd-find
 check_apt fzf
