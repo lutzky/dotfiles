@@ -40,7 +40,6 @@ else
   check_custom bottom btm "https://github.com/ClementTsang/bottom/releases/latest"
   check_custom delta delta "https://dandavison.github.io/delta/installation.html"
   check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
-  check_custom starship starship "https://starship.rs/guide"
 fi
 
 if [[ -n "$apt_packages_to_install" ]]; then

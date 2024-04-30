@@ -34,7 +34,6 @@ alias_or_warn exa ls "apt install exa"
 alias_or_warn fdfind fd "apt install fdfind"
 exists_or_warn delta "https://dandavison.github.io/delta/installation.html"
 exists_or_warn rg "apt install ripgrep"
-exists_or_warn starship "https://starship.rs/guide"
 exists_or_warn fzf "apt install fzf"
 exists_or_warn keychain "apt install keychain"
 
