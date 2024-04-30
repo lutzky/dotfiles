@@ -1,1 +1,1 @@
-fish_config theme choose 'ayu Light'
+fish_config theme choose 'lutzky'

@@ -10,7 +10,7 @@ function fish_prompt
     echo -n (set_color fff --background $fish_color_host_remote)(prompt_hostname)' '
     echo -n (set_color --background $fish_color_cwd $fish_color_host_remote)' '
     echo -n (set_color fff --background $fish_color_cwd)(prompt_pwd)' '
-    echo -n (set_color $fish_color_cwd --background black)' '
+    echo -n (set_color normal; set_color $fish_color_cwd)' '
 
     if [ -n "$TMUX" ]
         set shlvl_threshold 2

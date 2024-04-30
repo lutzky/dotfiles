@@ -13,7 +13,7 @@ function fish_right_prompt
     echo -n (set_color normal; fish_git_prompt)
 
     echo -n (set_color normal; set_color $fish_color_comment)' '
-    echo -n (set_color black --background $fish_color_comment; date '+%H:%M:%S')
+    echo -n (set_color 000 --background $fish_color_comment; date '+%H:%M:%S')
     echo -n (set_color normal; set_color $fish_color_comment)''
 
     set_color normal
