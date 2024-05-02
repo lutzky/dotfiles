@@ -2,6 +2,8 @@
 map ; :
 let mapleader = ','
 
+runtime init.work.vim
+
 " Workaround for Ctrl-W not working in browser tabs
 nnoremap <Leader>w <C-w>
 
