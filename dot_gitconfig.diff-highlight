@@ -1,0 +1,2 @@
+[core]
+	pager = ~/.bin/diff-highlight | less

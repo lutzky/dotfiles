@@ -1,8 +1,5 @@
 [color]
 	ui = auto
-[core]
-	# This is overridden by .gitconfig.delta if available
-	pager = ~/.bin/diff-highlight | less
 [user]
 	name = Ohad Lutzky
 	email = ohad@lutzky.net
@@ -23,6 +20,9 @@
 [push]
 	default = simple
 [include]
+	# This is overridden by .gitconfig.delta if available
+	path = ~/.gitconfig.diff-highlight
+
 	path = ~/.gitconfig.work
 	path = ~/.gitconfig.delta
 [init]
