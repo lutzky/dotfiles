@@ -20,14 +20,14 @@ system_fan2="${system_fan2// /}"
 
 system_temp="$(echo "$sensors_output" | grep 'System:')"
 system_temp="${system_temp#System: +}"
-system_temp="${system_temp//.*°/°}"
+system_temp="${system_temp//.*°C/°}"
 system_temp=$(echo $system_temp)
 
 cpu_temp="$(echo "$sensors_output" | grep 'CPU:')"
 cpu_temp="${cpu_temp#CPU: +}"
-cpu_temp="${cpu_temp//.*°/°}"
+cpu_temp="${cpu_temp//.*°C/°}"
 cpu_temp=$(echo $cpu_temp)
 
-echo "Temp (C,S): $cpu_temp,$system_temp | Fan (C,S1,S2,G): $cpu_fan,$system_fan1,$system_fan2,$gpu_fan RPM"
+echo "<executor.markup.true> Temp <span foreground='grey'>CPU:</span>$cpu_temp <span foreground='grey'>Sys:</span>$system_temp <span foreground='grey'>|</span> Fan RPM <span foreground='grey'>CPU:</span>$cpu_fan <span foreground='grey'>Sys1:</span>$system_fan1 <span foreground='grey'>Sys2:</span>$system_fan2 <span foreground='grey'>GPU:</span>$gpu_fan"
 
 
