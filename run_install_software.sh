@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This is run_ rather than run_onchange so that it somewhat-repeatedly nags the
+# user to install missing software.
+
 apt_packages_to_install=
 
 dpkg_is_installed() {
