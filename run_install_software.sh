@@ -10,8 +10,10 @@ dpkg_is_installed() {
 }
 
 check_apt() {
-  dpkg_is_installed $1 && return
-  apt_packages_to_install="$apt_packages_to_install $1"
+  for alternate in "$@"; do
+    dpkg_is_installed $alternate && return
+  done
+  apt_packages_to_install="$apt_packages_to_install $(echo $* | sed 's/ /|/g')"
 }
 
 check_custom() {
@@ -26,7 +28,7 @@ check_custom() {
 
 check_apt bidiv
 check_apt entr
-check_apt exa
+check_apt exa eza
 check_apt fd-find
 check_apt fzf
 check_apt ripgrep

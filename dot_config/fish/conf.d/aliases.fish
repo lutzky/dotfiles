@@ -9,3 +9,4 @@ end
 type -q btm && alias top=btm
 type -q fdfind && alias fd=fdfind
 type -q exa && alias ls=exa
+type -q eza && alias ls=eza
