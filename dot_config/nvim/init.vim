@@ -53,7 +53,10 @@ let g:lightline = {
 
 if &t_Co == 256
     let g:lightline.colorscheme = 'jellybeans'
-    let g:jellybeans_background_color_256="NONE"
+    let g:jellybeans_overrides = {
+                \    'background': { 'guibg': 'none' },
+                \}
+
     colorscheme jellybeans
 endif
 
