@@ -3,7 +3,7 @@ function fish_prompt
 
     if type -q _fish_prompt.work
         _fish_prompt.work
-        echo -n (set_color black --background $fish_color_host_remote)' '
+        echo -n (set_color -r $fish_color_host_remote)' '(set_color normal)
     end
 
     echo -n (set_color 996 --background $fish_color_host_remote)@
