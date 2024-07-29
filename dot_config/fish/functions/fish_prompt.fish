@@ -8,8 +8,17 @@ function fish_prompt
     # * Use $ and # in the prompt instead of prettier characters. This is
     #   sometimes treated specially by "copy this commandline" doc renderers.
 
+    set -l prev_cmd $history[1]
+    set -l prev_duration $CMD_DURATION
     set -l cmd_status $status
-    set -l duration (__human_duration $CMD_DURATION)
+    set -l human_duration (__human_duration $CMD_DURATION)
+
+    if set -q alert_duration_threshold_ms
+        if test $prev_duration -gt $alert_duration_threshold_ms
+            __alert_impl "Long-running command ($human_duration)" \
+                $cmd_status $prev_cmd
+        end
+    end
 
     if type -q _fish_prompt.work
         _fish_prompt.work
@@ -37,8 +46,8 @@ function fish_prompt
         echo -n (set_color $fish_color_quote)"SH:$SHLVL "
     end
 
-    if [ -n "$duration" ]
-        echo -n (set_color normal)$duration' '
+    if [ -n "$human_duration" ]
+        echo -n (set_color normal)$human_duration' '
     end
 
     if test $cmd_status -ne 0
