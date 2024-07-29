@@ -23,6 +23,10 @@ function fish_prompt
     echo -n (set_color fff --background $fish_color_cwd)(prompt_pwd)' '
     echo -n (set_color normal; set_color $fish_color_cwd)' '
 
+    if test -n "$fish_private_mode"
+        echo -n (set_color $fish_color_user)'<P> '
+    end
+
     if [ -n "$TMUX" ]
         set shlvl_threshold 2
     else
