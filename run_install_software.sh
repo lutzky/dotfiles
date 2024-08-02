@@ -32,6 +32,7 @@ check_apt exa eza
 check_apt fd-find
 check_apt fzf
 check_apt ripgrep
+check_apt tmux
 
 if [[ -d ~/.local/share/chezmoi.work ]]; then
   # At work, use apt version of bat

@@ -1,5 +1,5 @@
 function fish_greeting
-    if [ -z $TMUX ]
+    if type -q tmux && [ -z $TMUX ]
         echo "Active tmux sessions: (remember t, C-a w)"
         if tmux has-session > /dev/null 2>&1
             tmux ls
