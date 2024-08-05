@@ -29,7 +29,7 @@ alias_or_warn ~/.local/bin/lazydocker lazydocker https://github.com/jesseduffiel
 alias_or_warn /usr/bin/bat bat "https://github.com/sharkdp/bat/releases"
 alias_or_warn /usr/bin/bat cat "https://github.com/sharkdp/bat/releases"
 alias_or_warn /usr/bin/bat less "https://github.com/sharkdp/bat/releases"
-alias_or_warn btm top "https://github.com/ClementTsang/bottom/releases/latest"
+alias_or_warn btop top "apt install btop"
 alias_or_warn exa ls "apt install exa"
 alias_or_warn fdfind fd "apt install fdfind"
 exists_or_warn delta "https://dandavison.github.io/delta/installation.html"

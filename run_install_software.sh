@@ -27,6 +27,7 @@ check_custom() {
 }
 
 check_apt bidiv
+check_apt btop
 check_apt entr
 check_apt exa eza
 check_apt fd-find
@@ -44,7 +45,6 @@ else
   # not-at-work, use latest version of bat
   check_custom bat bat "https://github.com/sharkdp/bat/releases"
 
-  check_custom bottom btm "https://github.com/ClementTsang/bottom/releases/latest"
   check_custom delta delta "https://dandavison.github.io/delta/installation.html"
   check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
 fi
