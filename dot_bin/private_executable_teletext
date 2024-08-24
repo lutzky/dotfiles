@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+CONFIG_FILE=~/.config/teletextrc
+
+[[ -f $CONFIG_FILE ]] || exit 0
+source $CONFIG_FILE
+
+MESSAGE=$(cat -)
+
+until /usr/bin/curl -G --data-urlencode "chat_id=${CHAT_ID}" --data-urlencode "text=${MESSAGE}" "https://api.telegram.org/bot${API_KEY}/sendMessage" >& /dev/null
+	do sleep 10
+done
