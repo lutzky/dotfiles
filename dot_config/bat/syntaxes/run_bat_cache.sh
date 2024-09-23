@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BAT_EXEC=bat
+BAT_EXEC=
 if hash bat >& /dev/null; then
   BAT_EXEC=bat
 elif hash batcat >& /dev/null; then
