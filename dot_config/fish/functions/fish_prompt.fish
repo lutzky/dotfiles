@@ -7,6 +7,9 @@ function fish_prompt
     #   bit ugly.
     # * Use $ and # in the prompt instead of prettier characters. This is
     #   sometimes treated specially by "copy this commandline" doc renderers.
+    #
+    # We also avoid line-drawing characters because we don't always have the
+    # fonts installed.
 
     set -l prev_cmd $history[1]
     set -l prev_duration $CMD_DURATION
@@ -22,15 +25,12 @@ function fish_prompt
 
     if type -q _fish_prompt.work
         _fish_prompt.work
-        echo -n (set_color $fish_color_quote)''(set_color normal)
+        echo -n ' '(set_color normal)
     end
 
-    echo -n (set_color fff --background $fish_color_quote)' '(date '+%H:%M:%S')' '
-    echo -n (set_color --background $fish_color_host_remote $fish_color_quote)' '
-    echo -n (set_color fff --background $fish_color_host_remote)(prompt_hostname)' '
-    echo -n (set_color --background $fish_color_cwd $fish_color_host_remote)' '
-    echo -n (set_color fff --background $fish_color_cwd)(prompt_pwd)' '
-    echo -n (set_color normal; set_color $fish_color_cwd)' '
+    echo -n (set_color $fish_color_normal)(date '+%H:%M:%S')' '
+    echo -n (set_color $fish_color_host_remote)(prompt_hostname)' '
+    echo -n (set_color $fish_color_cwd)(prompt_pwd)' '(set_color normal)
 
     if test -n "$fish_private_mode"
         echo -n (set_color $fish_color_user)'<P> '
@@ -47,7 +47,7 @@ function fish_prompt
     end
 
     if [ -n "$human_duration" ]
-        echo -n (set_color normal)$human_duration' '
+        echo -n (set_color $fish_color_user)$human_duration' '
     end
 
     if test $cmd_status -ne 0
