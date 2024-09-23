@@ -16,7 +16,7 @@ function fish_greeting
         set rtl_fixer cat
     end
 
-    if [ -f ~/.fortunes/fortunes ]
+    if [ -f ~/.fortunes/fortunes ] && type -q fortune
         fortune ~/.fortunes/fortunes | $rtl_fixer
     end
 
