@@ -19,4 +19,10 @@ else
 fi
 
 curl -sS -L "$URL" | awk '{print;print "%"}' > fortunes
+
+if ! hash strfile > /dev/null 2>&1; then
+  echo "strfile not found; apt install fortune-mod?"
+  exit 1
+fi
+
 strfile -s fortunes
