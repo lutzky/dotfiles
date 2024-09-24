@@ -15,3 +15,5 @@ type -q btop && alias top=btop
 type -q fdfind && alias fd=fdfind
 type -q exa && alias ls=exa
 type -q eza && alias ls=eza
+
+alias embiggen='tmux detach -a'  # Detach all other tmuxen
