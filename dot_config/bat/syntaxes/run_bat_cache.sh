@@ -9,7 +9,7 @@ fi
 
 if [[ -n $BAT_EXEC ]]; then
   echo "Regenrating bat cache"
-  $BAT_EXEC cache --build
+  $BAT_EXEC cache --build > /dev/null
 else
   echo "bat not installed, skipping cache regeneration"
 fi
