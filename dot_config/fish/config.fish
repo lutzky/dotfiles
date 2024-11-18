@@ -7,4 +7,4 @@ end
 
 set -g show_duration_threshold_ms 3000
 set -g alert_duration_threshold_ms 30000
-set -g alert_ignore_regex '^vim|^tmux|^ssh |^nano |^ncdu'
+set -g alert_ignore_regex '^vim|^tmux|^ssh |^nano |^ncdu|^t '
