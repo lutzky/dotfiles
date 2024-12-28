@@ -8,7 +8,12 @@ CONFIG_FILE=~/.config/teletextrc
 source $CONFIG_FILE
 
 MESSAGE=$(cat -)
+SUBJECT=$(awk -F': ' '$1 ~ /Subject/{print $2; exit}' <<< "$MESSAGE")
+BODY=$(sed '1,/^$/d' <<< "$MESSAGE")
+TELEGRAM_TEXT="${SUBJECT}
 
-until /usr/bin/curl -G --data-urlencode "chat_id=${CHAT_ID}" --data-urlencode "text=${MESSAGE}" "https://api.telegram.org/bot${API_KEY}/sendMessage" >& /dev/null
+${BODY}"
+
+until /usr/bin/curl -G --data-urlencode "chat_id=${CHAT_ID}" --data-urlencode "text=${TELEGRAM_TEXT}" "https://api.telegram.org/bot${API_KEY}/sendMessage"
 	do sleep 10
 done
