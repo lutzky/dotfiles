@@ -1,19 +1,90 @@
-#!/bin/bash
+#!/usr/bin/python3
 
-set -e
+# pylint: disable=missing-docstring
 
-CONFIG_FILE=~/.config/teletextrc
+import argparse
+import logging
+import os
+import sys
+from pathlib import Path
+from typing import Iterator, Tuple
 
-[[ -f $CONFIG_FILE ]] || exit 0
-source $CONFIG_FILE
+import requests
 
-MESSAGE=$(cat -)
-SUBJECT=$(awk -F': ' '$1 ~ /Subject/{print $2; exit}' <<< "$MESSAGE")
-BODY=$(sed '1,/^$/d' <<< "$MESSAGE")
-TELEGRAM_TEXT="${SUBJECT}
+config_dir = Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
+config_file = config_dir / "teletextrc"
+if not config_file.exists():
+    logging.warning("%s does not exist; quitting", config_file)
+    sys.exit(0)
+with open(config_file, encoding="utf-8") as f:
+    cfg = {k: v.rstrip() for (k, v) in [line.split("=") for line in f.readlines()]}
 
-${BODY}"
+parser = argparse.ArgumentParser(
+    description="Program to send texts to self via telegram"
+)
 
-until /usr/bin/curl -G --data-urlencode "chat_id=${CHAT_ID}" --data-urlencode "text=${TELEGRAM_TEXT}" "https://api.telegram.org/bot${API_KEY}/sendMessage"
-	do sleep 10
-done
+parser.add_argument("message", nargs="?", default="")
+parser.add_argument(
+    "--mail",
+    action="store_true",
+    help="Process stdin as though it's an email; useful for cron output",
+)
+parser.add_argument(
+    "-n",
+    "--dry_run",
+    action="store_true",
+    help="Do not send anything, only show what would be sent",
+)
+parser.add_argument(
+    "-v",
+    "--verbose",
+    action="store_true",
+)
+
+def read_email(input_iterator: Iterator[str]) -> Tuple[str, str]:
+    subject = ""
+    contents = ""
+    for line in input_iterator:
+        if line.startswith("Subject:"):
+            subject = line[len("Subject:"):].strip()
+        if line.strip() == "":
+            contents = "".join(input_iterator)
+            break
+    return (subject, contents.strip())
+
+def main():
+    args = parser.parse_args()
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    message = ""
+
+    if args.mail:
+        subject, contents = read_email(sys.stdin)
+        message = f"{subject}\n\n{contents}"
+
+    if args.message:
+        if args.mail:
+            logging.error("Cannot specify both --mail and a message")
+            sys.exit(1)
+        else:
+            message = args.message
+
+    if not message:
+        logging.error("Specify a message or --mail")
+        sys.exit(1)
+
+    url = f"https://api.telegram.org/bot{cfg['API_KEY']}/sendMessage"
+    data = {"chat_id": cfg["CHAT_ID"], "text": message}
+
+    if args.dry_run:
+        print(
+            f"Dry run mode; would've sent the following request:\nURL: {url}\nData:\n{data}"
+        )
+    else:
+        response = requests.post(url, data=data, timeout=10)
+        logging.debug(response.text)
+        response.raise_for_status()
+
+if __name__ == '__main__':
+    main()
