@@ -1,0 +1,4 @@
+{{ if stat (joinPath .chezmoi.homeDir ".config/teletextrc") -}}
+|"$HOME/.bin/teletext --mail"
+{{ end -}}
+ohad
