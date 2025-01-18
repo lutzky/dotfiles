@@ -11,18 +11,8 @@ function fish_prompt
     # We also avoid line-drawing characters because we don't always have the
     # fonts installed.
 
-    set -l prev_cmd $history[1]
-    set -l prev_duration $CMD_DURATION
     set -l cmd_status $status
     set -l human_duration (__human_duration $CMD_DURATION)
-
-    if set -q alert_duration_threshold_ms
-        if test $prev_duration -gt $alert_duration_threshold_ms &&
-            not string match -qr $alert_ignore_regex $prev_cmd
-            __alert_impl "Long-running command ($human_duration)" \
-                $cmd_status $prev_cmd
-        end
-    end
 
     if type -q _fish_prompt.work
         _fish_prompt.work
