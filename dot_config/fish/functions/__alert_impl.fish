@@ -5,7 +5,6 @@ function __alert_impl -a _title _status _cmdline
     else
         set message "$message: ERROR ($_status)"
     end
-    hterm-notify.sh "$message" "$_cmdline"
-    tput bel
+    multi_notify "$message" "$_cmdline"
 end
 
