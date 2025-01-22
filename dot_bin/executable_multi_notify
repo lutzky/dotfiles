@@ -43,7 +43,7 @@ if args.verbose:
 try:
     with open(secrets_file, encoding="utf-8") as f:
         secrets_env = {
-            k: v.rstrip() for (k, v) in [line.split("=") for line in f.readlines()]
+            k: v.rstrip() for (k, v) in [line.split("=",1) for line in f.readlines()]
         }
 except FileNotFoundError:
     logging.info("%s not found, skipping secrets", secrets_file)
