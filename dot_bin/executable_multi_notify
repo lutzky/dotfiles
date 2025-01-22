@@ -65,6 +65,10 @@ def read_email(input_iterator: Iterator[str]) -> Tuple[str, str]:
 
 
 def ring_bell():
+    # This notifies even if the current tmux tab is not focused; configure your
+    # terminal to show a popup! Also, leave terminal bells on, it's useful for
+    # this case. To stop bash from being annoying, `set bell-style visible` in
+    # ~/.inputrc.
     print("\a", end="")
 
 

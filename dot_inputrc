@@ -1,1 +1,4 @@
+# Limit noisy bells; this allows us to configure terminals to pop up a
+# notification on bells, which is useful e.g. when running multi_notify on a
+# non-focused tmux tab.
 set bell-style visible
