@@ -17,6 +17,7 @@ function fish_greeting
     end
 
     if [ -f ~/.fortunes/fortunes ]
+        echo -n "🥠 "
         fortune ~/.fortunes/fortunes | $rtl_fixer
     end
 
