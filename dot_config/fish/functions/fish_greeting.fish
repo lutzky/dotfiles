@@ -11,7 +11,7 @@ function fish_greeting
     type -q _fish_greeting_work && _fish_greeting_work
 
     if type -q bidiv
-        set rtl_fixer bidiv -w (math min $COLUMNS,60)
+        set rtl_fixer bidiv -j -w (math min $COLUMNS,60)
     else
         set rtl_fixer cat
     end
