@@ -7,7 +7,7 @@ for s in ~/.tmux.conf.d/status-icons/*; do
 done
 
 if [[ -n ${output// /} ]]; then
-	echo "$output"
+	echo "$output ⚠ "
 else
-	echo "[OK]"
+	echo "✓ "
 fi
