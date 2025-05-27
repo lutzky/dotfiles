@@ -45,6 +45,7 @@ else
   # not-at-work, use latest version of bat
   check_custom bat bat "https://github.com/sharkdp/bat/releases"
 
+  check_custom procs procs "cargo binstall procs"
   check_custom delta delta "https://dandavison.github.io/delta/installation.html"
   check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
 fi
