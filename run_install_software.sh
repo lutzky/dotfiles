@@ -33,6 +33,7 @@ check_apt exa eza
 check_apt fd-find
 check_apt fish
 check_apt fzf
+check_apt neovim
 check_apt ripgrep
 check_apt tmux
 
