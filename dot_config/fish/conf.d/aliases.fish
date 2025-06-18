@@ -19,6 +19,10 @@ else if type -q /usr/bin/batcat
 	alias less=/usr/bin/batcat
 end
 
+if type -q /usr/bin/nvim
+	alias vim=/usr/bin/nvim
+end
+
 type -q btop && alias top=btop
 type -q fdfind && alias fd=fdfind
 type -q exa && alias ls=exa
