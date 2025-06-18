@@ -32,6 +32,7 @@ check_apt entr
 check_apt exa eza
 check_apt fd-find
 check_apt fish
+check_apt fortune-mod
 check_apt fzf
 check_apt neovim
 check_apt ripgrep
