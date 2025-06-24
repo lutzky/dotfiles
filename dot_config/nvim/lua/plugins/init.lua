@@ -1,10 +1,10 @@
 return {
-  "airblade/vim-gitgutter",
   "dag/vim-fish",
   "google/vim-jsonnet",
   "junegunn/fzf",
   "junegunn/fzf.vim",
   "khaveesh/vim-fish-syntax",
+  "lewis6991/gitsigns.nvim",
   "numToStr/Comment.nvim",
   "tpope/vim-fugitive",
   "tpope/vim-sleuth",
