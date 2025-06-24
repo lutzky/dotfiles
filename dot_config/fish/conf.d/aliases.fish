@@ -19,8 +19,8 @@ else if type -q /usr/bin/batcat
 	alias less=/usr/bin/batcat
 end
 
-if type -q /usr/bin/nvim
-	alias vim=/usr/bin/nvim
+if type -q nvim
+	alias vim=nvim
 end
 
 type -q btop && alias top=btop

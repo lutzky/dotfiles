@@ -1,3 +1,7 @@
 # This file exists because fish_variables contains machine-specific stuff
 
-set -xU EDITOR "vim"
+if type -q nvim;
+	set -xU EDITOR nvim
+else if type -q vim;
+	set -xU EDITOR vim
+end
