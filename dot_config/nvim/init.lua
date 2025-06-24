@@ -1,7 +1,9 @@
 require("globals")        -- Global variables
 
 require("config.lazy")
+require("config.rust")
 
+require("core.diagnostic")
 require("core.options")   -- Vim options
 require("core.keymaps")   -- Key mappings
 require("core.autocmds")  -- Autocommands
