@@ -2,6 +2,7 @@ require("globals")        -- Global variables
 
 require("config.lazy")
 require("config.rust")
+require("config.nvim-tree")
 
 require("core.diagnostic")
 require("core.options")   -- Vim options
