@@ -1,13 +1,14 @@
-require("globals")        -- Global variables
+require("globals")
 
 require("config.lazy")
 require("config.rust")
 require("config.nvim-tree")
 
+require("core.autocmds")
 require("core.diagnostic")
-require("core.options")   -- Vim options
-require("core.keymaps")   -- Key mappings
-require("core.autocmds")  -- Autocommands
+require("core.inlay")
+require("core.keymaps")
+require("core.options")
 
 require("Comment").setup()
 require("telescope").setup()

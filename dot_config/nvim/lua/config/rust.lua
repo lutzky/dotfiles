@@ -7,5 +7,3 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
   desc = "Format Rust file on save",
 })
-
-vim.lsp.inlay_hint.enable(true)
