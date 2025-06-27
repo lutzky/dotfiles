@@ -20,7 +20,7 @@ return {
     config = function()
       vim.g.lightline = {
         active = {
-          left = { { "mode", "paste" }, { "fugitive", "readonly", "filename", "modified" } },
+          left = { { "mode", "paste" }, { "fugitive", "readonly", "absolutepath", "modified" } },
         },
         colorscheme = "jellybeans",
         component_function = { fugitive = "fugitive#statusline" },
