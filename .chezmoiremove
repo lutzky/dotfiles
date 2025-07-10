@@ -1,1 +1,3 @@
 .bin/teletext
+.gitconfig.delta
+.gitconfig.diff-highlight

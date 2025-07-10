@@ -22,10 +22,10 @@
 	default = simple
 [include]
 	# This is overridden by .gitconfig.delta if available
-	path = ~/.gitconfig.diff-highlight
+	path = ~/.config/git/delta
 
-	path = ~/.gitconfig.work
-	path = ~/.gitconfig.delta
+	path = ~/.config/git/work
+	path = ~/.config/git/delta
 [init]
 	defaultBranch = main
 [rerere]
