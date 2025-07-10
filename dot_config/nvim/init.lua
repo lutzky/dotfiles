@@ -1,9 +1,10 @@
 require("globals")
 
-require("config.lazy")
-require("config.rust")
-require("config.nvim-tree")
 require("config.beancount")
+require("config.lazy")
+require("config.lint")
+require("config.nvim-tree")
+require("config.rust")
 
 require("core.autocmds")
 require("core.diagnostic")
