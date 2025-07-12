@@ -11,11 +11,6 @@ return {
   "tpope/vim-sleuth",
 
   {
-    'nvim-telescope/telescope.nvim', tag = '0.1.8',
-    dependencies = { 'nvim-lua/plenary.nvim' }
-  },
-
-  {
     "itchyny/lightline.vim",
     config = function()
       vim.g.lightline = {

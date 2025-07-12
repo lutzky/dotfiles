@@ -13,7 +13,6 @@ require("core.keymaps")
 require("core.options")
 
 require("Comment").setup()
-require("telescope").setup()
 
 -- If your 'init.work.vim' still contains relevant Vimscript:
 vim.cmd("runtime init.work.vim")
