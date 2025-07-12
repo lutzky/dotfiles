@@ -34,9 +34,10 @@ check_apt fd-find
 check_apt fish
 check_apt fortune-mod
 check_apt fzf
-check_apt neovim
 check_apt ripgrep
 check_apt tmux
+
+check_custom nvim nvim "However is appropriate for the distro"
 
 if [[ -d ~/.local/share/chezmoi.work ]]; then
   # At work, use apt version of bat
