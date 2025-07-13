@@ -20,10 +20,4 @@ function fish_greeting
         echo -n "🥠 "
         fortune ~/.fortunes/fortunes | $rtl_fixer
     end
-
-    set max_fortunes_age (math '3600*24*30')
-
-    if test (path mtime -R ~/.fortunes/fortunes || echo $max_fortunes_age) -ge $max_fortunes_age
-        echo "~/.fortunes stale or missing; run ~/.fortunes/update_fortunes.sh"
-    end
 end
