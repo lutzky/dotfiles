@@ -1,9 +1,19 @@
-return {
+local dependencies = {
+  'nvim-lua/plenary.nvim',
+}
+
+local is_build_system = vim.fn.executable("make") == 1
+
+if is_build_system then
+  table.insert(dependencies, {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    build = 'make'
+  })
+end
+
+local spec = {
     'nvim-telescope/telescope.nvim', tag = '0.1.8',
-    dependencies = { 
-      'nvim-lua/plenary.nvim',
-      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
-    },
+    dependencies = dependencies,
     config = function()
       require("telescope").setup {
         extensions = {
@@ -11,7 +21,9 @@ return {
         }
       }
 
-      require("telescope").load_extension("fzf")
+      if is_build_system then
+        require("telescope").load_extension("fzf")
+      end
 
       vim.keymap.set("n", "<leader>fd", require("telescope.builtin").find_files,
         { desc = "Find files with telescope" }
@@ -24,3 +36,5 @@ return {
       )
     end,
 }
+
+return spec
