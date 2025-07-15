@@ -4,7 +4,6 @@ return {
   "junegunn/fzf",
   "junegunn/fzf.vim",
   "khaveesh/vim-fish-syntax",
-  "lewis6991/gitsigns.nvim",
   "numToStr/Comment.nvim",
   "nvim-tree/nvim-tree.lua",
   "tpope/vim-fugitive",
