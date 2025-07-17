@@ -1,0 +1,12 @@
+dpkg
+bidiv
+btop
+entr
+nvim
+distro
+chezmoi
+batcat
+procs
+binstall
+lazydocker
+onchange
