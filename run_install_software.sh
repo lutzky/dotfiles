@@ -10,10 +10,23 @@ dpkg_is_installed() {
 }
 
 check_apt() {
-  for alternate in "$@"; do
-    dpkg_is_installed $alternate && return
-  done
-  apt_packages_to_install="$apt_packages_to_install $(echo $* | sed 's/ /|/g')"
+  dpkg_is_installed $1 && return
+  apt_packages_to_install="$apt_packages_to_install $1"
+}
+
+can_apt_install() {
+  local PACKAGE="$1"
+  local REQUIRED_VERSION="$2"
+  local CANDIDATE_VERSION="$(apt-cache policy "$PACKAGE" | awk '/Candidate:/ {print $2}')"
+  [[ -z $CANDIDATE_VERSION ]] && return 1
+  [[ -z $REQUIRED_VERSION ]] && return 0
+  dpkg --compare-versions "$CANDIDATE_VERSION" "ge" "$REQUIRED_VERSION"
+  return $?
+}
+
+is_in_path() {
+  hash "$1" > /dev/null 2>&1
+  return $?
 }
 
 check_custom() {
@@ -21,15 +34,20 @@ check_custom() {
   binary="$2"
   installation="$3"
 
-  hash $binary > /dev/null 2>&1 && return
+  is_in_path "$binary" && return
 
-  echo "$name not found: $installation"
+  echo "$name needs custom installation: $installation"
 }
 
 check_apt bidiv
 check_apt btop
 check_apt entr
-check_apt exa eza
+
+if can_apt_install eza; then
+  check_apt eza
+else
+  check_apt exa
+fi
 check_apt fd-find
 check_apt fish
 check_apt fortune-mod
@@ -45,11 +63,31 @@ if [[ -d ~/.local/share/chezmoi.work ]]; then
 else
   check_apt keychain
 
-  # not-at-work, use latest version of bat
-  check_custom bat bat "https://github.com/sharkdp/bat/releases"
+  # not-at-work, use later version of bat
+  if ! is_in_path bat && ! is_in_path batcat; then
+    if can_apt_install bat "0.25.0"; then
+      check_apt bat
+    else
+      check_custom bat bat "https://github.com/sharkdp/bat/releases"
+    fi
+  fi
 
-  check_custom procs procs "cargo binstall procs"
-  check_custom delta delta "https://dandavison.github.io/delta/installation.html"
+  if ! is_in_path procs; then
+    if can_apt_install procs; then
+      check_apt procs
+    else
+      check_custom procs procs "cargo binstall procs"
+    fi
+  fi
+
+  if ! is_in_path delta; then
+    if can_apt_install git-delta; then
+      check_apt git-delta
+    else
+      check_custom delta delta "https://dandavison.github.io/delta/installation.html"
+    fi
+  fi
+
   check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
 fi
 
