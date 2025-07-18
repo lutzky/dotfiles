@@ -29,7 +29,7 @@ return {
       vim.g.jellybeans_overrides = {
         background = { guibg = "none" },
       }
-      vim.cmd("colorscheme jellybeans")
+      vim.cmd.colorscheme("jellybeans")
     end,
   },
 }
