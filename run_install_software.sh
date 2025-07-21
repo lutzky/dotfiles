@@ -88,7 +88,9 @@ else
     fi
   fi
 
-  check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
+  if is_in_path docker; then
+    check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
+  fi
 fi
 
 if [[ -n "$apt_packages_to_install" ]]; then
