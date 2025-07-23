@@ -4,7 +4,9 @@
 	name = Ohad Lutzky
 	email = ohad@lutzky.net
 [alias]
-	graph = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold black)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+	gl = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(yellow)%h%C(bold yellow)%d %C(reset blue)%ar %C(green)%an\n%C(reset)  %s'
+	gla = gl --all
+	graph = gl
 
 	# From https://jordanelver.co.uk/blog/2020/06/04/fixing-commits-with-git-commit-fixup-and-git-rebase-autosquash/
 	fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
