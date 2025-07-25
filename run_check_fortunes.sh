@@ -11,9 +11,6 @@ if ! [[ -f $fortunes_file ]]; then
     exit 0
 fi
 
-file_mod=$(stat -c %Y $fortunes_file)
-age=$(( $(date +%s) - $file_mod))
-
-if [[ $age -gt $max_fortunes_age ]]; then
-    echo "~/.fortunes stale; run ~/.fortunes/update_fortunes.sh"
-fi
+echo -n "Updating fortunes... "
+~/.fortunes/update_fortunes.sh
+echo "OK"
