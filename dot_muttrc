@@ -1,3 +1,5 @@
 # Allow using mutt as a direct mail client for the spool, without nagging about
 # creating ~/Mail on startup
 set folder = ""
+
+source ~/.mutt/dracula.muttrc
