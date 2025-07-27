@@ -1,0 +1,11 @@
+"$schema" = "https://jj-vcs.github.io/jj/latest/config-schema.json"
+
+[user]
+name = "Ohad Lutzky"
+email = "lutzky@gmail.com"
+
+[ui]
+pager = "delta"
+
+[ui.diff]
+format = "git"
