@@ -4,7 +4,7 @@
 	name = Ohad Lutzky
 	email = ohad@lutzky.net
 [alias]
-	gl = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(yellow)%h%C(bold yellow)%d %C(reset blue)%ar %C(green)%an\n%C(reset)  %s'
+	gl = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(yellow)%h%C(bold magenta)%d %C(reset blue)%ar %C(green)%an\n%C(reset)  %s'
 	gla = gl --all
 	graph = gl
 
