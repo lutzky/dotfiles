@@ -28,11 +28,14 @@ local spec = {
       vim.keymap.set("n", "<leader>fd", require("telescope.builtin").find_files,
         { desc = "Find files with telescope" }
       )
-      vim.keymap.set("n", "<leader>fk", require("telescope.builtin").keymaps,
-        { desc = "Find keymaps with telescope" }
-      )
       vim.keymap.set("n", "<leader>fg", require("telescope.builtin").live_grep,
         { desc = "Telescope live-grep" }
+      )
+      vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags,
+        { desc = "Find help tags with telescope" }
+      )
+      vim.keymap.set("n", "<leader>fk", require("telescope.builtin").keymaps,
+        { desc = "Find keymaps with telescope" }
       )
     end,
 }
