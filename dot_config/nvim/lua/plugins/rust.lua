@@ -6,6 +6,12 @@ return {
   },
 
   {
+    "j-hui/fidget.nvim", -- Show LSP status
+    opts = {
+    },
+  },
+
+  {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
     dependencies = { 'rafamadriz/friendly-snippets' },
