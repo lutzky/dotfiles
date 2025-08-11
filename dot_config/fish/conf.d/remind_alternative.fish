@@ -3,23 +3,26 @@ function remind_alternative --on-event=fish_postexec
     set -l last_command_name (string trim $last_command_name[1])
 
     switch "$last_command_name"
-        case "top"
+        case top
             set -f alternative btop
-        case "ps"
+        case ps
             set -f alternative procs
-        case "find"
+        case find
             set -f alternative fd
-        case "ncdu"
+        case ncdu
             set -f alternative dua
-        case "rename"
+        case rename
             set -f alternative vidir
         case '*'
             return
     end
 
     if not type -q $alternative
-            echo nope
-            return
+        return
+    end
+
+    if alias | string match -q "alias $last_command_name $alternative"
+        return
     end
 
     set -l uni_var_name "alternative_reminder_timestamp_$alternative"
