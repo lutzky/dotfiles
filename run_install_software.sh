@@ -88,8 +88,12 @@ else
     fi
   fi
 
+  if ! is_in_path dua; then
+    check_custom dua dua "cargo binstall dua-cli"
+  fi
+
   if is_in_path docker; then
-    check_custom lazydocker lazydocker "https://github.com/jesseduffield/lazydocker"
+    check_custom lazydocker lazydocker "curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash"
   fi
 fi
 
