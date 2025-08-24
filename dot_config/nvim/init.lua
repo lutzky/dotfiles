@@ -6,6 +6,7 @@ require("config.beancount")
 require("config.lint")
 require("config.nvim-tree")
 require("config.rust")
+require("config.vue")
 
 require("core.autocmds")
 require("core.diagnostic")

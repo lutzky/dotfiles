@@ -5,3 +5,7 @@ if type -q nvim;
 else if type -q vim;
 	set -xU EDITOR vim
 end
+
+if test -f ~/.nvim_extra_settings;
+	source ~/.nvim_extra_settings
+end
