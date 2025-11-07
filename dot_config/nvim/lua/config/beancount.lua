@@ -1,3 +1,7 @@
+if vim.fn.has("nvim-0.11") == 0 then
+  return
+end
+
 local fidget = require("fidget")
 
 local function check_beancount_deps()
