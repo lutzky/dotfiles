@@ -1,4 +1,3 @@
-vim.opt.clipboard:append("unnamedplus")
 vim.opt.mouse = "nv"
 
 -- Incremental command preview

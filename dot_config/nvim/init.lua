@@ -9,6 +9,7 @@ require("config.rust")
 require("config.vue")
 
 require("core.autocmds")
+require("core.clipboard")
 require("core.diagnostic")
 require("core.inlay")
 require("core.keymaps")
