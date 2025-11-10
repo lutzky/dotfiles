@@ -2,12 +2,11 @@ return {
   {
     'mrcjkb/rustaceanvim',
     version = '^6',
-    lazy = false,
-  },
-
-  {
-    "j-hui/fidget.nvim", -- Show LSP status
-    opts = {
+    lazy = true,
+    ft = { 'rust' },
+    dependencies = {
+      "j-hui/fidget.nvim", -- Show LSP status
+      "saghen/blink.cmp",
     },
   },
 
@@ -15,6 +14,7 @@ return {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
     dependencies = { 'rafamadriz/friendly-snippets' },
+    lazy = true,
 
     -- use a release tag to download pre-built binaries
     version = '1.*',
@@ -64,6 +64,10 @@ return {
       -- See the fuzzy documentation for more information
       fuzzy = { implementation = "prefer_rust_with_warning" }
     },
+
+    config = function()
+      vim.opt.signcolumn = "auto:4"
+    end,
     opts_extend = { "sources.default" }
   },
 }

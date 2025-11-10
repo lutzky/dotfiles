@@ -5,12 +5,10 @@ if require("os").getenv("NVIM_ENABLE_VUE") then
     table.insert(ensure_installed, "ts_ls")
 end
 
-if #ensure_installed == 0 then
-    return {}
-end
-
 return {
     "mason-org/mason-lspconfig.nvim",
+    lazy = true,
+    cond = #ensure_installed > 0,
     opts = {},
     dependencies = {
         { "mason-org/mason.nvim", opts = {} },

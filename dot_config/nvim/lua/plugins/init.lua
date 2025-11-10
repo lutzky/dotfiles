@@ -1,11 +1,23 @@
 return {
-  "dag/vim-fish",
-  "google/vim-jsonnet",
+  {
+    "dag/vim-fish",
+    lazy = true,
+    ft = { "fish" },
+  },
+  {
+    "google/vim-jsonnet",
+    lazy = true,
+    ft = { "jsonnet" },
+  },
+  {
+    "numToStr/Comment.nvim",
+    config = function()
+      require("Comment").setup()
+    end
+  },
+
   "junegunn/fzf",
   "junegunn/fzf.vim",
-  "khaveesh/vim-fish-syntax",
-  "numToStr/Comment.nvim",
-  "nvim-tree/nvim-tree.lua",
   "tpope/vim-fugitive",
   "tpope/vim-sleuth",
 
