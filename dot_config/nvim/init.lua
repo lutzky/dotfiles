@@ -11,6 +11,4 @@ require("core.inlay")
 require("core.keymaps")
 require("core.options")
 
-require("Comment").setup()
-
 vim.cmd.runtime("lua/work/init.lua")
