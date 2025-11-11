@@ -13,6 +13,4 @@ require("core.options")
 
 require("Comment").setup()
 
--- If your 'init.work.vim' still contains relevant Vimscript:
-vim.cmd.runtime("init.work.vim")
--- Consider converting its content to Lua for full Neovim benefits.
+vim.cmd.runtime("lua/work/init.lua")
