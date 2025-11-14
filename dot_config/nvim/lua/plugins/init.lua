@@ -35,13 +35,15 @@ return {
   },
 
   {
-    "nanotech/jellybeans.vim",
-    init = function()
-      vim.g.jellybeans_use_term_italics = 1
-      vim.g.jellybeans_overrides = {
-        background = { guibg = "none" },
-      }
-      vim.cmd.colorscheme("jellybeans")
+    "wtfox/jellybeans.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      transparent = true,
+    },
+    config = function(_, opts)
+      require("jellybeans").setup(opts)
+      vim.cmd[[colorscheme jellybeans]]
     end,
   },
 }
