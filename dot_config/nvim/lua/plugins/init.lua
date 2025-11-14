@@ -9,6 +9,11 @@ return {
     lazy = true,
     ft = { "jsonnet" },
   },
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {},
+  },
 
   "junegunn/fzf",
   "junegunn/fzf.vim",
