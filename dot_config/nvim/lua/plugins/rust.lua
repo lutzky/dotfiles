@@ -6,6 +6,7 @@ return {
     ft = { 'rust' },
     dependencies = {
       "j-hui/fidget.nvim", -- Show LSP status
+      "neovim/nvim-lspconfig",
       "saghen/blink.cmp",
     },
   },
@@ -65,9 +66,6 @@ return {
       fuzzy = { implementation = "prefer_rust_with_warning" }
     },
 
-    config = function()
-      vim.opt.signcolumn = "auto:4"
-    end,
     opts_extend = { "sources.default" }
   },
 }

@@ -27,3 +27,4 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 })
 
 vim.o.updatetime = 300 -- milliseconds (e.g., 300ms)
+vim.o.signcolumn = "auto:4" -- Room to show gitsigns + diagnostics
