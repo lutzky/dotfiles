@@ -9,15 +9,10 @@ return {
     lazy = true,
     ft = { "jsonnet" },
   },
-  {
-    "numToStr/Comment.nvim",
-    config = function()
-      require("Comment").setup()
-    end
-  },
 
   "junegunn/fzf",
   "junegunn/fzf.vim",
+  "numToStr/Comment.nvim",
   "tpope/vim-fugitive",
   "tpope/vim-sleuth",
 
