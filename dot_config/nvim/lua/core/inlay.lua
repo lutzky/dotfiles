@@ -1,3 +1,7 @@
+if vim.fn.has('0.10') ~= 1 then
+  return nil
+end
+
 vim.lsp.inlay_hint.enable(true)
 
 vim.keymap.set(

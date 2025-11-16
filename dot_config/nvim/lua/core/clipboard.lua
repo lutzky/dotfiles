@@ -20,7 +20,7 @@ if vim.env.TMUX then
     },
     cache_enabled = 1,
   }
-else
+elseif vim.fn.has("nvim-0.10") == 1 then
   vim.g.clipboard = {
     name = 'OSC 52',
     copy = {
