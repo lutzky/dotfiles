@@ -8,8 +8,11 @@ end
 return {
     "mason-org/mason-lspconfig.nvim",
     lazy = true,
-    cond = #ensure_installed > 0,
+    cond = (#ensure_installed > 0) and (vim.fn.has('nvim-0.11') == 1),
     opts = {},
+
+    ft = { 'python' },
+
     dependencies = {
         { "mason-org/mason.nvim", opts = {} },
         "neovim/nvim-lspconfig",
