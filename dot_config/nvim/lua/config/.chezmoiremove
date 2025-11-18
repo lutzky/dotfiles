@@ -1,1 +1,4 @@
+beancount.lua
+lint.lua
 nvim-tree.lua
+rust.lua
