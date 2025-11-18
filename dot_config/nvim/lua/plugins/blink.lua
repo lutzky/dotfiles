@@ -4,7 +4,7 @@ return {
   dependencies = { 'rafamadriz/friendly-snippets' },
   lazy = true,
 
-  ft = { 'python' },
+  ft = lsp_enabled_filetypes,
 
   -- use a release tag to download pre-built binaries
   version = '1.*',

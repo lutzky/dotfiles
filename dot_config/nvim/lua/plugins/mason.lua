@@ -11,7 +11,7 @@ return {
     cond = (#ensure_installed > 0) and (vim.fn.has('nvim-0.11') == 1),
     opts = {},
 
-    ft = { 'python' },
+    ft = lsp_enabled_filetypes,
 
     dependencies = {
         { "mason-org/mason.nvim", opts = {} },
