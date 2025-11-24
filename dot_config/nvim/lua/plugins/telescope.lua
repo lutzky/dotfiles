@@ -1,18 +1,14 @@
-local dependencies = {
-  'nvim-lua/plenary.nvim',
-}
-
-if is_build_system then
-  table.insert(dependencies, {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    build = 'make'
-  })
-end
-
 local spec = {
   'nvim-telescope/telescope.nvim',
   tag = '0.1.8',
-  dependencies = dependencies,
+  dependencies = {
+    'nvim-lua/plenary.nvim',
+    {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      cond = is_build_system,
+      build = 'make'
+    },
+  },
   config = function()
     require("telescope").setup {
       extensions = {
