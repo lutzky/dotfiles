@@ -2,8 +2,6 @@ local dependencies = {
   'nvim-lua/plenary.nvim',
 }
 
-local is_build_system = vim.fn.executable("make") == 1 and vim.fn.executable("cc") == 1
-
 if is_build_system then
   table.insert(dependencies, {
     'nvim-telescope/telescope-fzf-native.nvim',
