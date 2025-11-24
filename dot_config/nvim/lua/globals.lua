@@ -1,9 +1,11 @@
 vim.g.mapleader = ","
 
-lsp_enabled_filetypes = { 
+lsp_enabled_filetypes = {
   'lua',
   'python',
   'rust',
   'typescript',
   'vue',
 }
+
+is_build_system = vim.fn.executable("make") == 1 and vim.fn.executable("cc") == 1
