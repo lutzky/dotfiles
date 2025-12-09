@@ -93,6 +93,22 @@ def hterm_notify(subject: str, message: str):
     subprocess.run(["hterm-notify.sh", title, body], check=True)
 
 
+def iterm2_notify(subject: str, message: str):
+    """iterm2 uses OSC 9 terminal notification, and ignores OSC 777 from
+    hterm-notify."""
+    if subject != "":
+        message = f"{subject}: {message}"
+
+    payload = f"\033]9;{message}\007"
+    term = os.environ.get('TERM', '')
+
+    if 'screen' in term or 'tmux' in term:
+        payload = f"\033Ptmux;{payload.replace('\033', '\033\033')}\033\\"
+
+    sys.stdout.write(payload)
+    sys.stdout.flush()
+
+
 def main():
     subject = ""
     message = ""
@@ -113,6 +129,7 @@ def main():
 
     ring_bell()
     try:
+        iterm2_notify(subject, message)
         hterm_notify(subject, message)
     except Exception:  # pylint: disable=broad-exception-caught
         try:
