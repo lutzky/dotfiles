@@ -5,7 +5,7 @@ set -e
 cd $(dirname $0)
 
 if [[ ! -e fortunes_url ]]; then
-  url_file="$(readlink -f fortunes_url)"
+  url_file="$(readlink -f $0)"/fortunes_url
 
   echo "$url_file missing. To create it:"
   echo "bw get notes fortunes_url > \"$url_file\""
