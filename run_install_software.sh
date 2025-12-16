@@ -6,15 +6,21 @@
 apt_packages_to_install=
 
 dpkg_is_installed() {
+  hash dpkg-query > /dev/null 2>&1 || return 1
   dpkg-query -W -f='${Status}' $1 2>/dev/null | grep -q 'install ok installed'
 }
 
 check_apt() {
+  if [[ -n $2 ]]; then
+    is_in_path $2 && return
+  fi
+  is_in_path $1 && return
   dpkg_is_installed $1 && return
   apt_packages_to_install="$apt_packages_to_install $1"
 }
 
 can_apt_install() {
+  hash apt-cache > /dev/null 2>&1 || return 1
   local PACKAGE="$1"
   local REQUIRED_VERSION="$2"
   local CANDIDATE_VERSION="$(apt-cache policy "$PACKAGE" | awk '/Candidate:/ {print $2}')"
@@ -43,16 +49,18 @@ check_apt bidiv
 check_apt btop
 check_apt entr
 
-if can_apt_install eza; then
-  check_apt eza
-else
-  check_apt exa
+if ! is_in_path eza && ! is_in_path exa; then
+  if can_apt_install eza; then
+    check_apt eza
+  else
+    check_apt exa
+  fi
 fi
-check_apt fd-find
+check_apt fd-find fd
 check_apt fish
-check_apt fortune-mod
+check_apt fortune-mod fortune
 check_apt fzf
-check_apt ripgrep
+check_apt ripgrep rg
 check_apt tmux
 
 check_custom nvim nvim "However is appropriate for the distro"
