@@ -17,7 +17,9 @@ bind -n C-down    new-window
 
 set -g visual-bell off # Disable annoying bells in .inputrc
 
-set -g default-shell /usr/bin/fish
+{{ if lookPath "fish" -}}
+set -g default-shell {{ lookPath "fish" }}
+{{- end }}
 
 # credit for version-checking: https://stackoverflow.com/a/41392083
 if-shell "tmux -V | awk '{exit !($2 >= \"3.3\")}'" \
