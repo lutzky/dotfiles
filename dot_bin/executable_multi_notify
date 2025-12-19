@@ -103,7 +103,9 @@ def iterm2_notify(subject: str, message: str):
     term = os.environ.get('TERM', '')
 
     if 'screen' in term or 'tmux' in term:
-        payload = f"\033Ptmux;{payload.replace('\033', '\033\033')}\033\\"
+        # Use str.format instead of f-string because older Python versions
+        # don't support f-strings with backslashes
+        payload = "\033Ptmux;{0}\033\\".format(payload.replace('\033', '\033\033'))
 
     sys.stdout.write(payload)
     sys.stdout.flush()
