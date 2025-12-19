@@ -1,4 +1,4 @@
-local ensure_installed = {}
+local ensure_installed = { "lua_ls" }
 
 if require("os").getenv("NVIM_ENABLE_VUE") then
     table.insert(ensure_installed, "vue_ls")
@@ -17,12 +17,7 @@ return {
         { "mason-org/mason.nvim", opts = {} },
         "neovim/nvim-lspconfig",
     },
-    config = function ()
-        require("mason-lspconfig").setup({
-            ensure_installed = {
-                "vue_ls",
-                "ts_ls",
-            },
-        })
+    config = function()
+        require("mason-lspconfig").setup({ ensure_installed = ensure_installed })
     end
 }
