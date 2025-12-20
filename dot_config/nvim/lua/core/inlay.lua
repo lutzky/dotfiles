@@ -1,4 +1,4 @@
-if vim.fn.has('0.10') ~= 1 then
+if vim.fn.has('nvim-0.10') ~= 1 then
   return nil
 end
 
