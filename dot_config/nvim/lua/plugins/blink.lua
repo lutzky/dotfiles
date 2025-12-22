@@ -2,9 +2,12 @@ return {
   'saghen/blink.cmp',
   -- optional: provides snippets for the snippet source
   dependencies = { 'rafamadriz/friendly-snippets' },
-  lazy = true,
 
-  ft = lsp_enabled_filetypes,
+  -- blink.cmp is useful when editing many file types because of the 'path'
+  -- source - start typing e.g. ./ and get completion for paths.
+  lazy = false,
+  -- ...if we *do* decide to make it lazy again - use lsp_enabled_filetypes:
+  -- ft = lsp_enabled_filetypes,
 
   -- use a release tag to download pre-built binaries
   version = '1.*',
