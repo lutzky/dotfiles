@@ -32,6 +32,9 @@ local spec = {
     vim.keymap.set("n", "<leader>fk", require("telescope.builtin").keymaps,
       { desc = "Find keymaps with telescope" }
     )
+    vim.keymap.set("n", "<leader>fs", require("telescope.builtin").lsp_dynamic_workspace_symbols,
+      { desc = "Find LSP symbols with telescope" }
+    )
   end,
 }
 
