@@ -12,6 +12,11 @@ vim.diagnostic.config({
   },
 })
 
+if vim.fn.has('nvim-0.11') == 1 then
+  -- See https://www.reddit.com/r/neovim/comments/1kdniew/can_someone_help_how_to_add_border_to_hover/
+  vim.o.winborder = 'rounded'
+end
+
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   pattern = "*", -- Apply to all file types
   callback = function()
@@ -26,5 +31,5 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   desc = "Show diagnostic on CursorHold",
 })
 
-vim.o.updatetime = 300 -- milliseconds (e.g., 300ms)
+vim.o.updatetime = 300      -- milliseconds (e.g., 300ms)
 vim.o.signcolumn = "auto:4" -- Room to show gitsigns + diagnostics
