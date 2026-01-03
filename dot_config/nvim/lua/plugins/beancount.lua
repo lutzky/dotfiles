@@ -22,14 +22,16 @@ end
 
 return {
   {
-    "nathangrigg/vim-beancount",
+    "nathangrigg/vim-beancount", -- cspell:disable-line
     lazy = true,
     ft = { "beancount" },
     dependencies = {
+      -- cspell:disable
       "j-hui/fidget.nvim",
       "mason-org/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
       "saghen/blink.cmp",
+      -- cspell:enable
     },
     cond = enable_beancount,
 
