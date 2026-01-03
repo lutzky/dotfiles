@@ -20,6 +20,27 @@ local function check_beancount_deps()
   end
 end
 
+local function append_guess()
+  local input = vim.api.nvim_get_current_line()
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  local buf = vim.api.nvim_get_current_buf()
+
+  local budget_root = vim.fs.joinpath(vim.env.HOME, "budget")
+  local guess_binary = vim.fs.joinpath(budget_root, "guess.py")
+  local journal_file = vim.fs.joinpath(budget_root, "main.bean")
+
+  vim.system({ guess_binary, "--file=" .. journal_file }, { stdin = input }, function(obj)
+    vim.schedule(function()
+      if obj.code == 0 then
+        local output = vim.split(obj.stdout, "\n", { trimempty = true })
+        vim.api.nvim_buf_set_lines(buf, row, row, false, output)
+      else
+        print("Error: " .. obj.stderr)
+      end
+    end)
+  end)
+end
+
 return {
   {
     "nathangrigg/vim-beancount", -- cspell:disable-line
@@ -42,6 +63,9 @@ return {
           check_beancount_deps()
         end,
       })
+
+      vim.keymap.set('n', '<leader>bg', append_guess,
+        { desc = "Budget: Guess account" })
 
       vim.lsp.config('beancount', {
         -- cmd = {

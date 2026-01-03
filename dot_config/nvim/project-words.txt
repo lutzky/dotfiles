@@ -1,0 +1,7 @@
+nvim
+beancount
+venv
+autocmd
+keymap
+trimempty
+joinpath
