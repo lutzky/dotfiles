@@ -1,6 +1,6 @@
 function fish_prompt
-    # This prompt is designed to be ocassionally copied-and-pasted. For this
-    # reason, we:
+    # This prompt is designed so that shell output can be occasionally
+    # copied-and-pasted. For this reason, we:
     #
     # * Avoid fish_right_prompt - this is on the same line as the actual
     #   command (multiple lines are not supported). It also makes resizing a
@@ -13,6 +13,10 @@ function fish_prompt
 
     set -l cmd_status $status
     set -l human_duration (__human_duration $CMD_DURATION)
+
+    if [ -n "$VIRTUAL_ENV" ]
+        printf "%s(%s) %s" (set_color 4B8BBE) (path basename $VIRTUAL_ENV) (set_color normal)
+    end
 
     if type -q _fish_prompt.work
         _fish_prompt.work
