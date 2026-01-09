@@ -5,6 +5,10 @@ if require("os").getenv("NVIM_ENABLE_VUE") then
     table.insert(ensure_installed, "ts_ls")
 end
 
+if vim.fn.executable('npm') == 1 then
+    table.insert(ensure_installed, "cspell_ls")
+end
+
 return {
     "mason-org/mason-lspconfig.nvim",
     lazy = true,
