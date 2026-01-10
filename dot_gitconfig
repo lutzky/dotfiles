@@ -23,11 +23,8 @@
 [push]
 	default = simple
 [include]
-	# This is overridden by .gitconfig.delta if available
 	path = ~/.config/git/delta
-
 	path = ~/.config/git/work
-	path = ~/.config/git/delta
 [init]
 	defaultBranch = main
 [rerere]

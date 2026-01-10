@@ -1,15 +1,30 @@
 {{ if lookPath "delta" -}}
 # Delta: https://github.com/dandavison/delta
 [core]
-	pager = delta
+    pager = delta
 [diff]
-	colorMoved = default
+    colorMoved = default
 [interactive]
-	diffFilter = delta --color-only
+    diffFilter = delta --color-only
 [delta]
-	features = "decorations"
+    features = decorations zebra-dark
+
 [delta "decorations"]
-	keep-plus-minus-markers = true
+    keep-plus-minus-markers = true
+
+[delta "zebra-dark"]
+    # https://dandavison.github.io/delta/color-moved-support.html
+    minus-style = syntax "#330f0f"
+    minus-emph-style = syntax "#4f1917"
+    plus-style = syntax "#0e2f19"
+    plus-emph-style = syntax "#174525"
+    map-styles = \
+       bold purple => syntax "#330f29", \
+       bold blue => syntax "#271344", \
+       bold cyan => syntax "#0d3531", \
+       bold yellow => syntax "#222f14"
+    zero-style = syntax
+    whitespace-error-style = "#aaaaaa"
 {{- else -}}
 # delta not found in path 🤷
 {{- end }}
