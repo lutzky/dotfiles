@@ -5,3 +5,6 @@ autocmd
 keymap
 trimempty
 joinpath
+lspconfig
+noremap
+cabbrev
