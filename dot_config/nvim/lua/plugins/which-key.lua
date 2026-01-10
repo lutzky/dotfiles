@@ -7,6 +7,7 @@ return {
       { "<leader>f", group = "Find" },
       { "<leader>t", group = "Tree", icon = "󱏒" },
       { "<leader>x", group = "Trouble" },
+      { "<leader>r", group = "Rust", icon = "" },
     },
     -- your configuration comes here
     -- or leave it empty to use the default settings
