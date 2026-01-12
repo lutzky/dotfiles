@@ -1,3 +1,10 @@
+function _G.gitsigns_status()
+  -- For lightline
+  local dict = vim.b.gitsigns_status_dict
+  if not dict or dict.head == "" then return "" end
+  return " " .. dict.head
+end
+
 return {
   {
     "dag/vim-fish",
@@ -18,7 +25,6 @@ return {
   "junegunn/fzf",
   "junegunn/fzf.vim",
   "numToStr/Comment.nvim",
-  "tpope/vim-fugitive",
   "tpope/vim-sleuth",
 
   {
@@ -26,10 +32,10 @@ return {
     config = function()
       vim.g.lightline = {
         active = {
-          left = { { "mode", "paste" }, { "fugitive", "readonly", "absolutepath", "modified" } },
+          left = { { "mode", "paste" }, { "git", "readonly", "absolutepath", "modified" } },
         },
         colorscheme = "jellybeans",
-        component_function = { fugitive = "fugitive#statusline" },
+        component_function = { git = "v:lua.gitsigns_status" },
       }
     end,
   },
@@ -43,7 +49,7 @@ return {
     },
     config = function(_, opts)
       require("jellybeans").setup(opts)
-      vim.cmd[[colorscheme jellybeans]]
+      vim.cmd [[colorscheme jellybeans]]
     end,
   },
 }

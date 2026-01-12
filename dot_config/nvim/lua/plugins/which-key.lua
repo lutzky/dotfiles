@@ -1,10 +1,11 @@
 return {
-  "folke/which-key.nvim",
+  "folke/which-key.nvim", -- cSpell:disable-line
   event = "VeryLazy",
   opts = {
     spec = {
       { "<leader>b", group = "Budget", icon = "" },
       { "<leader>f", group = "Find" },
+      { "<leader>g", group = "Git", icon = "󰊢" },
       { "<leader>t", group = "Tree", icon = "󱏒" },
       { "<leader>x", group = "Trouble" },
       { "<leader>r", group = "Rust", icon = "" },

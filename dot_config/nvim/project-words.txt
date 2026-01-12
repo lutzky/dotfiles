@@ -8,3 +8,6 @@ joinpath
 lspconfig
 noremap
 cabbrev
+Neogit
+gitsigns
+Keymaps
