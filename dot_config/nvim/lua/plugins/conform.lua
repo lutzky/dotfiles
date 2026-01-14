@@ -3,7 +3,8 @@ return {
   opts = {
     formatters_by_ft = {
       vue = { "prettier" },
-      rust =  { "rustfmt", lsp_format = "fallback" },
+      cpp = { "clang-format" },
+      rust = { "rustfmt", lsp_format = "fallback" },
     },
     format_on_save = {
       lsp_format = "fallback",
