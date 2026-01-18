@@ -2,9 +2,10 @@ return {
   'stevearc/conform.nvim',
   opts = {
     formatters_by_ft = {
-      vue = { "prettier" },
       cpp = { "clang-format" },
+      fish = { "fish_indent" },
       rust = { "rustfmt", lsp_format = "fallback" },
+      vue = { "prettier" },
     },
     format_on_save = {
       lsp_format = "fallback",
