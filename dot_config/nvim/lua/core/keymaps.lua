@@ -18,12 +18,12 @@ local function toggle_cspell()
     -- requesting spell-check anyway.
     require("lazy").load({ wait = true, plugins = { "mason-lspconfig.nvim" } })
 
-    if not (vim.fn.executable("cspell") or vim.fn.executable("npm")) then
+    if vim.fn.executable("cspell-lsp") == 0 and vim.fn.executable("npm") == 0 then
       -- Logic for checking this is usually silent, but user is actively
       -- requesting this now.
       vim.api.nvim_echo({
-        { "Probably can't enable spelling: ",     "ErrorMsg" },
-        { "Neither cspell nor npm are available", "WarningMsg" },
+        { "Probably can't enable spelling: ",         "ErrorMsg" },
+        { "Neither cspell-lsp nor npm are available", "WarningMsg" },
       }, true, {})
     end
   end
