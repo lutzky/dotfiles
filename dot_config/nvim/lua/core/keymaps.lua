@@ -12,6 +12,13 @@ vim.api.nvim_set_keymap("n", "<Leader>w", "<C-w>", {
 
 
 local function toggle_cspell()
+  if vim.fn.has("nvim-0.11") == 0 then
+      vim.api.nvim_echo({
+        { "Can't enable spelling: ",                        "ErrorMsg" },
+        { "Using old nvim, lspconfig is probably disabled", "WarningMsg" },
+      }, true, {})
+      return
+  end
   local is_enabled = vim.lsp.is_enabled("cspell_ls")
   if not is_enabled then
     -- mason-lspconfig might not be loaded for this filetype, but user is
