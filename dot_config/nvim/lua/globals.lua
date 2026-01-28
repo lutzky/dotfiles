@@ -2,6 +2,7 @@ vim.g.mapleader = ","
 
 lsp_enabled_filetypes = {
   'lua',
+  'markdown',
   'python',
   'rust',
   'typescript',
