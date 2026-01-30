@@ -3,6 +3,7 @@ require("globals")
 require("config.lazy")
 
 require("config.vue")
+require("config.date_picker")
 
 require("core.autocmds")
 require("core.clipboard")
