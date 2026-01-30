@@ -49,3 +49,38 @@ vim.api.nvim_create_user_command('ProjectHeader', function()
   -- Switch to insert mode automatically
   vim.cmd("startinsert!")
 end, {})
+
+local ns = vim.api.nvim_create_namespace("markdown_tasks")
+
+local function find_open_tasks()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local diagnostics = {}
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  for i, line in ipairs(lines) do
+    local _, match_end = line:find("^%s*%- %[ %]%s*")
+
+    if match_end then
+      local task_text = line:sub(match_end + 1)
+
+      if #task_text > 0 then
+        table.insert(diagnostics, {
+          lnum = i - 1,
+          col = match_end,
+          end_lnum = i - 1,
+          end_col = #line,
+          severity = vim.diagnostic.severity.HINT,
+          message = "Task: " .. task_text,
+          source = "Markdown",
+        })
+      end
+    end
+  end
+
+  vim.diagnostic.set(ns, bufnr, diagnostics)
+end
+
+vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "TextChanged", "InsertLeave" }, {
+  pattern = "*.md",
+  callback = find_open_tasks,
+})
