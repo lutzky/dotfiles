@@ -39,6 +39,12 @@ return {
   ft = lsp_enabled_filetypes,
 
   config = function()
+    vim.lsp.config.markdown_oxide = {
+      -- Override the *order* of these, as we'll sometimes have the root in a
+      -- subdirectory of a git repo.
+      root_markers = { ".moxide.toml", ".obsidian", ".git" }
+    }
+
     -- These are needed for non-mason binaries, or binaries that we sometimes
     -- might install outside of mason.
     vim.lsp.enable('lua_ls')
