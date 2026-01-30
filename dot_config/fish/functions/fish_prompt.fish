@@ -20,7 +20,7 @@ function fish_prompt
 
     if type -q _fish_prompt.work
         _fish_prompt.work
-        echo -n ' '(set_color normal)
+        echo -n (set_color normal)
     end
 
     echo -n (set_color $fish_color_normal)(date '+%H:%M:%S')' '
