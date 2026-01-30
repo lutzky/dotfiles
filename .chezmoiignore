@@ -1,6 +1,7 @@
 README.md
 cspell.json
 project-words.txt
+projects
 
 {{ if ne .chezmoi.os "darwin" }}
 Library/KeyBindings/**
