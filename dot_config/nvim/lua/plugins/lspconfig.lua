@@ -39,7 +39,10 @@ return {
   ft = lsp_enabled_filetypes,
 
   config = function()
+    -- These are needed for non-mason binaries, or binaries that we sometimes
+    -- might install outside of mason.
+    vim.lsp.enable('lua_ls')
+    vim.lsp.enable('markdown_oxide')
     vim.lsp.enable('pyright')
-    vim.lsp.enable("lua_ls")
   end,
 }
