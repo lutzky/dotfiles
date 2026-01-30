@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+from datetime import datetime
+
+if not os.path.exists("index.md"):
+  print("index.md not found, this is probably not a project dir")
+  sys.exit(1)
+
+def parse_metadata_optimized2(filepath):
+  try:
+    with open(filepath, 'r', encoding='utf-8') as f:
+      # Use local variable for faster access
+      readline = f.readline
+
+      first_line = readline()
+      if first_line[:3] != '---': # Slice check is slightly faster than strip
+        return None
+
+      data = {}
+      for line in f:
+        if line[:3] == '---':
+          return data
+
+        if ':' in line:
+          # Only strip/lower once we find the delimiter
+          k, v = line.split(':', 1)
+          k = k.strip().lower()
+          # We only care about these 3 keys, skip others
+          if k in ('status', 'priority', 'snooze_until'):
+            data[k] = v.strip().strip('"').strip("'")
+      return data
+  except Exception:
+    return None
+
+def parse_metadata_optimized(filepath):
+  """
+  Reads only the preamble. Returns metadata dict or None
+   if no preamble exists.
+  """
+  data = {}
+  try:
+    with open(filepath, 'r', encoding='utf-8') as f:
+      first_line = f.readline().strip()
+      if first_line != '---':
+        return None  # Not a frontmatter file, skip immediately
+
+      for line in f:
+        line = line.strip()
+        if line == '---':
+          return data # End of preamble reached, stop reading
+
+        if ':' in line:
+          key, val = line.split(':', 1)
+          data[key.strip().lower()] = val.strip().strip('"').strip("'")
+  except Exception:
+    return None
+  return data # Fallback if file ends before second ---
+
+def get_priority_display(prio):
+  mapping = {"P0": "🟥 P0", "P1": "🟨 P1", "P2": "🟩 P2"}
+  return mapping.get(prio.upper(), f"⬜ {prio.upper()}")
+
+def main():
+  today = datetime.now().strftime('%Y-%m-%d')
+  projects = []
+  snoozed_projects = []
+
+  for root, dirs, files in os.walk('.'):
+    for filename in files:
+      if filename.endswith(".md"):
+        filepath = os.path.join(root, filename)
+        meta = parse_metadata_optimized2(filepath)
+
+        if not meta:
+          continue
+
+        status = meta.get('status', '')
+        snooze = meta.get('snooze_until')
+        priority = meta.get('priority', 'P99')
+
+        page_name = os.path.splitext(filename)[0]
+        if status == "Active" and (not snooze or snooze <= today):
+          projects.append({
+            'link': f"[[{page_name}]]",
+            'priority_raw': priority.upper(),
+            'priority_display': get_priority_display(priority)
+          })
+        elif status == "Active":
+          snoozed_projects.append({
+            'snooze': snooze,
+            'link': f"[[{page_name}]]",
+            'priority_raw': priority.upper(),
+            'priority_display': get_priority_display(priority)
+          })
+
+
+  # Sort P0 -> P1 -> P2 -> Others
+  projects.sort(key=lambda x: x['priority_raw'])
+  snoozed_projects.sort(key=lambda x: (x['snooze'], x['priority_raw']))
+
+  print("# Inbox notes")
+  print("Not implemented") # TODO: Implement
+  print()
+
+  print("# Tasks")
+  print("Not implemented") # TODO: Implement
+  print()
+
+  print("# Active Projects")
+  for p in projects:
+    print(f"{p['priority_display']} {p['link']}")
+
+  print("\n# Snoozed")
+  for p in snoozed_projects[:10]:
+    print(f"😴{p['snooze']} {p['priority_display']} {p['link']}")
+  if len(snoozed_projects) > 10:
+    print("...and more")
+    # TODO: How to display more?
+
+if __name__ == "__main__":
+  main()

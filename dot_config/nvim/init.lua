@@ -4,6 +4,7 @@ require("config.lazy")
 
 require("config.vue")
 require("config.date_picker")
+require("config.projects")
 
 require("core.autocmds")
 require("core.clipboard")
