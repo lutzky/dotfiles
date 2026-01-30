@@ -8,6 +8,21 @@ if not os.path.exists("index.md"):
   print("index.md not found, this is probably not a project dir")
   sys.exit(1)
 
+def get_inbox_notes():
+  result = []
+  for root, _, files in os.walk('Inbox'):
+    for filename in files:
+      if not filename.endswith(".md"):
+        continue
+      full_path = os.path.join(root,filename)
+      path_for_link = os.path.splitext(full_path)[0]
+      link = f"[[{path_for_link}]]"
+
+      with open(full_path) as f:
+        first_line = f.readline().strip()
+      result.append((link,first_line))
+  return result
+
 def parse_metadata_optimized2(filepath):
   try:
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -67,7 +82,7 @@ def main():
   projects = []
   snoozed_projects = []
 
-  for root, dirs, files in os.walk('.'):
+  for root, _, files in os.walk('.'):
     for filename in files:
       if filename.endswith(".md"):
         filepath = os.path.join(root, filename)
@@ -95,14 +110,16 @@ def main():
             'priority_display': get_priority_display(priority)
           })
 
-
   # Sort P0 -> P1 -> P2 -> Others
   projects.sort(key=lambda x: x['priority_raw'])
   snoozed_projects.sort(key=lambda x: (x['snooze'], x['priority_raw']))
 
-  print("# Inbox notes")
-  print("Not implemented") # TODO: Implement
-  print()
+  inbox_notes = get_inbox_notes()
+  if inbox_notes:
+    print("# Inbox notes")
+    for link, first_line in inbox_notes:
+      print(link, first_line)
+    print()
 
   print("# Tasks")
   print("Not implemented") # TODO: Implement
