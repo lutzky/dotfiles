@@ -84,3 +84,14 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "TextChanged", "Insert
   pattern = "*.md",
   callback = find_open_tasks,
 })
+
+vim.api.nvim_create_user_command('ProjectInboxNote', function()
+  -- Match silverbullet.md's naming
+  local folder_path = vim.fn.expand("./Inbox/") .. os.date("%Y-%m-%d")
+  local file_name = os.date("%H-%M-%S") .. ".md"
+  local full_path = folder_path .. "/" .. file_name
+
+  vim.fn.mkdir(folder_path, "p")
+
+  vim.cmd("edit " .. vim.fn.fnameescape(full_path))
+end, {})
