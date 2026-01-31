@@ -50,16 +50,18 @@ def parse_metadata_optimized(filepath):
           # Only strip/lower once we find the delimiter
           k, v = line.split(':', 1)
           k = k.strip().lower()
-          # We only care about these 3 keys, skip others
-          if k in ('status', 'priority', 'snooze_until'):
+          # We only care about these keys, skip others
+          # cSpell: ignore pagedecoration
+          if k in ('status', 'priority', 'snooze_until',
+                   'pagedecoration.prefix'):
             data[k] = v.strip().strip('"').strip("'")
       return data
   except Exception:
     return None
 
 def get_priority_display(priority):
-  mapping = {"P0": "🟥 P0", "P1": "🟨 P1", "P2": "🟩 P2"}
-  return mapping.get(priority.upper(), f"⬜ {priority.upper()}")
+  mapping = {"P0": "🟥P0", "P1": "🟨P1", "P2": "🟩P2"}
+  return mapping.get(priority.upper(), f"⬜{priority.upper()}")
 
 def main():
   today = datetime.now().strftime('%Y-%m-%d')
@@ -81,10 +83,12 @@ def main():
         status = meta.get('status', '')
         snooze = meta.get('snooze_until')
         priority = meta.get('priority', 'P99')
+        page_icon = meta.get('pagedecoration.prefix', '')
 
         if status == "Active" and (not snooze or snooze <= today):
           projects.append({
             'link': page_link,
+            'icon': page_icon,
             'priority_raw': priority.upper(),
             'priority_display': get_priority_display(priority)
           })
@@ -92,6 +96,7 @@ def main():
           snoozed_projects.append({
             'snooze': snooze,
             'link': page_link,
+            'icon': page_icon,
             'priority_raw': priority.upper(),
             'priority_display': get_priority_display(priority)
           })
@@ -135,11 +140,11 @@ def main():
 
   print("# Active Projects")
   for p in projects:
-    print(f"{p['priority_display']} {p['link']}")
+    print(f"{p['priority_display']} {p['icon']}{p['link']}")
 
   print("\n# Snoozed")
   for p in snoozed_projects[:10]:
-    print(f"😴{p['snooze']} {p['priority_display']} {p['link']}")
+    print(f"😴{p['snooze']} {p['priority_display']} {p['icon']}{p['link']}")
   if len(snoozed_projects) > 10:
     print("...and more")
     # TODO: How to display more?
