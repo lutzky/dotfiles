@@ -5,6 +5,13 @@ import subprocess
 import sys
 from datetime import datetime
 
+VALID_STATUSES = [
+  'Active',
+  'Done',
+  'Decided no',
+  'Ready',
+]
+
 if not os.path.exists("index.md"):
   print("index.md not found, this is probably not a project dir")
   sys.exit(1)
@@ -82,6 +89,7 @@ def main():
   today = datetime.now().strftime('%Y-%m-%d')
   projects = []
   snoozed_projects = []
+  invalid_statuses = []
 
   for root, _, files in os.walk('.'):
     for filename in files:
@@ -92,28 +100,40 @@ def main():
         if not meta:
           continue
 
+        page_name = os.path.splitext(filename)[0]
+        page_link = f"[[{page_name}]]"
         status = meta.get('status', '')
         snooze = meta.get('snooze_until')
         priority = meta.get('priority', 'P99')
 
-        page_name = os.path.splitext(filename)[0]
         if status == "Active" and (not snooze or snooze <= today):
           projects.append({
-            'link': f"[[{page_name}]]",
+            'link': page_link,
             'priority_raw': priority.upper(),
             'priority_display': get_priority_display(priority)
           })
         elif status == "Active":
           snoozed_projects.append({
             'snooze': snooze,
-            'link': f"[[{page_name}]]",
+            'link': page_link,
             'priority_raw': priority.upper(),
             'priority_display': get_priority_display(priority)
+          })
+        elif status not in VALID_STATUSES:
+          invalid_statuses.append({
+            'link': page_link,
+            'status': status,
           })
 
   # Sort P0 -> P1 -> P2 -> Others
   projects.sort(key=lambda x: x['priority_raw'])
   snoozed_projects.sort(key=lambda x: (x['snooze'], x['priority_raw']))
+
+  if invalid_statuses:
+    print("# Invalid status pages")
+    print("Status is not one of", VALID_STATUSES)
+    for page in invalid_statuses:
+      print(page['link'], page['status'])
 
   inbox_notes = get_inbox_notes()
   if inbox_notes:
