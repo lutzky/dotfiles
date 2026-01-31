@@ -31,7 +31,7 @@ def get_inbox_notes():
       result.append((link,first_line))
   return result
 
-def parse_metadata_optimized2(filepath):
+def parse_metadata_optimized(filepath):
   try:
     with open(filepath, 'r', encoding='utf-8') as f:
       # Use local variable for faster access
@@ -57,33 +57,9 @@ def parse_metadata_optimized2(filepath):
   except Exception:
     return None
 
-def parse_metadata_optimized(filepath):
-  """
-  Reads only the preamble. Returns metadata dict or None
-   if no preamble exists.
-  """
-  data = {}
-  try:
-    with open(filepath, 'r', encoding='utf-8') as f:
-      first_line = f.readline().strip()
-      if first_line != '---':
-        return None  # Not a frontmatter file, skip immediately
-
-      for line in f:
-        line = line.strip()
-        if line == '---':
-          return data # End of preamble reached, stop reading
-
-        if ':' in line:
-          key, val = line.split(':', 1)
-          data[key.strip().lower()] = val.strip().strip('"').strip("'")
-  except Exception:
-    return None
-  return data # Fallback if file ends before second ---
-
-def get_priority_display(prio):
+def get_priority_display(priority):
   mapping = {"P0": "🟥 P0", "P1": "🟨 P1", "P2": "🟩 P2"}
-  return mapping.get(prio.upper(), f"⬜ {prio.upper()}")
+  return mapping.get(priority.upper(), f"⬜ {priority.upper()}")
 
 def main():
   today = datetime.now().strftime('%Y-%m-%d')
@@ -95,7 +71,7 @@ def main():
     for filename in files:
       if filename.endswith(".md"):
         filepath = os.path.join(root, filename)
-        meta = parse_metadata_optimized2(filepath)
+        meta = parse_metadata_optimized(filepath)
 
         if not meta:
           continue
@@ -142,7 +118,7 @@ def main():
       print(link, first_line)
     print()
 
-  output = subprocess.run(["rg", "--type", "markdown", "\[ \].*#next"], capture_output=True)
+  output = subprocess.run(["rg", "--type", "markdown", "\\[ \\].*#next"], capture_output=True)
   next_lines = output.stdout.decode("utf-8").splitlines()
   if len(next_lines) == 0:
     print("No open tasks tagged #next")
