@@ -1,31 +1,66 @@
 local function open_project_dashboard()
-  local buf = vim.api.nvim_create_buf(false, true)
-
-  local options = {
-    bufhidden = "wipe",
-    buftype = "nofile",
-    filetype = "markdown",
-    swapfile = false,
-  }
-  for k, v in pairs(options) do vim.api.nvim_buf_set_option(buf, k, v) end
-
   local output = vim.fn.systemlist("projects")
+
+  table.insert(output, 1, "> 💡 [gf] Open | [,pr] Refresh | [q] Close Dashboard")
+  table.insert(output, 2, "---")
+
+  local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
+
+  vim.bo[buf].filetype = "markdown"
+  vim.bo[buf].buftype = "nofile"
+  vim.bo[buf].bufhidden = "wipe"
+  vim.bo[buf].swapfile = false
+  vim.bo[buf].modifiable = false
+  vim.bo[buf].readonly = true
+
+  vim.wo.number = true
+
   vim.api.nvim_command("buffer " .. buf)
 
-  vim.api.nvim_buf_set_option(buf, "modifiable", false)
+  local map_opts = { noremap = true, silent = true, buffer = buf }
 
-  -- When you leave this buffer (e.g., by following a link), it wipes itself.
+  vim.keymap.set('n', 'q', ':bwipeout!<CR>', map_opts)
+
+  -- Custom 'gf' logic to handle spaces, avoiding setting isfname and
+  -- suffixesadd, especially because isfname is global.
+  vim.keymap.set('n', 'gf', function()
+    local line = vim.api.nvim_get_current_line()
+
+    local project_name = line:match("%[%[(.-)%]%]")
+
+    if project_name then
+      local target = project_name .. ".md"
+
+      if vim.fn.filereadable(target) == 1 then
+        -- Loading this way instead of `vim.cmd("edit")` ensures that various
+        -- autocmds load correctly.
+        local bufnr = vim.fn.bufadd(target)
+        vim.fn.bufload(bufnr)
+        vim.api.nvim_set_current_buf(bufnr)
+        vim.bo[bufnr].filetype = "markdown"
+        vim.cmd("normal! zz")
+      else
+        print("File not found: " .. target)
+      end
+    else
+      print("Could not parse project path from line.")
+    end
+  end, map_opts)
+
   vim.api.nvim_create_autocmd("BufLeave", {
     buffer = buf,
     once = true,
     callback = function()
-      vim.api.nvim_buf_delete(buf, { force = true })
+      if vim.api.nvim_buf_is_valid(buf) then
+        vim.api.nvim_buf_delete(buf, { force = true })
+      end
     end
   })
 end
 
 vim.api.nvim_create_user_command('Projects', open_project_dashboard, {})
+vim.keymap.set('n', '<Leader>pr', ':Projects<CR>', { silent = true })
 
 vim.api.nvim_create_user_command('ProjectHeader', function()
   local today = os.date("%Y-%m-%d")

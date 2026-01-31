@@ -91,7 +91,7 @@ def main():
   snoozed_projects = []
   invalid_statuses = []
 
-  for root, _, files in os.walk('.'):
+  for root, _, files in os.walk('Projects'):
     for filename in files:
       if filename.endswith(".md"):
         filepath = os.path.join(root, filename)
@@ -100,7 +100,7 @@ def main():
         if not meta:
           continue
 
-        page_name = os.path.splitext(filename)[0]
+        page_name = os.path.join(root,os.path.splitext(filename)[0])
         page_link = f"[[{page_name}]]"
         status = meta.get('status', '')
         snooze = meta.get('snooze_until')
