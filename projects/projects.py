@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import subprocess
 import sys
 from datetime import datetime
 
@@ -121,8 +122,19 @@ def main():
       print(link, first_line)
     print()
 
-  print("# Tasks")
-  print("Not implemented") # TODO: Implement
+  output = subprocess.run(["rg", "--type", "markdown", "\[ \].*#next"], capture_output=True)
+  next_lines = output.stdout.decode("utf-8").splitlines()
+  if len(next_lines) == 0:
+    print("No open tasks tagged #next")
+  else:
+    print("# Open tasks tagged #next")
+    for line in next_lines[:10]:
+      filename, rest = line.strip().split(":", 1)
+      link = f"[[{os.path.splitext(filename)[0]}]]"
+      print(link, rest)
+    if len(next_lines) > 10:
+      print("...more...")
+
   print()
 
   print("# Active Projects")
