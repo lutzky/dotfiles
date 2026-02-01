@@ -1,3 +1,5 @@
+local autocmd_group = vim.api.nvim_create_augroup("Projects", { clear = true })
+
 local function open_project_dashboard()
   local output = vim.fn.systemlist("projects")
 
@@ -48,8 +50,10 @@ local function open_project_dashboard()
     end
   end, map_opts)
 
+
   vim.api.nvim_create_autocmd("BufLeave", {
     buffer = buf,
+    group = autocmd_group,
     once = true,
     callback = function()
       if vim.api.nvim_buf_is_valid(buf) then
@@ -116,6 +120,7 @@ local function find_open_tasks()
 end
 
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "TextChanged", "InsertLeave" }, {
+  group = autocmd_group,
   pattern = "*.md",
   callback = find_open_tasks,
 })
@@ -130,3 +135,17 @@ vim.api.nvim_create_user_command('ProjectInboxNote', function()
 
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end, {})
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+  pattern = "*.md",
+  group = autocmd_group,
+  callback = function()
+    local template_path = vim.fn.expand("%:p:h") .. "/.template.md"
+
+    if vim.fn.filereadable(template_path) == 1 then
+      vim.cmd("0read " .. template_path)
+      -- Place the cursor at the end of the file
+      vim.cmd("normal! G")
+    end
+  end,
+})
