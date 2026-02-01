@@ -1,8 +1,7 @@
 local function open_project_dashboard()
   local output = vim.fn.systemlist("projects")
 
-  table.insert(output, 1, "> 💡 [gf] Open | [,pr] Refresh | [q] Close Dashboard")
-  table.insert(output, 2, "---")
+  table.insert(output, 1, " 💡  [/] Search (\\c) | [gf] Open | [,pr] Refresh | [q]uit")
 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
@@ -21,6 +20,7 @@ local function open_project_dashboard()
   local map_opts = { noremap = true, silent = true, buffer = buf }
 
   vim.keymap.set('n', 'q', ':bwipeout!<CR>', map_opts)
+  vim.keymap.set('n', '/', '/\\c', { noremap = true, buffer = buf })
 
   -- Custom 'gf' logic to handle spaces, avoiding setting isfname and
   -- suffixesadd, especially because isfname is global.
