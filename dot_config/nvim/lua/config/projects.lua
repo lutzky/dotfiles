@@ -140,7 +140,7 @@ vim.api.nvim_create_autocmd("BufNewFile", {
   pattern = "*.md",
   group = autocmd_group,
   callback = function()
-    local template_path = vim.fn.expand("%:p:h") .. "/.template.md"
+    local template_path = vim.fn.expand("%:p:h") .. "/.template"
 
     if vim.fn.filereadable(template_path) == 1 then
       vim.cmd("0read " .. template_path)
