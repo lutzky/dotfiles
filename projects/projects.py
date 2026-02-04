@@ -53,7 +53,7 @@ def parse_metadata_optimized(filepath):
           # We only care about these keys, skip others
           # cSpell: ignore pagedecoration
           if k in ('status', 'priority', 'snooze_until',
-                   'pagedecoration.prefix'):
+                   'pagedecoration.prefix', 'hide_if_snoozed'):
             data[k] = v.strip().strip('"').strip("'")
       return data
   except Exception:
@@ -82,24 +82,29 @@ def main():
         page_link = f"[[{page_name}]]"
         status = meta.get('status', '')
         snooze = meta.get('snooze_until')
+        is_snoozed = snooze and snooze > today
+        hide_if_snoozed = meta.get('hide_if_snoozed', 'false').lower() != 'false'
         priority = meta.get('priority', 'P99')
         page_icon = meta.get('pagedecoration.prefix', '')
 
-        if status == "Active" and (not snooze or snooze <= today):
+        if hide_if_snoozed and status != "Active":
+            print(f"⚠️ WARNING: {page_link} has useless hide_if_snoozed")
+
+        if status == "Active" and not is_snoozed:
           projects.append({
             'link': page_link,
             'icon': page_icon,
             'priority_raw': priority.upper(),
             'priority_display': get_priority_display(priority)
           })
-        elif status == "Active":
-          snoozed_projects.append({
-            'snooze': snooze,
-            'link': page_link,
-            'icon': page_icon,
-            'priority_raw': priority.upper(),
-            'priority_display': get_priority_display(priority)
-          })
+        elif status == "Active" and not hide_if_snoozed:
+            snoozed_projects.append({
+              'snooze': snooze,
+              'link': page_link,
+              'icon': page_icon,
+              'priority_raw': priority.upper(),
+              'priority_display': get_priority_display(priority)
+            })
         elif status not in VALID_STATUSES:
           invalid_statuses.append({
             'link': page_link,
@@ -138,11 +143,11 @@ def main():
 
   print()
 
-  print("# Active Projects")
+  print(f"# Active ({len(projects)})")
   for p in projects:
     print(f"{p['priority_display']} {p['icon']}{p['link']}")
 
-  print("\n# Snoozed")
+  print(f"\n# Snoozed ({len(snoozed_projects)})")
   for p in snoozed_projects[:10]:
     print(f"😴{p['snooze']} {p['priority_display']} {p['icon']}{p['link']}")
   if len(snoozed_projects) > 10:
