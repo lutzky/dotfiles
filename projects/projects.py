@@ -16,6 +16,8 @@ if not os.path.exists("index.md"):
     print("index.md not found, this is probably not a project dir")
     sys.exit(1)
 
+SNOOZED_LIMIT = 10
+
 
 def get_inbox_notes():
     result = []
@@ -76,6 +78,7 @@ def main():
     today = datetime.now().strftime("%Y-%m-%d")
     projects = []
     snoozed_projects = []
+    ready_projects = []
     invalid_statuses = []
 
     for root, _, files in os.walk("Projects"):
@@ -95,7 +98,7 @@ def main():
                 hide_if_snoozed = (
                     meta.get("hide_if_snoozed", "false").lower() != "false"
                 )
-                priority = meta.get("priority", "P99")
+                priority = meta.get("priority", "P9")
                 page_icon = meta.get("pagedecoration.prefix", "")
 
                 if hide_if_snoozed and status != "Active":
@@ -120,6 +123,15 @@ def main():
                             "priority_display": get_priority_display(priority),
                         }
                     )
+                elif status == "Ready":
+                    ready_projects.append(
+                        {
+                            "link": page_link,
+                            "icon": page_icon,
+                            "priority_raw": priority.upper(),
+                            "priority_display": get_priority_display(priority),
+                        }
+                    )
                 elif status not in VALID_STATUSES:
                     invalid_statuses.append(
                         {
@@ -130,6 +142,7 @@ def main():
 
     # Sort P0 -> P1 -> P2 -> Others
     projects.sort(key=lambda x: x["priority_raw"])
+    ready_projects.sort(key=lambda x: x["priority_raw"])
     snoozed_projects.sort(key=lambda x: (x["snooze"], x["priority_raw"]))
 
     if invalid_statuses:
@@ -167,11 +180,21 @@ def main():
         print(f"{p['priority_display']} {p['icon']}{p['link']}")
 
     print(f"\n# Snoozed ({len(snoozed_projects)})")
-    for p in snoozed_projects[:10]:
+    for p in snoozed_projects[:SNOOZED_LIMIT]:
         print(f"😴{p['snooze']} {p['priority_display']} {p['icon']}{p['link']}")
-    if len(snoozed_projects) > 10:
-        print("...and more")
-        # TODO: How to display more?
+    if len(snoozed_projects) > SNOOZED_LIMIT:
+        print("...see more below")
+
+    print(f"\n# Ready ({len(ready_projects)})")
+    for p in ready_projects:
+        print(f"{p['priority_display']} {p['icon']}{p['link']}")
+
+    if len(snoozed_projects) > SNOOZED_LIMIT:
+        print(f"\n# More Snoozed ({SNOOZED_LIMIT}..{len(snoozed_projects)})")
+        for p in snoozed_projects[SNOOZED_LIMIT:]:
+            print(f"😴{p['snooze']} {p['priority_display']} {p['icon']}{p['link']}")
+
+    print("\nConsider grepping for `hide_if_snoozed`, `Decided no`.")
 
 
 if __name__ == "__main__":
