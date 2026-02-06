@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import yaml
 from datetime import datetime
 
 VALID_STATUSES = [
@@ -11,10 +12,6 @@ VALID_STATUSES = [
     "Decided no",
     "Ready",
 ]
-
-if not os.path.exists("index.md"):
-    print("index.md not found, this is probably not a project dir")
-    sys.exit(1)
 
 SNOOZED_LIMIT = 10
 
@@ -35,36 +32,20 @@ def get_inbox_notes():
     return result
 
 
-def parse_metadata_optimized(filepath):
+def parse_metadata(filepath):
     try:
         with open(filepath, "r", encoding="utf-8") as f:
-            # Use local variable for faster access
-            readline = f.readline
-
-            first_line = readline()
-            if first_line[:3] != "---":  # Slice check is slightly faster than strip
+            lines = []
+            first_line = f.readline()
+            if first_line[:3] != "---":
                 return None
 
-            data = {}
             for line in f:
                 if line[:3] == "---":
-                    return data
+                    return yaml.safe_load("".join(lines))
+                lines.append(line)
 
-                if ":" in line:
-                    # Only strip/lower once we find the delimiter
-                    k, v = line.split(":", 1)
-                    k = k.strip().lower()
-                    # We only care about these keys, skip others
-                    # cSpell: ignore pagedecoration
-                    if k in (
-                        "hide_if_snoozed",
-                        "pagedecoration.prefix",
-                        "priority",
-                        "snooze_until",
-                        "status",
-                    ):
-                        data[k] = v.strip().strip('"').strip("'")
-            return data
+            return {}
     except Exception:
         return None
 
@@ -74,7 +55,17 @@ def get_priority_display(priority):
     return mapping.get(priority.upper(), f"⬜{priority.upper()}")
 
 
+def print_project(p, show_snooze=False):
+    if show_snooze:
+        print(f"😴{p['snooze']} ", end="")
+    print(f"{p['priority_display']} {p['icon']}{p['link']} {p['tags']}")
+
+
 def main():
+    if not os.path.exists("index.md"):
+        print("index.md not found, this is probably not a project dir")
+        sys.exit(1)
+
     today = datetime.now().strftime("%Y-%m-%d")
     projects = []
     snoozed_projects = []
@@ -83,62 +74,65 @@ def main():
 
     for root, _, files in os.walk("Projects"):
         for filename in files:
-            if filename.endswith(".md"):
-                filepath = os.path.join(root, filename)
-                meta = parse_metadata_optimized(filepath)
+            if not filename.endswith(".md"):
+                continue
+            filepath = os.path.join(root, filename)
+            meta = parse_metadata(filepath)
 
-                if not meta:
-                    continue
+            if not meta:
+                continue
 
-                page_name = os.path.join(root, os.path.splitext(filename)[0])
-                page_link = f"[[{page_name}]]"
-                status = meta.get("status", "")
-                snooze = meta.get("snooze_until")
-                is_snoozed = snooze and snooze > today
-                hide_if_snoozed = (
-                    meta.get("hide_if_snoozed", "false").lower() != "false"
+            page_name = os.path.join(root, os.path.splitext(filename)[0])
+            page_link = f"[[{page_name}]]"
+            status = meta.get("status", "")
+            snooze: datetime = meta.get("snooze_until")  # type: ignore
+            is_snoozed = snooze and snooze.strftime("%Y-%m-%d") > today
+            hide_if_snoozed = meta.get("hide_if_snoozed", False)
+            priority = meta.get("priority", "P9")
+            page_icon = meta.get("pageDecoration.prefix", "")
+            page_tags = " ".join(f"#{t}" for t in meta.get("tags", []) or [])
+
+            if hide_if_snoozed and status != "Active":
+                print(f"⚠️ WARNING: {page_link} has useless hide_if_snoozed")
+
+            if status == "Active" and not is_snoozed:
+                projects.append(
+                    {
+                        "link": page_link,
+                        "icon": page_icon,
+                        "tags": page_tags,
+                        "priority_raw": priority.upper(),
+                        "priority_display": get_priority_display(priority),
+                    }
                 )
-                priority = meta.get("priority", "P9")
-                page_icon = meta.get("pagedecoration.prefix", "")
-
-                if hide_if_snoozed and status != "Active":
-                    print(f"⚠️ WARNING: {page_link} has useless hide_if_snoozed")
-
-                if status == "Active" and not is_snoozed:
-                    projects.append(
-                        {
-                            "link": page_link,
-                            "icon": page_icon,
-                            "priority_raw": priority.upper(),
-                            "priority_display": get_priority_display(priority),
-                        }
-                    )
-                elif status == "Active" and not hide_if_snoozed:
-                    snoozed_projects.append(
-                        {
-                            "snooze": snooze,
-                            "link": page_link,
-                            "icon": page_icon,
-                            "priority_raw": priority.upper(),
-                            "priority_display": get_priority_display(priority),
-                        }
-                    )
-                elif status == "Ready":
-                    ready_projects.append(
-                        {
-                            "link": page_link,
-                            "icon": page_icon,
-                            "priority_raw": priority.upper(),
-                            "priority_display": get_priority_display(priority),
-                        }
-                    )
-                elif status not in VALID_STATUSES:
-                    invalid_statuses.append(
-                        {
-                            "link": page_link,
-                            "status": status,
-                        }
-                    )
+            elif status == "Active" and not hide_if_snoozed:
+                snoozed_projects.append(
+                    {
+                        "snooze": snooze,
+                        "link": page_link,
+                        "tags": page_tags,
+                        "icon": page_icon,
+                        "priority_raw": priority.upper(),
+                        "priority_display": get_priority_display(priority),
+                    }
+                )
+            elif status == "Ready":
+                ready_projects.append(
+                    {
+                        "link": page_link,
+                        "icon": page_icon,
+                        "tags": page_tags,
+                        "priority_raw": priority.upper(),
+                        "priority_display": get_priority_display(priority),
+                    }
+                )
+            elif status not in VALID_STATUSES:
+                invalid_statuses.append(
+                    {
+                        "link": page_link,
+                        "status": status,
+                    }
+                )
 
     # Sort P0 -> P1 -> P2 -> Others
     projects.sort(key=lambda x: x["priority_raw"])
@@ -177,22 +171,22 @@ def main():
 
     print(f"# Active ({len(projects)})")
     for p in projects:
-        print(f"{p['priority_display']} {p['icon']}{p['link']}")
+        print_project(p)
 
     print(f"\n# Snoozed ({len(snoozed_projects)})")
     for p in snoozed_projects[:SNOOZED_LIMIT]:
-        print(f"😴{p['snooze']} {p['priority_display']} {p['icon']}{p['link']}")
+        print_project(p, show_snooze=True)
     if len(snoozed_projects) > SNOOZED_LIMIT:
         print("...see more below")
 
     print(f"\n# Ready ({len(ready_projects)})")
     for p in ready_projects:
-        print(f"{p['priority_display']} {p['icon']}{p['link']}")
+        print_project(p)
 
     if len(snoozed_projects) > SNOOZED_LIMIT:
         print(f"\n# More Snoozed ({SNOOZED_LIMIT}..{len(snoozed_projects)})")
         for p in snoozed_projects[SNOOZED_LIMIT:]:
-            print(f"😴{p['snooze']} {p['priority_display']} {p['icon']}{p['link']}")
+            print_project(p, show_snooze=True)
 
     print("\nConsider grepping for `hide_if_snoozed`, `Decided no`.")
 
