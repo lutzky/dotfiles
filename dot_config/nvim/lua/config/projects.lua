@@ -50,15 +50,17 @@ local function open_project_dashboard()
     end
   end, map_opts)
 
-
   vim.api.nvim_create_autocmd("BufLeave", {
     buffer = buf,
     group = autocmd_group,
     once = true,
     callback = function()
-      if vim.api.nvim_buf_is_valid(buf) then
-        vim.api.nvim_buf_delete(buf, { force = true })
-      end
+      -- Use vim.schedule to avoid skipping the .template BufNewFile autocmd
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(buf) then
+          vim.api.nvim_buf_delete(buf, { force = true })
+        end
+      end)
     end
   })
 end
