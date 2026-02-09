@@ -3,7 +3,7 @@ local autocmd_group = vim.api.nvim_create_augroup("Projects", { clear = true })
 local function open_project_dashboard()
   local output = vim.fn.systemlist("projects")
 
-  table.insert(output, 1, " 💡  [/] Search (\\c) | [gf] Open | [,pr] Refresh | [q]uit")
+  table.insert(output, 1, "  [/] Search (\\c) | [gf] Open | [,pr] Refresh | [q]uit | :ProjectInboxNote")
 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
@@ -67,29 +67,6 @@ end
 
 vim.api.nvim_create_user_command('Projects', open_project_dashboard, {})
 vim.keymap.set('n', '<Leader>pr', ':Projects<CR>', { silent = true })
-
-vim.api.nvim_create_user_command('ProjectHeader', function()
-  local today = os.date("%Y-%m-%d")
-  local preamble = {
-    "---",
-    "priority: P2",
-    "status: Active",
-    "# snooze_until:",
-    "---",
-    "",
-    "# " .. today,
-  }
-
-  -- Insert at the very top of the buffer (index 0 to 0)
-  vim.api.nvim_buf_set_lines(0, 0, 0, false, preamble)
-
-  -- Move cursor to the end of the last line of the preamble to type the title
-  -- {line_number, column} - the preamble is 7 lines
-  vim.api.nvim_win_set_cursor(0, { 8, 1 })
-
-  -- Switch to insert mode automatically
-  vim.cmd("startinsert!")
-end, {})
 
 local ns = vim.api.nvim_create_namespace("markdown_tasks")
 
