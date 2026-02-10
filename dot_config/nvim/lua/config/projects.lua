@@ -128,3 +128,39 @@ vim.api.nvim_create_autocmd("BufNewFile", {
     end
   end,
 })
+
+local function show_related_tasks()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local filename_without_ext = vim.fn.expand("%:t:r")
+  local vault_path = vim.fn.getcwd()
+
+  local ns_id = vim.api.nvim_create_namespace("RelatedTasks")
+  vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
+
+  local cmd = string.format("rg --vimgrep -- \"- \\[ \\].*\\[\\[(.*/)?%s(#.*)?(|.*)?\\]\\]\" %s", filename_without_ext,
+    vault_path)
+  local handle = io.popen(cmd)
+  if handle == nil then
+    vim.notify('Failed to run rg for related-task detection', vim.log.levels.ERROR)
+    return
+  end
+  local result = handle:read("*a")
+  handle:close()
+
+  local lines = {}
+  for line in result:gmatch("[^\r\n]+") do
+    table.insert(lines, { { "󱞎 Related: " .. line, "Comment" } })
+  end
+
+  if #lines > 0 then
+    vim.api.nvim_buf_set_extmark(bufnr, ns_id, 1, 0, {
+      virt_lines = lines,
+      virt_lines_above = true,
+    })
+  end
+end
+
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {
+  pattern = "*.md",
+  callback = show_related_tasks,
+})
