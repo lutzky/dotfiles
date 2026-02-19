@@ -137,7 +137,7 @@ local function show_related_tasks()
   local ns_id = vim.api.nvim_create_namespace("RelatedTasks")
   vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
 
-  local cmd = string.format("rg --vimgrep -- \"- \\[ \\].*\\[\\[(.*/)?%s(#.*)?(|.*)?\\]\\]\" %s", filename_without_ext,
+  local cmd = string.format("rg --vimgrep -- \"- \\[ \\].*\\[\\[(.*/)?%s(#.*)?(\\|.*)?\\]\\]\" %s", filename_without_ext,
     vault_path)
   local handle = io.popen(cmd)
   if handle == nil then
