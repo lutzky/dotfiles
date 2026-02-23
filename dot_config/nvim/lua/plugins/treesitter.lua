@@ -14,6 +14,9 @@ return {
         "vim",
         "vimdoc",
       } or {},
+      highlight = {
+        enable = true,
+      }
     }
   end
 }
