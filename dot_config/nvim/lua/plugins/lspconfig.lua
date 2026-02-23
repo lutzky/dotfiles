@@ -39,11 +39,21 @@ return {
   ft = lsp_enabled_filetypes,
 
   config = function()
-    vim.lsp.config.markdown_oxide = {
+    local moxide_local_development_copy = vim.fn.expand(
+      "~/src/markdown-oxide/target/debug/markdown-oxide"
+    )
+
+    local moxide_cfg = {
       -- Override the *order* of these, as we'll sometimes have the root in a
       -- subdirectory of a git repo.
       root_markers = { ".moxide.toml", ".obsidian", ".git" }
     }
+
+    if vim.uv.fs_stat(moxide_local_development_copy) then
+      moxide_cfg.cmd = { moxide_local_development_copy }
+    end
+
+    vim.lsp.config.markdown_oxide = moxide_cfg
 
     -- These are needed for non-mason binaries, or binaries that we sometimes
     -- might install outside of mason.
