@@ -5,6 +5,7 @@ return {
       cpp = { "clang-format" },
       fish = { "fish_indent" },
       rust = { "rustfmt", lsp_format = "fallback" },
+      typst = { "typstyle" },
       vue = { "prettier" },
     },
     format_on_save = {

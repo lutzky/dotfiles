@@ -6,6 +6,7 @@ lsp_enabled_filetypes = {
   'python',
   'rust',
   'typescript',
+  'typst',
   'vue',
 }
 
