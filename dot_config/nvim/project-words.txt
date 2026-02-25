@@ -11,3 +11,4 @@ cabbrev
 Neogit
 gitsigns
 Keymaps
+moxide
