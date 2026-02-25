@@ -58,7 +58,8 @@ def get_priority_display(priority):
 def print_project(p, show_snooze=False):
     if show_snooze:
         print(f"😴{p['snooze']} ", end="")
-    print(f"{p['priority_display']} {p['icon']}{p['link']} {p['tags']}")
+    parts = [p['priority_display'],p['link'],p['icon'],p['tags']]
+    print(" " .join([part for part in parts if part]))
 
 
 def main():
