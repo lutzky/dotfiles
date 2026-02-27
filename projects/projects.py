@@ -59,7 +59,7 @@ def print_project(p, show_snooze=False):
     if show_snooze:
         print(f"😴{p['snooze']} ", end="")
     parts = [p['priority_display'],p['link'],p['icon'],p['tags']]
-    print(" " .join([part for part in parts if part]))
+    print(" " .join([part.strip() for part in parts if part]))
 
 
 def main():
