@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 
+import io
 import os
 import subprocess
 import sys
 import yaml
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
-VALID_STATUSES = [
-    "Active",
-    "Done",
-    "Decided no",
-    "Ready",
-]
+
+@dataclass
+class Project:
+    link: str
+    icon: str
+    tags: str
+    priority_raw: str
+    priority_display: str
+    snooze: Optional[datetime] = None
+    status: str = ""
+    hide_if_snoozed: bool = False
+
+
+VALID_STATUSES = frozenset(["Active", "Done", "Decided no", "Ready"])
 
 SNOOZED_LIMIT = 10
 
@@ -32,47 +43,31 @@ def get_inbox_notes():
     return result
 
 
-def parse_metadata(filepath):
+def parse_metadata(filepath: str) -> dict:
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             lines = []
             first_line = f.readline()
             if first_line[:3] != "---":
-                return None
+                return {}
 
             for line in f:
                 if line[:3] == "---":
-                    return yaml.safe_load("".join(lines))
+                    return yaml.safe_load(io.StringIO("".join(lines))) or {}
                 lines.append(line)
 
             return {}
     except Exception:
-        return None
+        return {}
 
 
-def get_priority_display(priority):
+def get_priority_display(priority: str) -> str:
     mapping = {"P0": "🟥P0", "P1": "🟨P1", "P2": "🟩P2"}
     return mapping.get(priority.upper(), f"⬜{priority.upper()}")
 
 
-def print_project(p, show_snooze=False):
-    if show_snooze:
-        print(f"😴{p['snooze']} ", end="")
-    parts = [p['priority_display'],p['link'],p['icon'],p['tags']]
-    print(" " .join([part.strip() for part in parts if part]))
-
-
-def main():
-    if not os.path.exists("index.md"):
-        print("index.md not found, this is probably not a project dir")
-        sys.exit(1)
-
-    today = datetime.now().strftime("%Y-%m-%d")
-    projects = []
-    snoozed_projects = []
-    ready_projects = []
-    invalid_statuses = []
-
+def load_projects() -> list[Project]:
+    projects: list[Project] = []
     for root, _, files in os.walk("Projects"):
         for filename in files:
             if not filename.endswith(".md"):
@@ -80,71 +75,65 @@ def main():
             filepath = os.path.join(root, filename)
             meta = parse_metadata(filepath)
 
-            if not meta:
-                continue
-
             page_name = os.path.join(root, os.path.splitext(filename)[0])
             page_link = f"[[{page_name}]]"
-            status = meta.get("status", "")
-            snooze: datetime = meta.get("snooze_until")  # type: ignore
-            is_snoozed = snooze and snooze.strftime("%Y-%m-%d") > today
-            hide_if_snoozed = meta.get("hide_if_snoozed", False)
-            priority = meta.get("priority", "P9")
-            page_icon = meta.get("pageDecoration.prefix", "")
-            page_tags = " ".join(f"#{t}" for t in meta.get("tags", []) or [])
+            status: str = meta.get("status", "")
+            snooze: Optional[datetime] = meta.get("snooze_until")
+            hide_if_snoozed: bool = meta.get("hide_if_snoozed", False)
+            priority: str = meta.get("priority", "P9")
+            page_icon: str = meta.get("pageDecoration.prefix", "")
+            page_tags: str = " ".join(f"#{t}" for t in meta.get("tags", []) or [])
 
-            if hide_if_snoozed and status != "Active":
-                print(f"⚠️ WARNING: {page_link} has useless hide_if_snoozed")
+            priority_raw = priority.upper()
+            projects.append(
+                Project(
+                    link=page_link,
+                    icon=page_icon,
+                    tags=page_tags,
+                    priority_raw=priority_raw,
+                    priority_display=get_priority_display(priority),
+                    snooze=snooze,
+                    status=status,
+                    hide_if_snoozed=hide_if_snoozed,
+                )
+            )
+    return projects
 
-            if status == "Active" and not is_snoozed:
-                projects.append(
-                    {
-                        "link": page_link,
-                        "icon": page_icon,
-                        "tags": page_tags,
-                        "priority_raw": priority.upper(),
-                        "priority_display": get_priority_display(priority),
-                    }
-                )
-            elif status == "Active" and not hide_if_snoozed:
-                snoozed_projects.append(
-                    {
-                        "snooze": snooze,
-                        "link": page_link,
-                        "tags": page_tags,
-                        "icon": page_icon,
-                        "priority_raw": priority.upper(),
-                        "priority_display": get_priority_display(priority),
-                    }
-                )
-            elif status == "Ready":
-                ready_projects.append(
-                    {
-                        "link": page_link,
-                        "icon": page_icon,
-                        "tags": page_tags,
-                        "priority_raw": priority.upper(),
-                        "priority_display": get_priority_display(priority),
-                    }
-                )
-            elif status not in VALID_STATUSES:
-                invalid_statuses.append(
-                    {
-                        "link": page_link,
-                        "status": status,
-                    }
-                )
 
-    # Sort P0 -> P1 -> P2 -> Others
-    projects.sort(key=lambda x: x["priority_raw"])
-    ready_projects.sort(key=lambda x: x["priority_raw"])
-    snoozed_projects.sort(key=lambda x: (x["snooze"], x["priority_raw"]))
+def print_project(p: Project, show_snooze: bool = False) -> None:
+    if show_snooze and p.snooze:
+        print(f"😴{p.snooze} ", end="")
+    parts = [p.priority_display, p.link, p.icon, p.tags]
+    print(" ".join([part.strip() for part in parts if part]))
 
-    if invalid_statuses:
+
+def main() -> None:
+    if not os.path.exists("index.md"):
+        print("index.md not found, this is probably not a project dir")
+        sys.exit(1)
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    all_projects = load_projects()
+
+    valid_projects = [p for p in all_projects if p.status in VALID_STATUSES]
+
+    def is_snoozed(p: Project) -> bool:
+        return bool(p.snooze and p.snooze.strftime("%Y-%m-%d") > today)
+
+    invalid_status_pages = [p for p in all_projects if p.status not in VALID_STATUSES]
+    useless_hide_if_snoozed = [p for p in all_projects if p.hide_if_snoozed and p.status != "Active"]
+
+    if invalid_status_pages:
         print("# Invalid status pages")
         print("Status is not one of", VALID_STATUSES)
-        for page in invalid_statuses:
-            print(page["link"], page["status"])
+        for p in invalid_status_pages:
+            print(p.link, p.status)
+
+    if useless_hide_if_snoozed:
+        print("# Useless hide_if_snoozed")
+        print("hide_if_snoozed is only useful when status is Active")
+        for p in useless_hide_if_snoozed:
+            print(p.link, p.status)
 
     inbox_notes = get_inbox_notes()
     if inbox_notes:
@@ -170,23 +159,35 @@ def main():
 
     print()
 
-    print(f"# Active ({len(projects)})")
-    for p in projects:
+    active = sorted(
+        [p for p in valid_projects if p.status == "Active" and not is_snoozed(p)],
+        key=lambda x: x.priority_raw,
+    )
+    print(f"# Active ({len(active)})")
+    for p in active:
         print_project(p)
 
-    print(f"\n# Snoozed ({len(snoozed_projects)})")
-    for p in snoozed_projects[:SNOOZED_LIMIT]:
+    snoozed = sorted(
+        [p for p in valid_projects if p.status == "Active" and is_snoozed(p) and not p.hide_if_snoozed],
+        key=lambda x: (x.snooze, x.priority_raw),
+    )
+    print(f"\n# Snoozed ({len(snoozed)})")
+    for p in snoozed[:SNOOZED_LIMIT]:
         print_project(p, show_snooze=True)
-    if len(snoozed_projects) > SNOOZED_LIMIT:
+    if len(snoozed) > SNOOZED_LIMIT:
         print("...see more below")
 
-    print(f"\n# Ready ({len(ready_projects)})")
-    for p in ready_projects:
+    ready = sorted(
+        [p for p in valid_projects if p.status == "Ready"],
+        key=lambda x: x.priority_raw,
+    )
+    print(f"\n# Ready ({len(ready)})")
+    for p in ready:
         print_project(p)
 
-    if len(snoozed_projects) > SNOOZED_LIMIT:
-        print(f"\n# More Snoozed ({SNOOZED_LIMIT}..{len(snoozed_projects)})")
-        for p in snoozed_projects[SNOOZED_LIMIT:]:
+    if len(snoozed) > SNOOZED_LIMIT:
+        print(f"\n# More Snoozed ({SNOOZED_LIMIT}..{len(snoozed)})")
+        for p in snoozed[SNOOZED_LIMIT:]:
             print_project(p, show_snooze=True)
 
     print("\nConsider grepping for `hide_if_snoozed`, `Decided no`.")
