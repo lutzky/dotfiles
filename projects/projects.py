@@ -57,8 +57,8 @@ def parse_metadata(filepath: str) -> dict:
                 lines.append(line)
 
             return {}
-    except Exception:
-        return {}
+    except Exception as e:
+        return {"status": str(e)}
 
 
 def get_priority_display(priority: str) -> str:
@@ -127,7 +127,7 @@ def main() -> None:
         print("# Invalid status pages")
         print("Status is not one of", VALID_STATUSES)
         for p in invalid_status_pages:
-            print(p.link, p.status)
+            print(f"{p.link} ({p.status!r})")
 
     if useless_hide_if_snoozed:
         print("# Useless hide_if_snoozed")
