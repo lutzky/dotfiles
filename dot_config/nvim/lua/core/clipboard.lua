@@ -1,4 +1,5 @@
-vim.opt.clipboard = "unnamedplus"
+-- Avoid using the system clipboard by default, as you tend to clobber it by deleting something right before you paste something else.
+-- vim.opt.clipboard = "unnamedplus"
 
 local function paste()
   return {
