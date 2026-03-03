@@ -1,10 +1,3 @@
-function _G.gitsigns_status()
-  -- For lightline
-  local dict = vim.b.gitsigns_status_dict
-  if not dict or dict.head == "" then return "" end
-  return " " .. dict.head
-end
-
 return {
   {
     "dag/vim-fish",
@@ -28,16 +21,10 @@ return {
   "tpope/vim-sleuth",
 
   {
-    "itchyny/lightline.vim",
-    config = function()
-      vim.g.lightline = {
-        active = {
-          left = { { "mode", "paste" }, { "git", "readonly", "absolutepath", "modified" } },
-        },
-        colorscheme = "jellybeans",
-        component_function = { git = "v:lua.gitsigns_status" },
-      }
-    end,
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+    },
   },
 
   {
