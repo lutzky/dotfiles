@@ -32,8 +32,19 @@ local function append_guess()
   vim.system({ guess_binary, "--file=" .. journal_file }, { stdin = input }, function(obj)
     vim.schedule(function()
       if obj.code == 0 then
-        local output = vim.split(obj.stdout, "\n", { trimempty = true })
-        vim.api.nvim_buf_set_lines(buf, row, row, false, output)
+        local guess_output = vim.split(obj.stdout, "\n", { trimempty = true })
+
+        -- Seek an empty line within the next 10 lines to try and append it to the block;
+        -- otherwise, put it right under the current line.
+        local lines = vim.api.nvim_buf_get_lines(buf, row - 1, row + 10, false)
+        local insert_row = row
+        for i, line in ipairs(lines) do
+          if line == "" then
+            insert_row = row - 2 + i
+            break
+          end
+        end
+        vim.api.nvim_buf_set_lines(buf, insert_row, insert_row, false, guess_output)
       else
         print("Error: " .. obj.stderr)
       end
