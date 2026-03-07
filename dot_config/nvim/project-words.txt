@@ -12,3 +12,4 @@ Neogit
 gitsigns
 Keymaps
 moxide
+bufnr
