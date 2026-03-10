@@ -153,7 +153,8 @@ def main() -> None:
         for line in next_lines[:10]:
             filename, rest = line.strip().split(":", 1)
             link = f"[[{os.path.splitext(filename)[0]}]]"
-            print(link, rest)
+            rest = rest.lstrip().removeprefix("- [ ]").replace("#next", "").strip()
+            print(f"- [ ] {link}: {rest}")
         if len(next_lines) > 10:
             print("...more...")
 
