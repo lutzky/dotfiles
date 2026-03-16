@@ -25,8 +25,10 @@ elseif vim.fn.has("nvim-0.10") == 1 then
   vim.g.clipboard = {
     name = 'OSC 52',
     copy = {
+      -- NOTE: We only copy into '+', because kitty-on-Mac seems to ignore the
+      -- "*" register. And we're not differentiating the two in tmux anyway.
       ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('+'),
     },
     paste = {
       ['+'] = paste,
