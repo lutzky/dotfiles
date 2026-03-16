@@ -9,10 +9,14 @@ local function toggle_visual_wrap()
   if vim.g.visual_wrap_mode then
     vim.keymap.set('n', 'j', 'gj', { noremap = true, silent = true })
     vim.keymap.set('n', 'k', 'gk', { noremap = true, silent = true })
+    vim.keymap.set('v', 'j', 'gj', { noremap = true, silent = true })
+    vim.keymap.set('v', 'k', 'gk', { noremap = true, silent = true })
     print("Visual wrap movement (gj/gk)")
   else
     vim.keymap.del('n', 'j')
     vim.keymap.del('n', 'k')
+    vim.keymap.del('v', 'j')
+    vim.keymap.del('v', 'k')
     print("Standard movement (j/k)")
   end
 end
