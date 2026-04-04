@@ -78,18 +78,41 @@ return {
       vim.keymap.set('n', '<leader>bg', append_guess,
         { desc = "Budget: Guess account" })
 
-      vim.lsp.config('beancount', {
-        -- cmd = {
-        --   "beancount-language-server",
-        --   "--stdio",
-        --   -- "--log",
-        -- },
-        init_options = {
-          -- journal_file = vim.fn.expand(os.getenv("BEANCOUNT_FILE") or "~/budget/main.bean"),
-          journal_file = "main.bean", -- Seems to work relative to .git
-        }
-      })
-      vim.lsp.enable('beancount')
+      if not os.getenv("NVIM_RLEDGER") then
+        vim.lsp.config('beancount', {
+          -- cmd = {
+          --   "beancount-language-server",
+          --   "--stdio",
+          --   -- "--log",
+          -- },
+          init_options = {
+            -- journal_file = vim.fn.expand(os.getenv("BEANCOUNT_FILE") or "~/budget/main.bean"),
+            journal_file = "main.bean", -- Seems to work relative to .git
+          }
+        })
+        vim.lsp.enable('beancount')
+      else
+        vim.lsp.enable('beancount', false)
+        -- Add to your Neovim config
+        local lspconfig = require('lspconfig')
+        local configs = require('lspconfig.configs')
+
+        -- cSpell: word rledger
+
+        -- Register rledger-lsp if not already defined
+        if not configs.rledger then
+          configs.rledger = {
+            default_config = {
+              cmd = { 'rledger-lsp' },
+              filetypes = { 'beancount' },
+              root_dir = lspconfig.util.root_pattern('.git', '*.beancount', '*.bean'),
+              settings = {},
+            },
+          }
+        end
+
+        lspconfig.rledger.setup {}
+      end
     end
   },
 }
