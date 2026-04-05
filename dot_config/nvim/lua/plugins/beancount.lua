@@ -72,6 +72,7 @@ return {
         pattern = 'beancount',
         callback = function()
           check_beancount_deps()
+          vim.opt_local.foldmethod = "manual"
         end,
       })
 
