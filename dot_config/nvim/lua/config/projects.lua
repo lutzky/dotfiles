@@ -165,6 +165,50 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {
   callback = show_related_tasks,
 })
 
+vim.api.nvim_create_user_command('Snooze', function()
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  if vim.bo[bufnr].filetype ~= 'markdown' then
+    vim.notify('Snooze only works in markdown files', vim.log.levels.ERROR)
+    return
+  end
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 100, false)
+  local preamble_start, preamble_end = nil, nil
+
+  for i, line in ipairs(lines) do
+    if not preamble_start and line:match('^%-%-%-%s*$') then
+      preamble_start = i
+    elseif preamble_start and line:match('^%-%-%-%s*$') then
+      preamble_end = i
+      break
+    end
+  end
+
+  if not preamble_start or not preamble_end then
+    vim.notify('No YAML preamble found', vim.log.levels.ERROR)
+    return
+  end
+
+  local target_line_idx = nil
+  for i = preamble_start + 1, preamble_end - 1 do
+    if lines[i]:match('^snooze_until:') then
+      target_line_idx = i
+      break
+    end
+  end
+
+  if target_line_idx then
+    vim.api.nvim_buf_set_lines(bufnr, target_line_idx - 1, target_line_idx, false, { 'snooze_until: ' })
+  else
+    target_line_idx = preamble_end
+    vim.api.nvim_buf_set_lines(bufnr, target_line_idx - 1, target_line_idx - 1, false, { 'snooze_until: ' })
+  end
+
+  vim.api.nvim_win_set_cursor(0, { target_line_idx, 14 })
+  vim.cmd('DatePicker')
+end, {})
+
 -- cSpell: word virt augroup systemlist buftype nofile bufhidden swapfile
 -- cSpell: word bwipeout lnum silverbullet fnameescape filereadable getcwd
 -- cSpell: word extmark vimgrep bufadd autocmds isfname suffixesadd
