@@ -164,3 +164,7 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {
   pattern = "*.md",
   callback = show_related_tasks,
 })
+
+-- cSpell: word virt augroup systemlist buftype nofile bufhidden swapfile
+-- cSpell: word bwipeout lnum silverbullet fnameescape filereadable getcwd
+-- cSpell: word extmark vimgrep bufadd autocmds isfname suffixesadd
