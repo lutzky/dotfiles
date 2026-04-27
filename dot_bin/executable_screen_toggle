@@ -17,10 +17,11 @@ fi
 
 current=$(ddcutil getvcp 0x60 -t | awk '{print $4}')
 
-if [[ $current == x11 ]]; then
-	target=0x1b
-else
-	target=0x11
+if [[ $current == x10 ]]; then
+	target=0x0f
+elif [[ $current == x0f ]]; then
+	target=0x10
+	loginctl lock-session
 fi
 
 exec ddcutil setvcp 0x60 $target
