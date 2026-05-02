@@ -89,6 +89,8 @@ input "type:keyboard" {
     # Start your launcher
     bindsym $mod+d exec $menu
 
+    bindsym Ctrl+$mod+space exec /home/ohad/.bin/bemoji -n
+
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
     # Despite the name, also works for non-floating windows.
