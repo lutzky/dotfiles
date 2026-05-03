@@ -98,7 +98,7 @@
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
-            "activated": " ",
+            "activated": "󰅶 ",
             "deactivated": "󰾪 "
         }
     },
@@ -113,11 +113,11 @@
         // "format-alt": "{:%Y-%m-%d %H:%M:%S}"
     },
     "cpu": {
-        "format": "{usage}% ",
+        "format": "CPU {usage}%",
         // "tooltip": false
     },
     "memory": {
-        "format": "{}% "
+        "format": "RAM {}%"
     },
     "temperature": {
         // "thermal-zone": 2,
@@ -164,8 +164,9 @@
     "network": {
         // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "{essid} ({signalStrength}%) ",
-        "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{ifname} via {gwaddr} ",
+        /* NOTE: {ipaddr} always shows ipv6 due to https://github.com/Alexays/Waybar/issues/3956 */
+        "format-ethernet": "{ipaddr}/{cidr} 󰈁",
+        "tooltip-format": "{ifname} via {gwaddr} 󰈁",
         "format-linked": "{ifname} (No IP) ",
         "format-disconnected": "Disconnected ⚠",
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
