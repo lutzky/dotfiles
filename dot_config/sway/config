@@ -14,7 +14,7 @@ set $down j
 set $up k
 set $right l
 # Your preferred terminal emulator
-set $term /home/ohad/.local/bin/kitty
+set $term ~/.local/bin/kitty
 # Your preferred application launcher
 set $menu bemenu-run -l 20 -b
 
@@ -27,6 +27,9 @@ include /etc/sway/config-vars.d/*
 # package `sway-backgrounds`. Installing this package drops a config file to
 # /etc/sway/config.d/
 # output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+
+output * bg ~/.wallpaper fill
+
 #
 # Example configuration:
 #
@@ -39,10 +42,11 @@ include /etc/sway/config-vars.d/*
 # Example configuration:
 #
 exec swayidle -w \
-         timeout 300 'swaylock -f -c 000000' \
+         timeout 300 'swaylock -f' \
          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-         before-sleep 'swaylock -f -c 000000'
-bindsym $mod+q exec swaylock -f -c 000000
+         before-sleep 'swaylock -f'
+# bindsym $mod+q exec swaylock -f -c 000000 -i $wallpaper
+bindsym $mod+q exec swaylock -f
 
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off
@@ -89,7 +93,7 @@ input "type:keyboard" {
     # Start your launcher
     bindsym $mod+d exec $menu
 
-    bindsym Ctrl+$mod+space exec /home/ohad/.bin/bemoji -n
+    bindsym Ctrl+$mod+space exec ~/.bin/bemoji -n
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
