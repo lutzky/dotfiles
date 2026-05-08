@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Source wallpaper path: {{ .chezmoi.homeDir }}/.wallpaper
+# This script will run whenever the source wallpaper changes.
+# Wallpaper hash: {{ include (joinPath .chezmoi.homeDir ".wallpaper") | sha256sum }}
+
+SOURCE="{{ .chezmoi.homeDir }}/.wallpaper"
+TARGET="{{ .chezmoi.homeDir }}/.wallpaper_locked"
+
+if command -v magick >/dev/null; then
+    echo "Generating locked wallpaper variant..."
+    
+    # Process the image:
+    # 1. Darken it (-brightness-contrast)
+    # 2. Add 'LOCKED' text or a lock emoji in the center
+    magick "$SOURCE" \
+        -brightness-contrast -10x0 \
+        -blur 0x20 \
+        "$TARGET"
+else
+    echo "Error: ImageMagick (magick) not found. Cannot generate locked wallpaper."
+fi
