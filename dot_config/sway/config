@@ -47,6 +47,7 @@ exec swayidle -w \
          before-sleep 'swaylock -f'
 # bindsym $mod+q exec swaylock -f -c 000000 -i $wallpaper
 bindsym $mod+q exec swaylock -f
+bindsym $mod+period exec ~/.bin/screen_toggle ; swaylock -f
 
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off
@@ -222,16 +223,31 @@ bindsym $mod+r mode "resize"
 #
 # Utilities:
 #
-    # Special keys to adjust volume via PulseAudio
-    bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
-    bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
-    bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
-    bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
-    # Special keys to adjust brightness via brightnessctl
-    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
-    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
-    # Special key to take a screenshot with grim
-    bindsym Print exec grim
+    # # Special keys to adjust volume via PulseAudio
+    # bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
+    # bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
+    # bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
+    # bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+    # # Special keys to adjust brightness via brightnessctl
+    # bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+    # bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+
+exec swayosd-server
+bindsym XF86AudioRaiseVolume exec swayosd-client --output-volume raise --max-volume 120
+bindsym XF86AudioLowerVolume exec  swayosd-client --output-volume lower --max-volume 120
+# Sink volume toggle mute
+bindsym XF86AudioMute exec swayosd-client --output-volume mute-toggle
+# Source volume toggle mute
+bindsym XF86AudioMicMute exec swayosd-client --input-volume mute-toggle
+
+# Brightness raise (optionally with --device, can be device name or wildcard)
+bindsym XF86MonBrightnessUp exec swayosd-client --brightness raise
+# Brightness lower (optionally with --device, can be device name or wildcard)
+bindsym XF86MonBrightnessDown exec swayosd-client --brightness lower
+
+
+    bindsym Print exec grim -g "$(slurp -d)" - | wl-copy && swayosd-client --custom-message="Screenshot copied"
+
 
 #
 # Status Bar:
