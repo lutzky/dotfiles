@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Shim for swayosd-server; see https://github.com/ErikReider/SwayOSD/issues/87
+#
+# Create a symlink to this somewhere in the path that swayosd-server sees (might not be ~/.bin)
+
+# Configuration: Set your monitor bus if you have multiple
+# Leave empty to let ddcutil auto-detect (slower)
+BUS_ARG="-b 10"
+DDC_ARGS="--skip-ddc-checks"
+
+case "$1" in
+    get)
+        # Extracts the current value from string: "VCP code 0x10 (Brightness): current value = 50, max value = 100"
+        ddcutil $DDC_ARGS $BUS_ARG getvcp 10 -t | cut -d' ' -f4
+        ;;
+    set)
+        # Strip '%' or '+' or '-' and just get the number
+        VALUE=$(echo "$2" | tr -dc '0-9')
+        ddcutil $DDC_ARGS $BUS_ARG setvcp 10 "$VALUE"
+        ;;
+    info|max)
+        echo "100"
+        ;;
+    *)
+        echo "Shim: Command '$1' not implemented"
+        ;;
+esac
