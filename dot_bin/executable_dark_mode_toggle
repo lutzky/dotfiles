@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+current_scheme="$(gsettings get org.gnome.desktop.interface color-scheme)"
+
+if [[ $current_scheme == "'prefer-dark'" ]]; then
+  new_scheme='prefer-light'
+else
+  new_scheme='prefer-dark'
+fi
+
+echo "Setting color scheme to ${new_scheme}"
+
+exec gsettings set org.gnome.desktop.interface color-scheme $new_scheme
