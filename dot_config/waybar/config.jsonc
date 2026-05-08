@@ -113,7 +113,8 @@
         // "format-alt": "{:%Y-%m-%d %H:%M:%S}"
     },
     "cpu": {
-        "format": "CPU {usage}%",
+        "format": "{icon} CPU {usage}% (LD: {load})",
+        "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
         // "tooltip": false
     },
     "memory": {
