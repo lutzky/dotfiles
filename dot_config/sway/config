@@ -108,6 +108,10 @@ input "type:keyboard" {
 
     bindsym $mod+Shift+d exec ~/.bin/dark_mode_toggle
 
+    # "Palette" (help for shortcuts) - note, doesn't support modes
+    bindsym $mod+Shift+p exec swaymsg -p -t get_config | grep '^\s*bindsym' | sed 's/^\s*bindsym\s*//' | sort | bemenu -i -l 20 -p "Shortcuts:"
+
+
     # Exit sway (logs you out of your Wayland session)
     bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 #
