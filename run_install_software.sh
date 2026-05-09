@@ -109,3 +109,22 @@ if [[ -n "$apt_packages_to_install" ]]; then
   echo "Missing apt packages:"
   echo "sudo apt install ${apt_packages_to_install# }"
 fi
+
+apt_packages_to_install=
+
+if is_in_path sway; then
+  check_apt mako-notifier
+  check_apt wl-clipboard
+  check_apt swayidle
+  check_apt fcitx5-mozc
+  check_apt swayosd
+  check_apt grim
+  check_apt slurp
+  check_apt wlsunset
+  # Note: We don't actually use brightnessctl; see dot_bin/brightnessctl
+fi
+
+if [[ -n "$apt_packages_to_install" ]]; then
+  echo "Missing apt packages for use with sway (which is installed):"
+  echo "sudo apt install ${apt_packages_to_install# }"
+fi
