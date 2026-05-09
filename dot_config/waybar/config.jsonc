@@ -114,11 +114,13 @@
     },
     "cpu": {
         "format": "{icon} CPU {usage}% (LD: {load})",
-        "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+        "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+        "on-click": "~/.local/bin/kitty btop"
         // "tooltip": false
     },
     "memory": {
-        "format": "RAM {}%"
+        "format": "RAM {}%",
+        "on-click": "~/.local/bin/kitty btop"
     },
     "temperature": {
         // "thermal-zone": 2,
