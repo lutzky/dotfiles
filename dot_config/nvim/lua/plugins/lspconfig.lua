@@ -80,6 +80,7 @@ return {
   dependencies = {
     {
       "folke/lazydev.nvim",
+      "saghen/blink.cmp",
       ft = "lua",
       opts = {
         library = {
@@ -92,15 +93,28 @@ return {
   ft = lsp_enabled_filetypes,
 
   config = function()
-    local moxide_cfg = {
+    lua_ls_config()
+    -- local capabilities = vim.lsp.protocol.make_client_capabilities()
+    local capabilities = require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+
+    vim.lsp.config('markdown_oxide', {
       -- Override the *order* of these, as we'll sometimes have the root in a
       -- subdirectory of a git repo.
-      root_markers = { ".moxide.toml", ".obsidian", ".git" }
-    }
+      root_markers = { ".moxide.toml", ".obsidian", ".git" },
 
-    lua_ls_config()
-
-    vim.lsp.config.markdown_oxide = moxide_cfg
+      capabilities = vim.tbl_deep_extend(
+        'force',
+        capabilities,
+        {
+          workspace = {
+            didChangeWatchedFiles = {
+              dynamicRegistration = true,
+            },
+          },
+        }
+      ),
+    })
 
     -- These are needed for non-mason binaries, or binaries that we sometimes
     -- might install outside of mason.
