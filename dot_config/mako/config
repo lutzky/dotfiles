@@ -1,6 +1,28 @@
 font=sans-serif 10
 layer=overlay
 
+background-color=#20445f
+border-color=#30668f
+border-size=2
+
+[urgency=low]
+background-color=#3f515e
+border-color=#607a90
+default-timeout=10000
+
+[urgency=critical]
+background-color=#b00000
+border-color=#8b0000
+default-timeout=0
+
+[app-name=kitty]
+default-timeout=5000
+background-color=#3f515e
+border-color=#607a90
+anchor=bottom-right
+icons=0
+format=<b> %s</b>\n%b
+
 [app-name=osd]
 anchor=bottom-center
 width=200
