@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Configuration
+STEP=5
+MAX_VOL=120
+APP_NAME="osd"
+SYNC_ID="string:x-canonical-private-synchronous:osd"
+
+case $1 in
+    up)
+        wpctl set-volume -l 1.2 @DEFAULT_AUDIO_SINK@ ${STEP}%+
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+        ;;
+    down)
+        wpctl set-volume @DEFAULT_AUDIO_SINK@ ${STEP}%-
+        ;;
+    mute)
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+        ;;
+    mic-mute)
+        # The Wireplumber equivalent of set-source-mute
+        wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+        ;;
+esac
+
+# --- Logic for Notifications ---
+
+if [ "$1" == "mic-mute" ]; then
+    # Handle Microphone Notification
+    MIC_STATUS=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -o "MUTED")
+    if [ "$MIC_STATUS" == "MUTED" ]; then
+        notify-send -a "$APP_NAME" -h "$SYNC_ID" -u critical "🎙️ Mic Muted"
+    else
+        notify-send -a "$APP_NAME" -h "$SYNC_ID" "🎙️ Mic Active"
+    fi
+else
+    # Handle Speaker Notification (as before)
+    CUR_INFO=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+    NEW_VOL=$(echo "$CUR_INFO" | awk '{print $2 * 100}' | cut -d. -f1)
+    IS_MUTED=$(echo "$CUR_INFO" | grep -o "MUTED")
+
+    if [ "$IS_MUTED" == "MUTED" ]; then
+        ICON="🔇"
+        MSG="Muted"
+    else
+        if [ "$NEW_VOL" -le 0 ]; then ICON="🔈";
+        elif [ "$NEW_VOL" -le 30 ]; then ICON="🔈";
+        elif [ "$NEW_VOL" -le 70 ]; then ICON="🔉";
+        else ICON="🔊"; fi
+        MSG="Volume: ${NEW_VOL}%"
+    fi
+    notify-send -a "$APP_NAME" -h "$SYNC_ID" -h int:value:"$NEW_VOL" "$ICON $MSG"
+fi

@@ -1,34 +1,50 @@
 #!/bin/bash
 
-set -e
+# Configuration
+BUS_ARG="-b 10"
+DDC_ARGS="--skip-ddc-checks"
+# Apparently specifying --noverify conflicts with the rest of the arguments,
+# possibly related to https://github.com/rockowitz/ddcutil/issues/552
+# DDC_ARGS="$DDC_ARGS --noverify"
+APP_NAME="osd"
+SYNC_ID="string:x-canonical-private-synchronous:osd"
+LOCKFILE="/tmp/brightness_osd.lock"
 
-call_ddcutil() {
-    flock -n /tmp/brightness_script.lock ddcutil \
-        --sleep-multiplier .1 \
-        --async \
-        --bus 1 \
-        "$@"
+# Ensure no more than one instance of this script is live
+exec 200>$LOCKFILE
+flock -n 200 || exit 1
+
+get_brightness() {
+    ddcutil $DDC_ARGS $BUS_ARG getvcp 10 -t | cut -d' ' -f4
 }
 
-if [[ -n "$1" ]]; then
-    call_ddcutil setvcp 10 -- "$@"
-else
-    call_ddcutil getvcp 10
-fi
+send_notification() {
+    local val=$1
+    local icon="☀️"
+    
+    if [ "$val" -le 30 ]; then icon="🌑";
+    elif [ "$val" -le 70 ]; then icon="🌥️";
+    else icon="☀️"; fi
 
-current_brightness="$(call_ddcutil -t getvcp 10 | cut -d' ' -f4)"
-[[ -z $current_brightness ]] && exit
+    notify-send -a "$APP_NAME" -h "$SYNC_ID" -h int:value:"$val" "$icon Brightness: ${val}%"
+}
 
-notification_id=
-if [[ -e /tmp/brightness_script.notification-id ]]; then
-    notification_id=$(cat /tmp/brightness_script.notification-id)
-fi
-if [[ -z $notification_id ]]; then
-    notification_id=0
-fi
+CURRENT=$(get_brightness)
 
-new_id=$(notify-send -p -i display-brightness "Brightness: $current_brightness" ${notification_id:+-r $notification_id})
-
-if [[ $new_id -ne $notification_id ]]; then
-    flock /tmp/brightness_script.lock -c "echo $new_id > /tmp/brightness_script.notification-id"
-fi
+case "$1" in
+    raise)
+        NEW_VAL=$(( CURRENT + 5 ))
+        [ $NEW_VAL -gt 100 ] && NEW_VAL=100
+        ddcutil $DDC_ARGS $BUS_ARG setvcp 10 $NEW_VAL
+        send_notification $NEW_VAL
+        ;;
+    lower)
+        NEW_VAL=$(( CURRENT - 5 ))
+        [ $NEW_VAL -lt 0 ] && NEW_VAL=0
+        ddcutil $DDC_ARGS $BUS_ARG setvcp 10 $NEW_VAL
+        send_notification $NEW_VAL
+        ;;
+    *)
+        echo "Usage: $0 {raise|lower}"
+        ;;
+esac

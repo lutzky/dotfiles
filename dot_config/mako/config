@@ -1,2 +1,10 @@
 font=sans-serif 10
 layer=overlay
+
+[app-name=osd]
+anchor=bottom-center
+width=200
+height=60
+default-timeout=2000
+ignore-timeout=1
+group-by=app-name
