@@ -4,16 +4,19 @@ layer=overlay
 background-color=#20445f
 border-color=#30668f
 border-size=2
+on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/message.oga
 
 [urgency=low]
 background-color=#3f515e
 border-color=#607a90
 default-timeout=10000
+on-notify=none
 
 [urgency=critical]
 background-color=#b00000
 border-color=#8b0000
 default-timeout=0
+on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/dialog-error.oga
 
 [app-name=kitty]
 default-timeout=5000
@@ -30,3 +33,4 @@ height=60
 default-timeout=2000
 ignore-timeout=1
 group-by=app-name
+on-notify=none
