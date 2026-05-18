@@ -1,7 +1,13 @@
 function fish_greeting
+    set -l today (date '+%Y-%m-%d')
+    if not set -q _motd_last_run; or test "$_motd_last_run" != "$today"
+        motd
+        set -U _motd_last_run "$today"
+    end
+
     if type -q tmux && [ -z $TMUX ]
         echo "Active tmux sessions: (remember t, C-a w)"
-        if tmux has-session > /dev/null 2>&1
+        if tmux has-session >/dev/null 2>&1
             tmux ls
         else
             echo "(none)"
