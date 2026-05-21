@@ -104,7 +104,12 @@ def print_project(p: Project, show_snooze: bool = False) -> None:
     if show_snooze and p.snooze:
         print(f"😴{p.snooze} ", end="")
     parts = [p.priority_display, p.link, p.icon, p.tags]
-    print(" ".join([part.strip() for part in parts if part]))
+    print(" ".join([part.strip() for part in parts if part]), end="")
+
+    # If the last symbol is the icon, it might be wide, and need the extra
+    # space to render at full width. Use en-space to avoid vim's listChars
+    # "dot" symbol.
+    print("\u2002")
 
 
 def main() -> None:
