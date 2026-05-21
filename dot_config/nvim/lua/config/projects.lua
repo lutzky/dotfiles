@@ -19,6 +19,21 @@ local function open_project_dashboard()
 
   vim.api.nvim_command("buffer " .. buf)
 
+  -- Give it a dummy file path so markdown-oxide doesn't crash on its file stem check
+  vim.api.nvim_buf_set_name(buf, vim.fn.getcwd() .. "/__dashboard__.md")
+
+  -- Manually start markdown-oxide for this fake file
+  local oxide_config = vim.lsp.config.markdown_oxide
+  if oxide_config then
+    vim.lsp.start({
+      name = 'markdown_oxide',
+      cmd = oxide_config.cmd or { 'markdown-oxide' },
+      root_dir = vim.fn.getcwd(),
+      capabilities = oxide_config.capabilities,
+      settings = oxide_config.settings,
+    }, { bufnr = buf })
+  end
+
   local map_opts = { noremap = true, silent = true, buffer = buf }
 
   vim.keymap.set('n', 'q', ':bwipeout!<CR>', map_opts)
