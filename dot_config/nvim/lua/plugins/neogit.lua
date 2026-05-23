@@ -2,6 +2,7 @@ return {
   "NeogitOrg/neogit",
   lazy = true,
   dependencies = {
+    "sindrets/diffview.nvim",
     "nvim-lua/plenary.nvim", -- required
     "nvim-telescope/telescope.nvim",
   },
