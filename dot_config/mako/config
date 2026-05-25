@@ -2,6 +2,7 @@ font=sans-serif 10
 layer=overlay
 
 background-color=#20445f
+border-radius=10
 border-color=#30668f
 border-size=2
 on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/message.oga
