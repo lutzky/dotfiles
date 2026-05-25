@@ -81,6 +81,8 @@ input "type:keyboard" {
     xkb_options "compose:ralt"
 }
 
+focus_follows_mouse no
+
 ### Key bindings
 #
 # Basics:
