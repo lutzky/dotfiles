@@ -7,10 +7,11 @@ vim.api.nvim_create_autocmd({ "BufWritePost" }, {
     else
       _G.markdown_linter_notice_shown = _G.markdown_linter_notice_shown or false
       if not _G.markdown_linter_notice_shown then
-        vim.notify(
+        require("fidget").notify(
           'Linter "markdownlint-cli2" not found. Markdown linting is disabled.',
           vim.log.levels.INFO,
-          {title = 'nvim-lint'}
+          { title = 'nvim-lint' },
+          { ttl = 10 }
         )
         _G.markdown_linter_notice_shown = true
       end
