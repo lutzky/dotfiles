@@ -148,7 +148,7 @@ def main() -> None:
         print()
 
     output = subprocess.run(
-        ["rg", "--type", "markdown", "\\[ \\].*#next"], capture_output=True
+        ["rg", "--type", "markdown", r"^\s*- +\[ \].*#next"], capture_output=True
     )
     next_lines = output.stdout.decode("utf-8").splitlines()
     if len(next_lines) == 0:
