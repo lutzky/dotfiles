@@ -268,7 +268,8 @@ bar {
 }
 
 # redshift
-exec_always wlsunset -l 53.2 -L -6.1
+exec wlsunset -l 53.2 -L -6.1
+exec hash solaar 2>/dev/null && solaar --window=hide --battery-icons=symbolic
 
 # For obs-studio
 exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
