@@ -177,7 +177,7 @@ def main() -> None:
         [p for p in valid_projects if p.status == "Active" and is_snoozed(p) and not p.hide_if_snoozed],
         key=lambda x: (x.snooze, x.priority_raw),
     )
-    print(f"\n# Snoozed ({len(snoozed)})")
+    print(f"\n# Snoozed ({len(snoozed)}) (excluding hide_if_snoozed)")
     for p in snoozed[:SNOOZED_LIMIT]:
         print_project(p, show_snooze=True)
     if len(snoozed) > SNOOZED_LIMIT:
