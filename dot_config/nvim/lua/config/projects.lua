@@ -144,23 +144,42 @@ vim.api.nvim_create_autocmd("BufNewFile", {
   end,
 })
 
+local function is_in_home(target_path)
+  local home = vim.fs.normalize("~")
+  local normalized_target = vim.fs.normalize(target_path)
+  local home_prefix = home:sub(-1) == "/" and home or home .. "/"
+  return normalized_target:sub(1, #home_prefix) == home_prefix
+end
+
 local function show_related_tasks()
   local bufnr = vim.api.nvim_get_current_buf()
   local filename_without_ext = vim.fn.expand("%:t:r")
   local vault_path = vim.fn.getcwd()
+  if not is_in_home(vault_path) then
+    return
+  end
 
   local ns_id = vim.api.nvim_create_namespace("RelatedTasks")
   vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
 
-  local cmd = string.format("rg --vimgrep -- \"- \\[ \\].*\\[\\[(.*/)?%s(#.*)?(\\|.*)?\\]\\]\" %s", filename_without_ext,
-    vault_path)
-  local handle = io.popen(cmd)
-  if handle == nil then
-    vim.notify('Failed to run rg for related-task detection', vim.log.levels.ERROR)
+  local regex = string.format("- \\[ \\].*\\[\\[(.*/)?%s(#.*)?(\\|.*)?\\]\\]", filename_without_ext)
+  if vim.fn.executable("rg") == 0 then
+    vim.notify('rg not installed, cannot perform related-task detection', vim.log.levels.WARN)
     return
   end
-  local result = handle:read("*a")
-  handle:close()
+  local obj = vim.system({
+    "rg",
+    "--type=markdown",
+    "--max-depth=2",
+    "--vimgrep",
+    "--",
+    regex,
+    vault_path
+  }):wait()
+  local result = obj.stdout
+  if result == nil then
+    return
+  end
 
   local lines = {}
   for line in result:gmatch("[^\r\n]+") do
