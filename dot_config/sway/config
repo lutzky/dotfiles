@@ -68,6 +68,13 @@ bindsym $mod+period exec ~/.bin/screen_toggle ; swaylock -f
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
 
+# Middle-mouse-button scrolling
+input "*" {
+    scroll_method on_button_down
+    scroll_button 274
+    scroll_factor 0.5
+}
+
 # xkb mode (no Japanese support)
 # input "type:keyboard" {
 #     xkb_layout "us,il"
