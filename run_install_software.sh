@@ -116,6 +116,8 @@ if is_in_path sway; then
   check_apt mako-notifier
   check_apt wl-clipboard
   check_apt swayidle
+  check_apt bemenu
+  check_apt j4-dmenu-desktop
   check_apt fcitx5-mozc
   check_apt grim
   check_apt slurp

@@ -16,7 +16,7 @@ set $right l
 # Your preferred terminal emulator
 set $term ~/.local/bin/kitty
 # Your preferred application launcher
-set $menu bemenu-run -l 20 -b
+set $menu j4-dmenu-desktop --dmenu="bemenu -l 20 -b -i" --display-binary --term-mode=kitty --term $term
 
 include /etc/sway/config-vars.d/*
 
