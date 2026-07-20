@@ -34,7 +34,8 @@
         "clock",
         "custom/separator",
         "tray",
-        "custom/power"
+        "custom/power",
+        "custom/updates"
     ],
     // Modules configuration
     // "sway/workspaces": {
@@ -55,6 +56,12 @@
     // },
     "custom/separator": {
         "format": "|"
+    },
+    "custom/updates": {
+        "format": "{}",
+        "return-type": "json",
+        "exec": "~/.config/waybar/waybar-updates",
+        "interval": 60
     },
     "keyboard-state": {
         "numlock": true,

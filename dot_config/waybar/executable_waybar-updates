@@ -1,0 +1,28 @@
+#!/bin/bash
+
+text=""
+tooltip=""
+
+if [[ -f /var/run/reboot-required ]]; then
+	text="${text}🔄"
+	tooltip="${tooltip}🔄System update requires a reboot\n"
+fi
+
+if [[ -s /var/lib/ubuntu-release-upgrader/release-upgrade-available ]]; then
+	text="${text}🔁"
+	tooltip="${tooltip}🔁Release upgrade is available\n"
+fi
+
+if [[ -s /var/lib/update-notifier/updates-available ]]; then
+	num_updates=$(grep -o '[0-9]\+' /var/lib/update-notifier/updates-available | head -1)
+	[[ $num_updates -gt 0 ]] && text="${text}📥${num_updates}"
+	tooltip="${tooltip}📥 ${num_updates} updates available\n"
+fi
+
+if [[ -z $text ]]; then
+	text="✅"
+fi
+
+tooltip="${tooltip%%\\n}"
+
+echo "{\"text\": \"${text}\", \"tooltip\": \"${tooltip}\"}"
