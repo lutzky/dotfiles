@@ -1,4 +1,8 @@
 function motd --description 'Print the Ubuntu MOTD/update status'
+    if test (uname) = Darwin
+        return
+    end
+
     if test -s /run/motd.dynamic
         cat /run/motd.dynamic
     else if test -f /var/lib/update-notifier/updates-available
