@@ -166,8 +166,11 @@
     },
     "network": {
         // "interface": "wlp2*", // (Optional) To force the use of this interface
-        "format-wifi": " {essid} ({signalStrength}%)",
-        "format-ethernet": "󰈀 {ipaddr}/{cidr}",
+        "interval": 10,
+        "format-wifi": " {essid} ({signalStrength}%) 󰇚 {bandwidthDownBytes} 󰕒 {bandwidthUpBytes}",
+        "format-ethernet": "󰈀 {ipaddr}/{cidr} 󰇚 {bandwidthDownBytes} 󰕒 {bandwidthUpBytes}",
+        // Note: due to https://github.com/Alexays/waybar/issues/5221, tooltip
+        // can't show correct bandwidth bytes.
         "tooltip-format": "Wired: {ifname} via {gwaddr}",
         "format-linked": " {ifname} (No IP)",
         "format-disconnected": "⚠ Disconnected",
