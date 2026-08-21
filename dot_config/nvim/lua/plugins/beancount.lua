@@ -79,7 +79,7 @@ return {
       vim.keymap.set('n', '<leader>bg', append_guess,
         { desc = "Budget: Guess account" })
 
-      if not os.getenv("NVIM_RLEDGER") then
+      if os.getenv("NVIM_NO_RLEDGER") then
         vim.lsp.config('beancount', {
           -- cmd = {
           --   "beancount-language-server",
