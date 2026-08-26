@@ -21,6 +21,9 @@ set $menu j4-dmenu-desktop --dmenu="bemenu -l 20 -b -i" --display-binary --term-
 
 include /etc/sway/config-vars.d/*
 
+default_border pixel 3
+gaps inner 10
+
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
