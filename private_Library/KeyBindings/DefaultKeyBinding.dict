@@ -93,4 +93,27 @@ which is completely different.
 
     "^$\UF702" = "moveWordBackwardAndModifySelection:";          /* Shift + Ctrl + Leftarrow */
     "^$\UF703" = "moveWordForwardAndModifySelection:";           /* Shift + Ctrl + Rightarrow */
+
+    // Poor man's compose key
+    "~c" = {
+        "=" = {
+            "c" = ("insertText:", "€");
+        };
+	"-" = {
+            ">" = ("insertText:", "→");
+            "l" = ("insertText:", "£");
+        };
+        "c" = {
+            "=" = ("insertText:", "€");
+        };
+	"l" = {
+            "-" = ("insertText:", "£");
+	};
+	"o" = {
+            "o" = ("insertText:", "°");
+	};
+	"s" = {
+            "h" = ("insertText:", "₪"); // Mnemonic: "Shekel"
+	};
+    };
 }
