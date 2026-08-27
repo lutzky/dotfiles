@@ -1,0 +1,235 @@
+#!/usr/bin/env python3
+import json
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
+import urllib.parse
+import urllib.request
+
+# --- Configuration ---
+LOCATION_FILE = Path(os.environ.get("HOME", str(Path.home()))) / ".location"
+API_TIMEOUT_SECONDS = 5
+FORECAST_DAYS = 3
+
+UPCOMING_HOURS_BAR = 5
+EXTENDED_BAR_HOURS = 5
+
+SNAPSHOT_HOURS_TOTAL = 48
+SNAPSHOT_INTERVAL_HOURS = 3
+
+POP_HEAVY_RAIN_THRESHOLD = 70
+POP_LIGHT_RAIN_THRESHOLD = 30
+
+PRECIP_BAR_LEVELS = (
+    (8.0, "█"),
+    (6.0, "▇"),
+    (4.0, "▆"),
+    (2.5, "▅"),
+    (1.5, "▄"),
+    (0.5, "▃"),
+    (0.0, "▂"),
+)
+
+WMO_CODES = {
+    0: ("☀️", "Clear sky"),
+    1: ("🌤️", "Mainly clear"),
+    2: ("⛅", "Partly cloudy"),
+    3: ("☁️", "Overcast"),
+    45: ("🌫️", "Fog"),
+    48: ("🌫️", "Depositing rime fog"),
+    51: ("🌧️", "Light drizzle"),
+    53: ("🌧️", "Moderate drizzle"),
+    55: ("🌧️", "Dense drizzle"),
+    56: ("🌧️", "Light freezing drizzle"),
+    57: ("🌧️", "Dense freezing drizzle"),
+    61: ("🌧️", "Slight rain"),
+    63: ("🌧️", "Moderate rain"),
+    65: ("🌧️", "Heavy rain"),
+    66: ("🌧️", "Light freezing rain"),
+    67: ("🌧️", "Heavy freezing rain"),
+    71: ("🌨️", "Slight snow"),
+    73: ("🌨️", "Moderate snow"),
+    75: ("🌨️", "Heavy snow"),
+    77: ("🌨️", "Snow grains"),
+    80: ("🌦️", "Slight rain showers"),
+    81: ("🌦️", "Moderate rain showers"),
+    82: ("⛈️", "Violent rain showers"),
+    85: ("🌨️", "Slight snow showers"),
+    86: ("🌨️", "Heavy snow showers"),
+    95: ("⛈️", "Thunderstorm"),
+    96: ("⛈️", "Thunderstorm with hail"),
+    99: ("⛈️", "Heavy thunderstorm"),
+}
+
+
+def get_bar(precipitation: float) -> str:
+    """Return a unicode block representing precipitation intensity in mm/h."""
+    if precipitation <= 0:
+        return " "
+    for threshold, bar in PRECIP_BAR_LEVELS:
+        if precipitation >= threshold:
+            return bar
+    return " "
+
+
+def load_location() -> tuple[str, str]:
+    """Read LAT, LON coordinates from ~/.location."""
+    if not LOCATION_FILE.exists():
+        raise FileNotFoundError(
+            f"Location file not found. Please create {LOCATION_FILE} with format: LAT, LON (e.g. 53.3000, -6.2000)"
+        )
+
+    try:
+        content = LOCATION_FILE.read_text(encoding="utf-8").strip()
+        parts = [p.strip() for p in content.split(",") if p.strip()]
+        if len(parts) != 2:
+            raise ValueError
+        lat, lon = parts
+        float(lat)
+        float(lon)
+        return lat, lon
+    except ValueError:
+        raise ValueError(
+            f"Invalid location format in {LOCATION_FILE}. Please use: LAT, LON (e.g. 53.3000, -6.2000)"
+        )
+
+
+def fetch_weather_data(lat: str, lon: str) -> dict:
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "current": "temperature_2m,apparent_temperature,weather_code,precipitation",
+        "minutely_15": "precipitation",
+        "hourly": "temperature_2m,precipitation_probability,precipitation,weather_code",
+        "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max",
+        "timezone": "auto",
+        "forecast_days": FORECAST_DAYS,
+    }
+    url = f"https://api.open-meteo.com/v1/forecast?{urllib.parse.urlencode(params)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "waybar-weather/1.0"})
+    with urllib.request.urlopen(req, timeout=API_TIMEOUT_SECONDS) as response:
+        return json.loads(response.read().decode())
+
+
+def build_extended_precipitation_chart(data: dict, start_hour_iso: str, start_hour_dt: datetime) -> list[str]:
+    """Generate a 5-hour precipitation bar chart at 15-minute intervals with a time legend."""
+    m15 = data.get("minutely_15", {})
+    m15_times = m15.get("time", [])
+    m15_precip = m15.get("precipitation", [])
+
+    try:
+        start_idx = m15_times.index(start_hour_iso)
+    except ValueError:
+        start_idx = 0
+
+    total_steps = EXTENDED_BAR_HOURS * 4
+    upcoming = m15_precip[start_idx : start_idx + total_steps]
+
+    # Convert 15-minute precipitation sum (mm) to hourly rate (mm/h)
+    bar_str = "".join(get_bar(val * 4) for val in upcoming)
+    ticks = ["  "] + ["┬───" for _ in range(EXTENDED_BAR_HOURS)] + ["┐"]
+    labels = ["  "]
+    for h in range(EXTENDED_BAR_HOURS):
+        t_h = start_hour_dt + timedelta(hours=h)
+        labels.append(t_h.strftime("%H  "))
+    labels.append((start_hour_dt + timedelta(hours=EXTENDED_BAR_HOURS)).strftime("%H"))
+
+    return [
+        " ⏱️ Next 5 Hours (15m)",
+        f" [{bar_str}]",
+        "".join(ticks),
+        "".join(labels),
+    ]
+
+
+def build_waybar_payload(data: dict) -> dict:
+    # 1. Current conditions
+    curr = data["current"]
+    temp = round(curr["temperature_2m"])
+    feels_like = round(curr["apparent_temperature"])
+    icon, desc = WMO_CODES.get(curr["weather_code"], ("🌡️", "Unknown"))
+
+    daily = data["daily"]
+    high = round(daily["temperature_2m_max"][0])
+    low = round(daily["temperature_2m_min"][0])
+    pop = daily["precipitation_probability_max"][0]
+    precip = daily["precipitation_sum"][0]
+
+    curr_dt = datetime.fromisoformat(curr["time"])
+    start_hour_dt = curr_dt.replace(minute=0, second=0, microsecond=0)
+
+    hourly = data["hourly"]
+    current_hour_iso = start_hour_dt.strftime("%Y-%m-%dT%H:00")
+    try:
+        start_idx = hourly["time"].index(current_hour_iso)
+    except ValueError:
+        start_idx = 0
+
+    # 2. Waybar top bar upcoming precipitation chart (hourly summary)
+    upcoming_precip = hourly["precipitation"][start_idx : start_idx + UPCOMING_HOURS_BAR]
+    upcoming_prob = hourly["precipitation_probability"][start_idx : start_idx + UPCOMING_HOURS_BAR]
+    bar_chart = "".join(get_bar(val) for val in upcoming_precip)
+    max_prob = max(upcoming_prob, default=0)
+
+    if max_prob > POP_HEAVY_RAIN_THRESHOLD:
+        css_class = "heavy-rain"
+    elif max_prob > POP_LIGHT_RAIN_THRESHOLD:
+        css_class = "light-rain"
+    else:
+        css_class = "dry"
+
+    # 3. Tooltip generation with Pango markup
+    lines = [
+        f"<span size=\"x-large\"><b>{icon} {temp}°C</b></span>  <span size=\"large\"><b>{desc}</b></span>",
+        f"Feels like {feels_like}°C",
+        f"High {high}°C  |  Low {low}°C  |  ☔ {pop}% ({precip} mm)",
+        "──────────────────────────────────────────────",
+    ]
+
+    # Extended 5-hour bar chart in 15-minute intervals
+    lines.extend(build_extended_precipitation_chart(data, current_hour_iso, start_hour_dt))
+    lines.append("──────────────────────────────────────────────")
+
+    # Hourly snapshot table
+    lines.extend([
+        " 📅 Snapshot",
+        " Hr │  Temp │  PoP │  Precip │ Cond",
+        "────┼───────┼──────┼─────────┼────────────────",
+    ])
+
+    end_idx = min(start_idx + SNAPSHOT_HOURS_TOTAL, len(hourly["time"]))
+    prev_date = None
+    for i in range(start_idx, end_idx, SNAPSHOT_INTERVAL_HOURS):
+        dt = datetime.fromisoformat(hourly["time"][i])
+        hr = dt.strftime("%H")
+
+        if dt.date() != prev_date:
+            lines.append(dt.strftime("── %a %m/%d ────────────────────────────────"))
+            prev_date = dt.date()
+
+        t_val = f"{round(hourly['temperature_2m'][i]):>2}°C"
+        p_pop = f"{hourly['precipitation_probability'][i]:>3}%"
+        p_mm = f"{hourly['precipitation'][i]:>4.1f} mm"
+        h_icon, h_desc = WMO_CODES.get(hourly["weather_code"][i], ("🌡️", "Unknown"))
+
+        lines.append(f" {hr} │  {t_val} │ {p_pop} │ {p_mm} │ {h_icon} {h_desc}")
+
+    return {
+        "text": f"{icon} {temp}°C [{bar_chart}]",
+        "tooltip": "\n".join(lines),
+        "class": css_class,
+    }
+
+
+def main():
+    try:
+        lat, lon = load_location()
+        data = fetch_weather_data(lat, lon)
+        payload = build_waybar_payload(data)
+        print(json.dumps(payload))
+    except Exception as e:
+        print(json.dumps({"text": "🌡️ [N/A]", "tooltip": f"Error: {e}", "class": "error"}))
+
+
+if __name__ == "__main__":
+    main()

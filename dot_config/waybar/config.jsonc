@@ -35,7 +35,8 @@
         "custom/separator",
         "tray",
         "custom/power",
-        "custom/updates"
+        "custom/updates",
+        "custom/weather"
     ],
     // Modules configuration
     // "sway/workspaces": {
@@ -62,6 +63,12 @@
         "return-type": "json",
         "exec": "~/.config/waybar/waybar-updates",
         "interval": 60
+    },
+    "custom/weather": {
+        "format": "{}",
+        "return-type": "json",
+        "exec": "~/.config/waybar/waybar-weather",
+        "interval": 600
     },
     "keyboard-state": {
         "numlock": true,
