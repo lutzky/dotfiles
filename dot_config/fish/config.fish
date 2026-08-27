@@ -13,8 +13,10 @@ set -gx VIRTUAL_ENV_DISABLE_PROMPT 1
 set -g show_duration_threshold_ms 3000
 set -g alert_duration_threshold_ms 30000
 set -g alert_ignore_regex "\
+^bacon |\
 ^cargo watch |\
 ^chezmoi cd|\
+^less |\
 ^man |\
 ^mutt |\
 ^n?vim|\
@@ -22,8 +24,10 @@ set -g alert_ignore_regex "\
 ^ncdu|\
 ^ssh |\
 ^t |\
+^tail -[fF] |\
 ^tmux|\
 ^top |\
+^watch |\
 ^\$"
 
 # cSpell: ignore ncdu chezmoi
