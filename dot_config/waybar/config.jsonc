@@ -68,6 +68,8 @@
         "format": "{}",
         "return-type": "json",
         "exec": "~/.config/waybar/waybar-weather",
+        "exec-on-event": true,
+        "on-click": "true", // For exec-on-event to refresh
         "interval": 600
     },
     "keyboard-state": {
