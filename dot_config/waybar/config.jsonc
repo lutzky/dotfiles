@@ -105,17 +105,30 @@
         "spacing": 10
     },
     "clock": {
-        // "timezone": "America/New_York",
-        "tooltip-format": "{tz_list}\n\n<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format": "{:%Y-%m-%d %H:%M}",
+        "tooltip-format": "<b>🌐 Timezones</b>\n{tz_list}\n\n📅️ {calendar}",
+        "format": "{:%a %Y-%m-%d %H:%M %Z} ",
         "timezones": ["", "America/Los_Angeles", "Asia/Jerusalem", "Asia/Tokyo"],
         "timezone-tooltip-format": "{:%Y-%m-%d %H:%M %Z}",
         "calendar": {
             "format": {
                 "today": "<span color='yellow'><b>{}</b></span>"
-            }
+            },
+            "mode-mon-col": 4,
+             "format": {
+                          "months":     "<span color='#cccccc'><b>{}</b></span>",
+                          "days":       "{}",
+                          "weeks":      "<span color='#0000ff'><b>W{}</b></span>",
+                          "weekdays":   "<span color='#ccffcc'><b>{}</b></span>",
+                          "today":      "<span color='#99ff99'><b><u>{}</u></b></span>"
+                     }
         },
-        // "format-alt": "{:%Y-%m-%d %H:%M:%S}"
+        "actions": {
+            "on-click-right": "mode",
+            "on-click-forward": "tz_up",
+            "on-click-backward": "tz_down",
+            "on-scroll-up": "shift_up",
+            "on-scroll-down": "shift_down"
+        }
     },
     "cpu": {
         "format": "{icon} <small>CPU</small> {usage}% | <small>Load</small> {load}",
