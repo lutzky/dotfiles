@@ -63,6 +63,9 @@ on-mode-changed = []
     alt-tab = 'workspace-back-and-forth'
     alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 
+    alt-enter = """exec-and-forget osascript -e 'if application "kitty" is running then' -e 'tell application "System Events" to tell process "kitty" to click menu item "New OS Window" of menu "Shell" of menu bar 1' -e 'else' -e 'tell application "kitty" to launch' -e 'end if'"""
+    alt-shift-enter = 'exec-and-forget open -na "Google Chrome" --args --new-window'
+
     alt-semicolon = 'mode service'
     alt-r = 'mode resize'
 
