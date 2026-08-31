@@ -255,6 +255,8 @@ bindsym XF86AudioMicMute exec ~/.bin/volume mic-mute
 bindsym XF86MonBrightnessUp exec ~/.bin/brightness raise
 bindsym XF86MonBrightnessDown exec ~/.bin/brightness lower
 
+for_window [class="esphome"] floating enable
+
 
     bindsym Print exec grim -g "$(slurp -d)" - | wl-copy && swayosd-client --custom-message="Screenshot copied"
 
