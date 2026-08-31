@@ -131,7 +131,9 @@ def main():
 
     ring_bell()
     try:
-        iterm2_notify(subject, message)
+        # iterm2_notify is disabled because I now use kitty everywhere, but
+        # kitty has learned to respond to iterm2's OSC9 notifications.
+        # iterm2_notify(subject, message)
         hterm_notify(subject, message)
     except Exception:  # pylint: disable=broad-exception-caught
         try:
