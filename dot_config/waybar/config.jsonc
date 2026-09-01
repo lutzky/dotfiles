@@ -30,13 +30,15 @@
     //  "keyboard-state",
     //  "sway/language", // Hidden in favor of fcitx5
         "battery",
-        "battery#bat2",
-        "clock",
+        "batter,y#bat2",
         "custom/separator",
-        "tray",
         "custom/power",
         "custom/updates",
-        "custom/weather"
+        "custom/weather",
+        "custom/separator",
+        "tray",
+        "custom/separator",
+        "clock"
     ],
     // Modules configuration
     // "sway/workspaces": {
@@ -102,11 +104,11 @@
         "tooltip-format-deactivated": "Idle inhibitor inactive"
     },
     "tray": {
-        "spacing": 10
+        "spacing": 8
     },
     "clock": {
         "tooltip-format": "<b>🌐 Timezones</b>\n{tz_list}\n\n📅️ {calendar}",
-        "format": "{:%a %Y-%m-%d %H:%M %Z} ",
+        "format": "  {:%a %Y-%m-%d %H:%M %Z}",
         "timezones": ["", "America/Los_Angeles", "Asia/Jerusalem", "Asia/Tokyo"],
         "timezone-tooltip-format": "{:%Y-%m-%d %H:%M %Z}",
         "calendar": {
