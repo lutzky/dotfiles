@@ -1,0 +1,22 @@
+#!/bin/bash
+
+show_menu() {
+  swaymsg -p -t get_config | \
+    awk '
+      /^\s*#\s*hint:/ {
+        hint=$0; sub(/^\s*#\s*hint:\s*/, "", hint); next
+      }
+      /^\s*bindsym/ {
+        sub(/^\s*bindsym\s+/, "");
+        bind=$1;
+        $1=""; sub(/\s+/, "");
+        cmd=$0;
+        desc = (hint != "") ? hint : cmd;
+        printf "%-20s  |  %-30s  |  %s\n", bind, desc, cmd;
+        hint = "";
+      }' | bemenu -i -l 20 -p "Shortcuts:"
+}
+
+COMMAND=$(show_menu | cut -d'|' -f3-)
+
+[[ -n $COMMAND ]] && swaymsg "$COMMAND"
