@@ -218,4 +218,7 @@ exec blueman-applet
 exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
+
 include /etc/sway/config.d/*
+
+include ~/.config/sway/sway-colors

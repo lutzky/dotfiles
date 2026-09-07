@@ -1,0 +1,25 @@
+text-color=#cfe5ff
+background-color=#104a73
+border-color=#9ccbfb
+
+[urgency=low]
+text-color=#d5e4f7
+background-color=#3a4857
+border-color=#b9c8da
+
+[app-name=kitty]
+text-color=#d5e4f7
+background-color=#3a4857
+border-color=#b9c8da
+
+[app-name=blueman]
+text-color=#efdbff
+background-color=#504061
+border-color=#d4bee6
+
+# Keep this last for priority
+
+[urgency=critical]
+text-color=#ffdad6
+background-color=#93000a
+border-color=#ffb4ab

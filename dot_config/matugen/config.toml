@@ -1,0 +1,21 @@
+[config]
+
+[config.wallpaper]
+set = false
+command = "false"
+
+[templates.waybar]
+input_path = '~/.config/matugen/waybar-colors.css'
+output_path = '~/.config/waybar/colors.css'
+# Disable post_hook - reloaded by waybar
+# post_hook = "pkill -SIGUSR2 waybar"
+
+[templates.sway]
+input_path = '~/.config/matugen/sway-colors.conf'
+output_path = '~/.config/sway/sway-colors'
+post_hook = "swaymsg reload"
+
+[templates.mako]
+input_path = '~/.config/matugen/mako-colors'
+output_path = '~/.config/mako/colors'
+post_hook = "makoctl reload"

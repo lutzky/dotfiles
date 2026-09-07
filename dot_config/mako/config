@@ -1,31 +1,22 @@
-font=sans-serif 10
-layer=overlay
+include=~/.config/mako/colors
 
-background-color=#20445f
-border-radius=10
-border-color=#30668f
-border-size=2
-on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/message.oga
+border-radius=5
 
 [urgency=low]
-background-color=#3f515e
-border-color=#607a90
 default-timeout=10000
 on-notify=none
 
-[urgency=critical]
-background-color=#b00000
-border-color=#8b0000
-default-timeout=0
-on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/dialog-error.oga
-
 [app-name=kitty]
 default-timeout=5000
-background-color=#3f515e
-border-color=#607a90
 anchor=bottom-right
 icons=0
 format=<b> %s</b>\n%b
+
+[app-name=blueman]
+default-timeout=5000
+anchor=bottom-right
+icons=0
+format=<b>  %s</b>\n%b
 
 [app-name=osd]
 anchor=bottom-center
@@ -35,3 +26,9 @@ default-timeout=2000
 ignore-timeout=1
 group-by=app-name
 on-notify=none
+
+# Keep this last for priority
+
+[urgency=critical]
+default-timeout=0
+on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/dialog-error.oga

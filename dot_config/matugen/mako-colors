@@ -1,0 +1,25 @@
+text-color={{colors.on_primary_container.default.hex}}
+background-color={{colors.primary_container.default.hex}}
+border-color={{colors.primary.default.hex}}
+
+[urgency=low]
+text-color={{colors.on_secondary_container.default.hex}}
+background-color={{colors.secondary_container.default.hex}}
+border-color={{colors.secondary.default.hex}}
+
+[app-name=kitty]
+text-color={{colors.on_secondary_container.default.hex}}
+background-color={{colors.secondary_container.default.hex}}
+border-color={{colors.secondary.default.hex}}
+
+[app-name=blueman]
+text-color={{colors.on_tertiary_container.default.hex}}
+background-color={{colors.tertiary_container.default.hex}}
+border-color={{colors.tertiary.default.hex}}
+
+# Keep this last for priority
+
+[urgency=critical]
+text-color={{colors.on_error_container.default.hex}}
+background-color={{colors.error_container.default.hex}}
+border-color={{colors.error.default.hex}}

@@ -88,6 +88,10 @@ else
     fi
   fi
 
+  if ! is_in_path matugen; then
+    check_custom matugen matugen "cargo binstall matugen"
+  fi
+
   if ! is_in_path delta; then
     if can_apt_install git-delta; then
       check_apt git-delta
