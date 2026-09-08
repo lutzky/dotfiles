@@ -7,13 +7,12 @@ command = "false"
 [templates.waybar]
 input_path = '~/.config/matugen/waybar-colors.css'
 output_path = '~/.config/waybar/colors.css'
-# Disable post_hook - reloaded by waybar
-# post_hook = "pkill -SIGUSR2 waybar"
+# waybar automatically reloads files on style change
 
 [templates.sway]
 input_path = '~/.config/matugen/sway-colors.conf'
 output_path = '~/.config/sway/sway-colors'
-post_hook = "swaymsg reload"
+post_hook = 'swaymsg "$(grep ^client ~/.config/sway/sway-colors)"'
 
 [templates.mako]
 input_path = '~/.config/matugen/mako-colors'
