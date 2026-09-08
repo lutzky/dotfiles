@@ -1,0 +1,51 @@
+#!/bin/bash
+set -euo pipefail
+
+if [ $# -ne 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage: $(basename "$0") <path-to-wallpaper>" >&2
+    exit 1
+fi
+
+WALLPAPER="$1"
+
+if [ ! -f "$WALLPAPER" ]; then
+    echo "Error: File '$WALLPAPER' not found." >&2
+    exit 1
+fi
+
+# Get absolute canonical path of the wallpaper image
+WALLPAPER_PATH="$(readlink -f "$WALLPAPER" 2>/dev/null || realpath "$WALLPAPER")"
+
+# Check if the wallpaper is managed by chezmoi
+if command -v chezmoi >/dev/null 2>&1; then
+    if ! chezmoi source-path "$WALLPAPER_PATH" >/dev/null 2>&1; then
+        echo "Warning: '$WALLPAPER' is not managed by chezmoi." >&2
+    fi
+else
+    echo "Warning: chezmoi is not in PATH. Cannot check if '$WALLPAPER' is chezmoi-managed." >&2
+fi
+
+# Update symlink at ~/.wallpaper
+ln -sfn "$WALLPAPER_PATH" "$HOME/.wallpaper"
+echo "Updated ~/.wallpaper -> $WALLPAPER_PATH"
+
+# Run matugen if installed (matugen will generate configs, colors, and ~/.wallpaper_locked)
+if command -v matugen >/dev/null 2>&1; then
+    echo "Running matugen..."
+    matugen image "$WALLPAPER_PATH"
+else
+    echo "Warning: matugen is not installed. Matugen colors will not be updated." >&2
+    # Fallback: generate locked wallpaper directly if magick is available
+    if command -v magick >/dev/null 2>&1; then
+        echo "Generating locked wallpaper variant..."
+        magick "$WALLPAPER_PATH" \
+            -brightness-contrast -10x0 \
+            -blur 0x20 \
+            "$HOME/.wallpaper_locked"
+    fi
+fi
+
+# Update sway wallpaper if sway is running
+if [ -n "${SWAYSOCK-}" ] && command -v swaymsg >/dev/null 2>&1; then
+    swaymsg 'output * bg ~/.wallpaper fill' >/dev/null 2>&1 || true
+fi

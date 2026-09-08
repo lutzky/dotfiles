@@ -10,3 +10,6 @@ procs
 binstall
 lazydocker
 onchange
+matugen
+bemenu
+swaylock

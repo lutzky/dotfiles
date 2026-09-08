@@ -1,3 +1,7 @@
+# Mako Notification colors (Fallback)
+# This is a fallback file used when matugen is not installed.
+# If matugen is installed, this file is generated dynamically by matugen.
+
 text-color=#cfe5ff
 background-color=#104a73
 border-color=#9ccbfb

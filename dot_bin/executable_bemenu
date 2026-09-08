@@ -1,3 +1,8 @@
+#!/bin/sh
+# Bemenu wrapper (Fallback)
+# This is a fallback file used when matugen is not installed.
+# If matugen is installed, this file is generated dynamically by matugen.
+
 BEMENU_OPTS="--tb '#101418' \
 --tf '#9ccbfb' \
 --fb '#101418' \
@@ -10,4 +15,4 @@ BEMENU_OPTS="--tb '#101418' \
 --sf '#9ccbfb' \
 --scb '#101418' \
 --scf '#b9c8da' \
--l 20 -b -i" exec /usr/bin/bemenu
+-l 20 -b -i" exec /usr/bin/bemenu "$@"

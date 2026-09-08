@@ -23,3 +23,9 @@ post_hook = "makoctl reload"
 [templates.bemenu]
 input_path = '~/.config/matugen/bemenu.sh'
 output_path = '~/.bin/bemenu'
+post_hook = "chmod +x ~/.bin/bemenu"
+
+[templates.swaylock]
+input_path = '~/.config/matugen/swaylock.conf'
+output_path = '~/.config/swaylock/config'
+post_hook = "magick ~/.wallpaper -brightness-contrast -10x0 -blur 0x20 ~/.wallpaper_locked"

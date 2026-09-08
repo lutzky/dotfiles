@@ -1,3 +1,6 @@
+# Mako Notification colors
+# Generated with Matugen
+
 text-color={{colors.on_primary_container.default.hex}}
 background-color={{colors.primary_container.default.hex}}
 border-color={{colors.primary.default.hex}}

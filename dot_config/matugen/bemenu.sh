@@ -1,3 +1,7 @@
+#!/bin/sh
+# Bemenu wrapper
+# Generated with Matugen
+
 BEMENU_OPTS="--tb '{{colors.surface.default.hex}}' \
 --tf '{{colors.primary.default.hex}}' \
 --fb '{{colors.surface.default.hex}}' \
@@ -10,4 +14,4 @@ BEMENU_OPTS="--tb '{{colors.surface.default.hex}}' \
 --sf '{{colors.primary.default.hex}}' \
 --scb '{{colors.surface.default.hex}}' \
 --scf '{{colors.secondary.default.hex}}' \
--l 20 -b -i" exec /usr/bin/bemenu
+-l 20 -b -i" exec /usr/bin/bemenu "$@"

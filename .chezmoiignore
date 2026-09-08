@@ -6,3 +6,13 @@ projects
 {{ if ne .chezmoi.os "darwin" }}
 Library
 {{ end }}
+
+{{ if lookPath "matugen" }}
+.config/waybar/colors.css
+.config/sway/sway-colors
+.config/mako/colors
+.config/swaylock/config
+.bin/bemenu
+{{ else }}
+.config/matugen
+{{ end }}
