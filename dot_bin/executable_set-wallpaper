@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+PATH=$PATH:$HOME/.cargo/bin
+
 usage() {
     echo "Usage: $(basename "$0") <path-to-wallpaper> [matugen-flags...]" >&2
     echo "       $(basename "$0") [matugen-flags...] <path-to-wallpaper>" >&2
@@ -73,13 +75,13 @@ if command -v matugen >/dev/null 2>&1; then
     matugen image "$WALLPAPER_PATH" "${MATUGEN_FLAGS[@]}"
 else
     echo "Warning: matugen is not installed. Matugen colors will not be updated." >&2
-    # Fallback: generate locked wallpaper directly if magick is available
-    if command -v magick >/dev/null 2>&1; then
+    # Fallback: generate locked wallpaper directly
+    if command -v generate-locked-wallpaper >/dev/null 2>&1; then
         echo "Generating locked wallpaper variant..."
-        magick "$WALLPAPER_PATH" \
-            -brightness-contrast -10x0 \
-            -blur 0x20 \
-            "$HOME/.wallpaper_locked"
+        generate-locked-wallpaper "$WALLPAPER_PATH" &
+    elif [[ -x "$HOME/.bin/generate-locked-wallpaper" ]]; then
+        echo "Generating locked wallpaper variant..."
+        "$HOME/.bin/generate-locked-wallpaper" "$WALLPAPER_PATH" &
     fi
     # Fallback: update sway wallpaper directly if sway is running
     if [ -n "${SWAYSOCK-}" ] && command -v swaymsg >/dev/null 2>&1; then

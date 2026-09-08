@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+
+INPUT="${1:-$HOME/.wallpaper}"
+OUTPUT="${2:-$HOME/.wallpaper_locked}"
+
+# Expand leading tilde if passed literally
+INPUT="${INPUT/#\~/$HOME}"
+OUTPUT="${OUTPUT/#\~/$HOME}"
+
+if ! command -v magick >/dev/null 2>&1; then
+    echo "Warning: magick is not installed. Cannot generate locked wallpaper." >&2
+    exit 0
+fi
+
+if [[ ! -f "$INPUT" ]]; then
+    echo "Error: Input wallpaper '$INPUT' not found." >&2
+    exit 1
+fi
+
+magick "$INPUT" \
+    -scale 20% -blur 0x4 \
+    -brightness-contrast -10x0 \
+    "$OUTPUT"

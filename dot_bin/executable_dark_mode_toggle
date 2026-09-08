@@ -18,11 +18,11 @@ else
   color_index="2"
 fi
 
-echo "Setting color scheme to ${new_scheme}"
-gsettings set org.gnome.desktop.interface color-scheme "$new_scheme"
-
 if command -v set-wallpaper >/dev/null 2>&1; then
   set-wallpaper "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
 elif [[ -x "$HOME/.bin/set-wallpaper" ]]; then
   "$HOME/.bin/set-wallpaper" "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
 fi
+
+echo "Setting color scheme to ${new_scheme}"
+gsettings set org.gnome.desktop.interface color-scheme "$new_scheme"
