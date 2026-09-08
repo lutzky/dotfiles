@@ -1,0 +1,13 @@
+BEMENU_OPTS="--tb '#101418' \
+--tf '#9ccbfb' \
+--fb '#101418' \
+--ff '#e0e2e8' \
+--nb '#101418' \
+--nf '#e0e2e8' \
+--hb '#9ccbfb' \
+--hf '#003354' \
+--sb '#101418' \
+--sf '#9ccbfb' \
+--scb '#101418' \
+--scf '#b9c8da' \
+-l 20 -b -i" exec /usr/bin/bemenu

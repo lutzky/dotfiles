@@ -7,7 +7,7 @@ set $up k
 set $right l
 set $term ~/.local/bin/kitty
 set $browser google-chrome --new-window
-set $menu j4-dmenu-desktop --dmenu="bemenu -l 20 -b -i" -I --display-binary --term-mode=kitty --term $term
+set $menu j4-dmenu-desktop --dmenu="~/.bin/bemenu" -I --display-binary --term-mode=kitty --term $term
 
 include /etc/sway/config-vars.d/*
 

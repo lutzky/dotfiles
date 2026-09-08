@@ -19,3 +19,7 @@ post_hook = "swaymsg reload"
 input_path = '~/.config/matugen/mako-colors'
 output_path = '~/.config/mako/colors'
 post_hook = "makoctl reload"
+
+[templates.bemenu]
+input_path = '~/.config/matugen/bemenu.sh'
+output_path = '~/.bin/bemenu'
