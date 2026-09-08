@@ -1,8 +1,8 @@
 [config]
 
 [config.wallpaper]
-set = false
-command = "false"
+set = true
+command = "swaymsg 'output * bg {{image}} fill'"
 
 [templates.waybar]
 input_path = '~/.config/matugen/waybar-colors.css'

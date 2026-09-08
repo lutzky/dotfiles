@@ -1,12 +1,50 @@
 #!/bin/bash
 set -euo pipefail
 
-if [ $# -ne 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    echo "Usage: $(basename "$0") <path-to-wallpaper>" >&2
+usage() {
+    echo "Usage: $(basename "$0") <path-to-wallpaper> [matugen-flags...]" >&2
+    echo "       $(basename "$0") [matugen-flags...] <path-to-wallpaper>" >&2
     exit 1
-fi
+}
 
-WALLPAPER="$1"
+WALLPAPER=""
+MATUGEN_FLAGS=()
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -m|--mode|-t|--type|-c|--config|--source-color-index|--contrast)
+            if [[ $# -lt 2 ]]; then
+                echo "Error: $1 requires an argument." >&2
+                exit 1
+            fi
+            MATUGEN_FLAGS+=("$1" "$2")
+            shift 2
+            ;;
+        --mode=*|--type=*|--config=*|--source-color-index=*|--contrast=*)
+            MATUGEN_FLAGS+=("$1")
+            shift
+            ;;
+        -*)
+            MATUGEN_FLAGS+=("$1")
+            shift
+            ;;
+        *)
+            if [[ -z "$WALLPAPER" ]]; then
+                WALLPAPER="$1"
+            else
+                MATUGEN_FLAGS+=("$1")
+            fi
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$WALLPAPER" ]]; then
+    usage
+fi
 
 if [ ! -f "$WALLPAPER" ]; then
     echo "Error: File '$WALLPAPER' not found." >&2
@@ -29,10 +67,10 @@ fi
 ln -sfn "$WALLPAPER_PATH" "$HOME/.wallpaper"
 echo "Updated ~/.wallpaper -> $WALLPAPER_PATH"
 
-# Run matugen if installed (matugen will generate configs, colors, and ~/.wallpaper_locked)
+# Run matugen if installed (matugen will generate configs, colors, ~/.wallpaper_locked, and set sway wallpaper)
 if command -v matugen >/dev/null 2>&1; then
     echo "Running matugen..."
-    matugen image "$WALLPAPER_PATH"
+    matugen image "$WALLPAPER_PATH" "${MATUGEN_FLAGS[@]}"
 else
     echo "Warning: matugen is not installed. Matugen colors will not be updated." >&2
     # Fallback: generate locked wallpaper directly if magick is available
@@ -43,9 +81,8 @@ else
             -blur 0x20 \
             "$HOME/.wallpaper_locked"
     fi
-fi
-
-# Update sway wallpaper if sway is running
-if [ -n "${SWAYSOCK-}" ] && command -v swaymsg >/dev/null 2>&1; then
-    swaymsg 'output * bg ~/.wallpaper fill' >/dev/null 2>&1 || true
+    # Fallback: update sway wallpaper directly if sway is running
+    if [ -n "${SWAYSOCK-}" ] && command -v swaymsg >/dev/null 2>&1; then
+        swaymsg 'output * bg ~/.wallpaper fill' >/dev/null 2>&1 || true
+    fi
 fi

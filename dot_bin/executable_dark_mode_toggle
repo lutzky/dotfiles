@@ -1,15 +1,28 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-current_scheme="$(gsettings get org.gnome.desktop.interface color-scheme)"
+current_scheme="$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || echo "'prefer-dark'")"
 
 if [[ $current_scheme == "'prefer-dark'" ]]; then
   new_scheme='prefer-light'
+  wallpaper="$HOME/.config/wallpapers/haifa.webp"
+  [[ -f $wallpaper ]] || wallpaper="$(ls "$HOME/.config/wallpapers/haifa".* 2>/dev/null | head -n 1 || echo "$wallpaper")"
+  mode_flag="light"
+  color_index="1"
 else
   new_scheme='prefer-dark'
+  wallpaper="$HOME/.config/wallpapers/dublin-night.webp"
+  [[ -f $wallpaper ]] || wallpaper="$(ls "$HOME/.config/wallpapers/dublin-night".* 2>/dev/null | head -n 1 || echo "$wallpaper")"
+  mode_flag="dark"
+  color_index="2"
 fi
 
 echo "Setting color scheme to ${new_scheme}"
+gsettings set org.gnome.desktop.interface color-scheme "$new_scheme"
 
-exec gsettings set org.gnome.desktop.interface color-scheme $new_scheme
+if command -v set-wallpaper >/dev/null 2>&1; then
+  set-wallpaper "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
+elif [[ -x "$HOME/.bin/set-wallpaper" ]]; then
+  "$HOME/.bin/set-wallpaper" "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
+fi
