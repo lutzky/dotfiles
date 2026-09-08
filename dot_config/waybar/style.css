@@ -9,9 +9,9 @@
 @import url("colors.css");
 
 window#waybar {
-    background-color: @background;
+    background-color: @primary_container;
     border-bottom: 3px solid @outline;
-    color: #ffffff;
+    color: @primary;
     transition-property: background-color;
     transition-duration: .5s;
 }
@@ -45,21 +45,24 @@ button:hover {
 
 #workspaces button {
     padding: 0 5px;
-    background-color: transparent;
-    color: #ffffff;
+    background-color: @primary_fixed_dim;
+    color: @on_primary_fixed_dim;
 }
 
 #workspaces button:hover {
-    background: @on_primary_fixed;
+    background: @primary_fixed;
+    color: @on_primary_fixed_variant;
 }
 
 #workspaces button.focused {
-    background-color: @on_primary_fixed_variant;
+    background-color: @primary_fixed;
     box-shadow: inset 0 -3px #ffffff;
+    color: @on_primary_fixed;
 }
 
 #workspaces button.urgent {
-    background-color: @on_error;
+    background-color: @error_container;
+    color: @error;
 }
 
 #mode {
@@ -89,7 +92,7 @@ button:hover {
 #power-profiles-daemon,
 #mpd {
     padding: 0 10px;
-    color: #ffffff;
+    color: @primary;
 }
 
 #window,
@@ -168,7 +171,7 @@ label:focus {
 }
 
 #pulseaudio.muted {
-    background-color: @primary_fixed_dim;
+    background-color: @primary_dim;
     color: #2a5c45;
 }
 
