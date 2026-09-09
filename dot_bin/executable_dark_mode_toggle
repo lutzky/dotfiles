@@ -9,19 +9,21 @@ if [[ $current_scheme == "'prefer-dark'" ]]; then
   wallpaper="$HOME/.config/wallpapers/haifa.webp"
   [[ -f $wallpaper ]] || wallpaper="$(ls "$HOME/.config/wallpapers/haifa".* 2>/dev/null | head -n 1 || echo "$wallpaper")"
   mode_flag="light"
-  color_index="1"
+  color_index="0"
 else
   new_scheme='prefer-dark'
   wallpaper="$HOME/.config/wallpapers/dublin-night.webp"
   [[ -f $wallpaper ]] || wallpaper="$(ls "$HOME/.config/wallpapers/dublin-night".* 2>/dev/null | head -n 1 || echo "$wallpaper")"
   mode_flag="dark"
-  color_index="2"
+  color_index="0"
 fi
 
-if command -v set-wallpaper >/dev/null 2>&1; then
-  set-wallpaper "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
-elif [[ -x "$HOME/.bin/set-wallpaper" ]]; then
-  "$HOME/.bin/set-wallpaper" "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
+SET_WALLPAPER="$HOME/.bin/set-wallpaper"
+
+if [[ -x "$SET_WALLPAPER" ]]; then
+  "$SET_WALLPAPER" "$wallpaper" -m "$mode_flag" --source-color-index "$color_index"
+else
+  echo "Error: Couldn't find $SET_WALLPAPER"
 fi
 
 echo "Setting color scheme to ${new_scheme}"

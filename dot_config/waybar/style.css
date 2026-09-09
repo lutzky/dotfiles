@@ -40,24 +40,25 @@ button {
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
     background: inherit;
-    box-shadow: inset 0 -3px #ffffff;
+    box-shadow: inset 0 -3px @outline;
 }
 
 #workspaces button {
     padding: 0 5px;
-    background-color: @primary_fixed_dim;
-    color: @on_primary_fixed_dim;
+    background-color: @primary_container;
+    color: @primary;
+    box-shadow: inset 0 -3px @outline;
 }
 
 #workspaces button:hover {
-    background: @primary_fixed;
-    color: @on_primary_fixed_variant;
+    background: @tertiary;
+    color: @on_tertiary;
 }
 
 #workspaces button.focused {
-    background-color: @primary_fixed;
-    box-shadow: inset 0 -3px #ffffff;
-    color: @on_primary_fixed;
+    background-color: @primary;
+    color: @on_primary;
+    box-shadow: inset 0 -3px @outline_variant;
 }
 
 #workspaces button.urgent {
