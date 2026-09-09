@@ -201,7 +201,17 @@ bindsym XF86AudioMicMute exec ~/.bin/volume mic-mute
 bindsym XF86MonBrightnessUp exec ~/.bin/brightness raise
 bindsym XF86MonBrightnessDown exec ~/.bin/brightness lower
 
+# Instructions: Float the window you want to float, then run `swaymsg -t
+# get_tree`. Look for something with "floating": "user_on", and then look for
+# an attribute you can use.
+
+for_window [app_id="blueman-manager"] floating enable
+
+# Run with SDL_VIDEO_X11_WMCLASS=esphome
 for_window [class="esphome"] floating enable
+
+# BitWarden chrome extension
+for_window [app_id="chrome-nngceckbapebfimnlniiiahkandclblb-*"] floating enable
 
 # hint: Screenshot
 bindsym Print exec grim -g "$(slurp -d)" - | wl-copy
