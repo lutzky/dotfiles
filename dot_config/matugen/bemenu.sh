@@ -2,12 +2,14 @@
 # Bemenu wrapper
 # Generated with Matugen
 
-BEMENU_OPTS="--tb '{{colors.surface.default.hex}}' \
---tf '{{colors.primary.default.hex}}' \
---fb '{{colors.surface.default.hex}}' \
---ff '{{colors.on_surface.default.hex}}' \
---nb '{{colors.surface.default.hex}}' \
---nf '{{colors.on_surface.default.hex}}' \
+BEMENU_OPTS="--tb '{{colors.on_primary_fixed.default.hex}}' \
+--tf '{{colors.primary_fixed.default.hex}}' \
+--fb '{{colors.on_primary_fixed.default.hex}}' \
+--ff '{{colors.primary_fixed.default.hex}}' \
+--nb '{{colors.on_primary_fixed.default.hex}}' \
+--nf '{{colors.primary_fixed.default.hex}}' \
+--ab '{{colors.on_primary_fixed.default.hex}}' \
+--af '{{colors.primary_fixed.default.hex}}' \
 --hb '{{colors.primary.default.hex}}' \
 --hf '{{colors.on_primary.default.hex}}' \
 --sb '{{colors.surface.default.hex}}' \
