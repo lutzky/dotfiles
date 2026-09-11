@@ -5,23 +5,29 @@ BUS_ARG="-b 10"
 DDC_ARGS="--skip-ddc-checks"
 # Apparently specifying --noverify conflicts with the rest of the arguments,
 # possibly related to https://github.com/rockowitz/ddcutil/issues/552
-# DDC_ARGS="$DDC_ARGS --noverify"
+# However, it seems to work fine now 🤷️
+DDC_ARGS="$DDC_ARGS --noverify"
 APP_NAME="osd"
 SYNC_ID="string:x-canonical-private-synchronous:osd"
 LOCKFILE="/tmp/brightness_osd.lock"
+CACHEFILE="/tmp/brightness.cache"
 
 # Ensure no more than one instance of this script is live
 exec 200>$LOCKFILE
 flock -n 200 || exit 1
 
 get_brightness() {
+    if [[ -n $(find $CACHEFILE -mmin -1 2> /dev/null) ]]; then
+        cat $CACHEFILE
+        return
+    fi
     ddcutil $DDC_ARGS $BUS_ARG getvcp 10 -t | cut -d' ' -f4
 }
 
 send_notification() {
     local val=$1
     local icon="☀️"
-    
+
     if [ "$val" -le 30 ]; then icon="🌑";
     elif [ "$val" -le 70 ]; then icon="🌥️";
     else icon="☀️"; fi
@@ -35,16 +41,17 @@ case "$1" in
     raise)
         NEW_VAL=$(( CURRENT + 5 ))
         [ $NEW_VAL -gt 100 ] && NEW_VAL=100
-        ddcutil $DDC_ARGS $BUS_ARG setvcp 10 $NEW_VAL
-        send_notification $NEW_VAL
         ;;
     lower)
         NEW_VAL=$(( CURRENT - 5 ))
         [ $NEW_VAL -lt 0 ] && NEW_VAL=0
-        ddcutil $DDC_ARGS $BUS_ARG setvcp 10 $NEW_VAL
-        send_notification $NEW_VAL
         ;;
     *)
         echo "Usage: $0 {raise|lower}"
+        exit 1
         ;;
 esac
+
+ddcutil $DDC_ARGS $BUS_ARG setvcp 10 $NEW_VAL
+echo $NEW_VAL > $CACHEFILE
+send_notification $NEW_VAL
