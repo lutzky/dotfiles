@@ -5,7 +5,7 @@ function fish_greeting
         set -U _motd_last_run "$today"
     end
 
-    if type -q tmux && [ -z $TMUX ]
+    if type -q tmux && not type -q TMUX
         echo "Active tmux sessions: (remember t, C-a w)"
         if tmux has-session >/dev/null 2>&1
             tmux ls

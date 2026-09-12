@@ -14,7 +14,7 @@ function fish_prompt
     set -l cmd_status $status
     set -l human_duration (__human_duration $CMD_DURATION)
 
-    if [ -n "$VIRTUAL_ENV" ]
+    if set -q VIRTUAL_ENV
         printf "%s(%s) %s" (set_color 4B8BBE) (path basename $VIRTUAL_ENV) (set_color normal)
     end
 
@@ -31,7 +31,7 @@ function fish_prompt
         echo -n (set_color $fish_color_user)'<P> '
     end
 
-    if [ -n "$TMUX" ]
+    if set -q TMUX
         set shlvl_threshold 2
     else
         set shlvl_threshold 1
@@ -41,7 +41,7 @@ function fish_prompt
         echo -n (set_color $fish_color_quote)"SH:$SHLVL "
     end
 
-    if [ -n "$human_duration" ]
+    if set -q human_duration
         echo -n (set_color $fish_color_user)$human_duration' '
     end
 

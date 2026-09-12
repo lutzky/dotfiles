@@ -1,5 +1,5 @@
-function t -a "session_name" -d "Attach to a new or existing tmux session"
-    if [ -z "$session_name" ]
+function t -a session_name -d "Attach to a new or existing tmux session"
+    if not set -q session_name
         tmux ls
         return
     end
@@ -10,11 +10,11 @@ function t -a "session_name" -d "Attach to a new or existing tmux session"
         set tmx_launcher tmux
     end
 
-    if ! TMUX= tmux has-session -t $session_name > /dev/null 2>&1
+    if ! TMUX= tmux has-session -t $session_name >/dev/null 2>&1
         TMUX= $tmx_launcher new-session -d -s $session_name
     end
 
-    if [ -n "$TMUX" ]
+    if set -q TMUX
         tmux switch-client -t $session_name
     else
         $tmx_launcher attach-session -t $session_name
