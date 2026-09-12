@@ -31,14 +31,8 @@ function fish_prompt
         echo -n (set_color $fish_color_user)'<P> '
     end
 
-    if set -q TMUX
-        set shlvl_threshold 2
-    else
-        set shlvl_threshold 1
-    end
-
-    if [ $SHLVL -gt $shlvl_threshold ]
-        echo -n (set_color $fish_color_quote)"SH:$SHLVL "
+    if set -q CHEZMOI_SUBSHELL
+        echo -n (set_color $fish_color_quote)"[chezmoi] "
     end
 
     if set -q human_duration
