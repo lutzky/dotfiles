@@ -97,6 +97,9 @@ bindsym $mod+Shift+p exec ~/.config/sway/pallete
 # hint: Exit sway
 bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 
+# hint: Gemini (Bard)
+bindsym $mod+Shift+g exec google-chrome --app=https://gemini.google.com
+
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
 bindsym $mod+$up focus up
