@@ -27,5 +27,8 @@
 	path = ~/.config/git/work
 [init]
 	defaultBranch = main
+
+	# workaround for https://github.com/folke/lazy.nvim/issues/2046
+	defaultRefFormat = files
 [rerere]
 	enabled = true
