@@ -1,7 +1,17 @@
 return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    dependencies = {
+      {
+        'nvim-treesitter/nvim-treesitter',
+        cond = function()
+          return vim.fn.executable('cc') == 1
+              or vim.fn.executable('gcc') == 1
+              or vim.fn.executable('clang') == 1
+        end,
+      },
+      'nvim-tree/nvim-web-devicons'
+    },
     ---@module 'render-markdown'
     ---@type render.md.UserConfig
     opts = {
