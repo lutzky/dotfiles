@@ -1,19 +1,12 @@
+-- cSpell: words rledger rustledger
 local enable_beancount = vim.fn.has("nvim-0.11") == 1
 
 local function check_beancount_deps()
   local fidget = require("fidget")
 
-  if vim.fn.executable('bean-check') == 0 then
+  if vim.fn.executable('rledger-lsp') == 0 then
     fidget.notify(
-      'Warning: bean-check not found in PATH. You may have forgotten to activate your beancount venv.',
-      vim.log.levels.WARN,
-      { ttl = 30 }
-    )
-  end
-
-  if vim.fn.executable('beancount-language-server') == 0 then
-    fidget.notify(
-      'Warning: beancount-language-server not found. Install it with :MasonInstall beancount-language-server',
+      'Warning: rledger-lsp not found in PATH.',
       vim.log.levels.WARN,
       { ttl = 30 }
     )
@@ -60,7 +53,6 @@ return {
     dependencies = {
       -- cspell:disable
       "j-hui/fidget.nvim",
-      "mason-org/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
       "saghen/blink.cmp",
       -- cspell:enable
@@ -79,41 +71,16 @@ return {
       vim.keymap.set('n', '<leader>bg', append_guess,
         { desc = "Budget: Guess account" })
 
-      if os.getenv("NVIM_NO_RLEDGER") then
-        vim.lsp.config('beancount', {
-          -- cmd = {
-          --   "beancount-language-server",
-          --   "--stdio",
-          --   -- "--log",
-          -- },
-          init_options = {
-            -- journal_file = vim.fn.expand(os.getenv("BEANCOUNT_FILE") or "~/budget/main.bean"),
-            journal_file = "main.bean", -- Seems to work relative to .git
-          }
-        })
-        vim.lsp.enable('beancount')
-      else
-        vim.lsp.enable('beancount', false)
-        -- Add to your Neovim config
-        local lspconfig = require('lspconfig')
-        local configs = require('lspconfig.configs')
+      -- Disable beancount-language-server because we use rledger now.
+      vim.lsp.enable('beancount', false)
 
-        -- cSpell: word rledger
-
-        -- Register rledger-lsp if not already defined
-        if not configs.rledger then
-          configs.rledger = {
-            default_config = {
-              cmd = { 'rledger-lsp' },
-              filetypes = { 'beancount' },
-              root_dir = lspconfig.util.root_pattern('.git', '*.beancount', '*.bean'),
-              settings = {},
-            },
-          }
-        end
-
-        lspconfig.rledger.setup {}
-      end
+      vim.lsp.config('rledger', {
+        cmd = { 'rledger-lsp' },
+        filetypes = { 'beancount' },
+        root_markers = { '.git', 'main.bean' },
+        settings = {},
+      })
+      vim.lsp.enable('rledger')
     end
   },
 }

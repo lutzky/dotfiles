@@ -22,6 +22,12 @@ return {
         "neovim/nvim-lspconfig",
     },
     config = function()
-        require("mason-lspconfig").setup({ ensure_installed = ensure_installed })
+        require("mason-lspconfig").setup({
+            ensure_installed = ensure_installed,
+            automatic_enable = {
+                -- Disable beancount-language-server because we use rledger now. -- cSpell: word rledger
+                exclude = { "beancount" },
+            },
+        })
     end
 }
