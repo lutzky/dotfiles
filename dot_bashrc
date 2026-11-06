@@ -10,7 +10,7 @@ esac
 
 # start fish shell
 WHICH_FISH="$(command -v fish)"
-if [[ "$-" =~ i && -x "${WHICH_FISH}" && -z "$IN_FISH_SUBSHELL" ]]; then
+if [[ -t 0 && -x "${WHICH_FISH}" && -z "$IN_FISH_SUBSHELL" && -z "$SSH_ORIGINAL_COMMAND" ]]; then
   # Safeguard to only activate fish for interactive shells and only if fish
   # shell is present and executable. Guard against infinite recursion with
   # IN_FISH_SUBSHELL.
