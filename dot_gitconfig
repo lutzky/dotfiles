@@ -23,8 +23,9 @@
 [push]
 	default = simple
 [include]
-	path = ~/.config/git/delta
-	path = ~/.config/git/work
+	path = ~/.config/git/delta # use delta (should only exist if installed)
+	path = ~/.config/git/work  # work stuff
+	path = ~/.config/git/local # per-machine settings
 [init]
 	defaultBranch = main
 
