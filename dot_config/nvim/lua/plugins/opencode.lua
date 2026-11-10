@@ -1,27 +1,15 @@
 return {
-  "nickjvandyke/opencode.nvim",
-  version = "*", -- Latest stable release
-  config = function()
-    ---@type opencode.Opts
-    vim.g.opencode_opts = {
-      server = {
-        url = "http://127.0.0.1:4096",
-      },
-    }
-
-    -- Recommended/example keymaps
-    vim.keymap.set({ "n", "x" }, "<leader>oa", function() require("opencode").ask("@this: ") end,
-      { desc = "Ask OpenCode…" })
-    vim.keymap.set({ "n", "x" }, "<leader>ox", function() require("opencode").select() end, { desc = "Select OpenCode…" })
-
-    vim.keymap.set({ "n", "x" }, "<leader>or", function() return require("opencode").operator("@this ") end,
-      { desc = "Append range to OpenCode", expr = true })
-    vim.keymap.set("n", "<leader>ol", function() return require("opencode").operator("@this ") .. "_" end,
-      { desc = "Append line to OpenCode", expr = true })
-    vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("session.half.page.up") end,
-      { desc = "Scroll OpenCode up" })
-    vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("session.half.page.down") end,
-      { desc = "Scroll OpenCode down" })
-  end,
-
+  "https://github.com/sudo-tee/opencode.nvim",
+  dependencies = {
+    "nvim-telescope/telescope.nvim",
+    "MeanderingProgrammer/render-markdown.nvim",
+    "saghen/blink.cmp",
+  },
+  opts = {
+    server = {
+      url = "http://localhost",
+      port = 4096,
+      password = "local_password",
+    },
+  },
 }
