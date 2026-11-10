@@ -1,4 +1,5 @@
 [config]
+caching = true
 
 [config.wallpaper]
 set = true
