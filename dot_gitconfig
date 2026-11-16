@@ -12,6 +12,8 @@
 	fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
 	commitall = "!git add . && git commit -v"
 	purr = pull --rebase
+
+	check-contains = "!f() { output=$(git cherry -v \"$1\" \"$2\") || exit 1; echo \"$output\" | grep -q \"^\\+\" && echo \"⚠️ Commits in $2 absent from $1:\" && echo \"$output\" | grep \"^\\+\" || echo \"✅ All commits from $2 are contained in $1.\"\n}; f"
 [log]
 	decorate = true
 [rebase]
